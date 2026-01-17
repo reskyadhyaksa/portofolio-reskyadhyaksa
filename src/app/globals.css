@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+@theme {
+  --animate-slide-down: slide-down 0.9s cubic-bezier(0.4, 0, 0.2, 1) both;
+
+  @keyframes slide-down {
+    from {
+      transform: translateY(-100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+}
+
+.tile-grid{
+  display: grid;
+  height: 100dvh;
+  width: 100dvw;
+  opacity: 40%;
+}
+
+@media (min-width: 300px){
+  .tile-grid {
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+    grid-template-rows: repeat(auto-fill, minmax(60px, 1fr));
+  }
+
+  .navigation {
+    width: 350px;
+  }
+}
+
+@media (min-width: 640px){
+  .tile-grid {
+    grid-template-columns: repeat(auto-fill, minmax(75px, 1fr));
+    grid-template-rows: repeat(auto-fill, minmax(75px, 1fr));
+  }
+  
+  .navigation {
+    width: 600px;
+  }
+}
+
+@media (min-width: 1024px){
+  .tile-grid {
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+    grid-template-rows: repeat(auto-fill, minmax(90px, 1fr));
+  }
+  
+  .navigation {
+    width: 1050px;
+  }
+}
+
+@media (min-width: 1300px){
+  .navigation{
+    width: 1200px;
+  }
+}
+
+.tile {
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}

@@ -3,7 +3,7 @@ import Link from "next/link";
 export default function NavigationBar() {
   return (
     <header className="navigation flex place-items-center justify-between rounded-full border border-white/10 bg-white/5 px-10 py-3 text-white backdrop-blur-xl animate-slide-down">
-      <Link href="/" className="font-bold text-white">
+      <Link href="/" className="font-bold text-white ">
         Resky Adhyaksa
       </Link>
       <div className="hidden place-items-center gap-6 font-bold md:flex">

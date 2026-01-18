@@ -27,7 +27,7 @@ export default function Grid() {
   }, []);
 
   return (
-    <div className="tile-grid">
+    <div className="fixed tile-grid inset-0 z-0">
       {Array.from({ length: count }).map((_, i) => (
         <div
           key={i}

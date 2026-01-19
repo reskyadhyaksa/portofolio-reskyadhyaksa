@@ -7,7 +7,7 @@ export default function NavigationBar({ pathname }) {
   const [open, SetOpen] = useState(null);
 
   return (
-    <header className="navigation animate-slide-down flex place-items-center justify-between rounded-full border border-white/10 bg-white/5 px-10 py-3 text-white backdrop-blur-xl">
+    <header className="navigation animate-slide-down flex place-items-center justify-between rounded-full border border-white/10 bg-white/5 px-10 py-3 text-white backdrop-blur-xl ">
       <Link href="/" className="font-bold text-white">
         {pathname}
       </Link>
@@ -37,7 +37,7 @@ export default function NavigationBar({ pathname }) {
           />
         </button>
         {open && (
-          <div className="fixed top-16 left-0 flex w-full flex-col rounded-sm border-white/10 bg-white/20 px-5 py-2 backdrop-blur-xl">
+          <div className="fixed top-16 left-0 flex w-full flex-col rounded-sm border-white/10 bg-blue-900 px-5 py-2 backdrop-blur-xl ">
             <Link
               href="/"
               className="mb-2 border-b-2 text-white hover:text-white active:bg-white/50"

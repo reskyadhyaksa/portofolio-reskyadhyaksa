@@ -6,7 +6,7 @@ import Link from "next/link";
 export default function Home() {
   return (
     <div className="bg-primary relative min-h-screen w-full overflow-hidden">
-      <div className="fixed top-4 z-10 flex w-full justify-center">
+      <div className="fixed top-4 z-1000 flex w-full justify-center">
         <NavigationBar pathname={"Resky Adhyaksa"} />
       </div>
       <main className="pointer-events-none relative z-10 flex w-full flex-col text-white">

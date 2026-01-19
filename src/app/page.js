@@ -10,7 +10,7 @@ export default function Home() {
         <NavigationBar pathname={"Resky Adhyaksa"} />
       </div>
       <main className="pointer-events-none relative z-10 flex w-full flex-col text-white">
-        <div className="3xl:px-52 pointer-events-none mt-24 flex min-h-[calc(100vh-6rem)] flex-row place-items-center justify-between px-10 md:px-32">
+        <div className="3xl:px-52 pointer-events-none mt-24 flex min-h-[calc(100vh-12rem)] flex-row place-items-center justify-between px-10 md:px-32">
           <div className="flex h-full -translate-y-2 flex-col justify-center gap-5 md:-translate-y-10">
             <div className="flex place-items-center gap-5">
               <p className="w-fit rounded-sm border border-white px-3 py-1 text-xs">

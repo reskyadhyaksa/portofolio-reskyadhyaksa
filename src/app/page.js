@@ -10,7 +10,7 @@ export default function Home() {
         <NavigationBar />
       </div>
       <main className="pointer-events-none relative z-10 flex w-full flex-col text-white">
-        <div className="pointer-events-none mt-24 flex min-h-[calc(100vh-6rem)] flex-row place-items-center justify-between px-52">
+        <div className="3xl:px-52 pointer-events-none mt-24 flex min-h-[calc(100vh-6rem)] flex-row place-items-center justify-between px-32">
           <div className="flex h-full -translate-y-10 flex-col justify-center gap-5">
             <div className="flex place-items-center gap-5">
               <p className="w-fit rounded-sm border border-white px-3 py-1 text-xs">
@@ -18,13 +18,13 @@ export default function Home() {
               </p>
               <p className="text-xs text-white/40">LOC: 127.0.0.1</p>
             </div>
-            <h1 className="text-9xl font-extrabold text-white">
+            <h1 className="3xl:text-9xl text-7xl font-extrabold text-white">
               RESKY
               <br />
               ADHYAKSA<span className="animate-pulse opacity-20">_</span>
             </h1>
             <div className="flex gap-2">
-              <button className="flex w-48 place-items-center justify-center gap-2 rounded-sm border border-white/10 bg-white/5 py-2 backdrop-blur-xl">
+              <button className="3xl:w-48 flex w-36 place-items-center justify-center gap-2 rounded-sm border border-white/10 bg-white/5 py-2 backdrop-blur-xl">
                 <Image
                   src="machine.svg"
                   alt="ML Icon"
@@ -32,9 +32,9 @@ export default function Home() {
                   width={20}
                   className=""
                 />
-                <p className="text-sm">ML Engineer</p>
+                <p className="3xl:text-sm text-xs">ML Engineer</p>
               </button>
-              <button className="flex w-48 place-items-center justify-center gap-2 rounded-sm border border-white/10 bg-white/5 py-2 backdrop-blur-xl">
+              <button className="3xl:w-48 flex w-36 place-items-center justify-center gap-2 rounded-sm border border-white/10 bg-white/5 py-2 backdrop-blur-xl">
                 <Image
                   src="developer.svg"
                   alt="ML Icon"
@@ -44,7 +44,7 @@ export default function Home() {
                 />
                 <p className="text-sm">Frontend Dev</p>
               </button>
-              <button className="flex w-48 place-items-center justify-center gap-2 rounded-sm border border-white/10 bg-white/5 py-2 backdrop-blur-xl">
+              <button className="3xl:w-48 flex w-36 place-items-center justify-center gap-2 rounded-sm border border-white/10 bg-white/5 py-2 backdrop-blur-xl">
                 <Image
                   src="terminal.svg"
                   alt="ML Icon"
@@ -55,7 +55,7 @@ export default function Home() {
                 <p className="text-sm">IT Support</p>
               </button>
             </div>
-            <p className="w-150 text-xl text-white/50">
+            <p className="3xl:w-150 text-md 3xl:text-xl w-120 text-white/50">
               I adapt quickly to new technologies, work with dedication, and
               deliver results with precision. Specializing in building{" "}
               <span className="text-white/80 underline">
@@ -99,7 +99,12 @@ export default function Home() {
                     className="brightness-0 invert"
                   />
                 </Link>
-                <button className="pointer-events-auto cursor-pointer">
+                <Link
+                  href={"https://www.instagram.com/adhrskyy_"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="pointer-events-auto cursor-pointer"
+                >
                   <Image
                     src="instagram.svg"
                     height={25}
@@ -107,20 +112,25 @@ export default function Home() {
                     alt="Instagram"
                     className="brightness-0 invert"
                   />
-                </button>
-                <button className="pointer-events-auto cursor-pointer">
+                </Link>
+                <Link
+                  href={"https://medium.com/@reskyadhyaksa19"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="pointer-events-auto cursor-pointer"
+                >
                   <Image
-                    src="discord.svg"
+                    src="medium.svg"
                     height={25}
                     width={25}
-                    alt="Discord"
-                    className="brightness-0 invert"
+                    alt="Medium"
+                    className="brightness-0 invert translate-y-1.5"
                   />
-                </button>
+                </Link>
               </div>
             </div>
           </div>
-          <div className="h-172.5 w-125 place-items-center overflow-hidden rounded-lg border border-white/20 backdrop-blur-xl">
+          <div className="3xl:h-172.5 3xl:w-125 hidden h-136 w-100 -translate-x-10 -translate-y-3 place-items-center overflow-hidden rounded-lg border border-white/20 backdrop-blur-xl lg:inline">
             <div className="flex w-full place-items-center justify-between bg-white/5 px-5 py-3 backdrop-blur-xl">
               <div className="pointer-events-auto flex place-items-center justify-center gap-2">
                 <span className="h-3 w-3 rounded-full border-2 border-red-400/80 bg-red-400/60 hover:bg-red-400/80"></span>
@@ -129,13 +139,13 @@ export default function Home() {
               </div>
               <p className="text-xs text-white/50">PROFILE_RENDER.EXE</p>
             </div>
-            <div className="mt-2 mb-2 h-131 w-[97%] place-items-center justify-center bg-white/5 backdrop-blur-xl">
+            <div className="3xl:h-125 mt-2 mb-2 h-96 w-[97%] place-items-center justify-center bg-white/5 backdrop-blur-xl">
               <span className="absolute top-0 left-0 h-6 w-6 border-t-2 border-l-2 border-blue-500" />
               <span className="absolute top-0 right-0 h-6 w-6 border-t-2 border-r-2 border-blue-500" />
               <span className="absolute bottom-0 left-0 h-6 w-6 border-b-2 border-l-2 border-blue-500" />
               <span className="absolute right-0 bottom-0 h-6 w-6 border-r-2 border-b-2 border-blue-500" />
 
-              <div className="pointer-events-auto fixed top-1/2 left-1/2 h-120 w-[90%] -translate-x-1/2 -translate-y-1/2 overflow-hidden border border-white">
+              <div className="pointer-events-auto fixed top-1/2 left-1/2 h-[90%] w-[90%] -translate-x-1/2 -translate-y-1/2 overflow-hidden border border-white">
                 <Image
                   src="/ME.jpg"
                   fill

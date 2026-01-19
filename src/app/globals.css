@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 @theme {
+  --breakpoint-3xl: 120rem;
   --color-primary: #021526;
   --color-secondary: #03346E;
   --animate-slide-down: slide-down 0.9s cubic-bezier(0.4, 0, 0.2, 1) both;

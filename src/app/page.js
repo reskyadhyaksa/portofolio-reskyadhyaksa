@@ -7,24 +7,24 @@ export default function Home() {
   return (
     <div className="bg-primary relative min-h-screen w-full overflow-hidden">
       <div className="fixed top-4 z-10 flex w-full justify-center">
-        <NavigationBar />
+        <NavigationBar pathname={"Resky Adhyaksa"} />
       </div>
       <main className="pointer-events-none relative z-10 flex w-full flex-col text-white">
-        <div className="3xl:px-52 pointer-events-none mt-24 flex min-h-[calc(100vh-6rem)] flex-row place-items-center justify-between px-32">
-          <div className="flex h-full -translate-y-10 flex-col justify-center gap-5">
+        <div className="3xl:px-52 pointer-events-none mt-24 flex min-h-[calc(100vh-6rem)] flex-row place-items-center justify-between px-10 md:px-32">
+          <div className="flex h-full -translate-y-2 flex-col justify-center gap-5 md:-translate-y-10">
             <div className="flex place-items-center gap-5">
               <p className="w-fit rounded-sm border border-white px-3 py-1 text-xs">
                 STATUS: ACTIVE
               </p>
               <p className="text-xs text-white/40">LOC: 127.0.0.1</p>
             </div>
-            <h1 className="3xl:text-9xl text-7xl font-extrabold text-white">
+            <h1 className="3xl:text-9xl text-5xl font-extrabold text-white md:text-7xl">
               RESKY
               <br />
               ADHYAKSA<span className="animate-pulse opacity-20">_</span>
             </h1>
-            <div className="flex gap-2">
-              <button className="3xl:w-48 flex w-36 place-items-center justify-center gap-2 rounded-sm border border-white/10 bg-white/5 py-2 backdrop-blur-xl">
+            <div className="flex flex-col gap-2 md:flex-row">
+              <button className="3xl:w-48 flex w-46 md:w-40 place-items-center justify-center gap-2 rounded-sm border border-white/10 bg-white/5 py-2 backdrop-blur-xl">
                 <Image
                   src="machine.svg"
                   alt="ML Icon"
@@ -34,7 +34,7 @@ export default function Home() {
                 />
                 <p className="3xl:text-sm text-xs">ML Engineer</p>
               </button>
-              <button className="3xl:w-48 flex w-36 place-items-center justify-center gap-2 rounded-sm border border-white/10 bg-white/5 py-2 backdrop-blur-xl">
+              <button className="3xl:w-48 flex w-46 md:w-40 place-items-center justify-center gap-2 rounded-sm border border-white/10 bg-white/5 py-2 backdrop-blur-xl">
                 <Image
                   src="developer.svg"
                   alt="ML Icon"
@@ -44,7 +44,7 @@ export default function Home() {
                 />
                 <p className="text-sm">Frontend Dev</p>
               </button>
-              <button className="3xl:w-48 flex w-36 place-items-center justify-center gap-2 rounded-sm border border-white/10 bg-white/5 py-2 backdrop-blur-xl">
+              <button className="3xl:w-48 flex w-46 md:w-40 place-items-center justify-center gap-2 rounded-sm border border-white/10 bg-white/5 py-2 backdrop-blur-xl">
                 <Image
                   src="terminal.svg"
                   alt="ML Icon"
@@ -55,7 +55,7 @@ export default function Home() {
                 <p className="text-sm">IT Support</p>
               </button>
             </div>
-            <p className="3xl:w-150 text-md 3xl:text-xl w-120 text-white/50">
+            <p className="3xl:w-150 text-xs md:text-md 3xl:text-xl w-72 text-white/50 md:w-120">
               I adapt quickly to new technologies, work with dedication, and
               deliver results with precision. Specializing in building{" "}
               <span className="text-white/80 underline">
@@ -65,11 +65,11 @@ export default function Home() {
               <span className="text-white/80 underline">user experiences</span>{" "}
               through engineered solutions.
             </p>
-            <div className="flex place-items-center">
+            <div className="flex flex-col gap-2 md:gap-0 md:flex-row place-items-start md:place-items-center">
               <button className="pointer-events-auto w-fit cursor-pointer rounded-sm bg-white px-10 py-2 text-base font-bold text-black">
                 Download CV
               </button>
-              <span className="mx-5 h-6 w-px border border-white/20"></span>
+              <span className="hidden md:inline mx-5 h-6 w-px border border-white/20"></span>
               <div className="flex gap-2">
                 <Link
                   href={"https://www.linkedin.com/in/reskyadhyaksa/"}
@@ -124,7 +124,7 @@ export default function Home() {
                     height={25}
                     width={25}
                     alt="Medium"
-                    className="brightness-0 invert translate-y-1.5"
+                    className="translate-y-1.5 brightness-0 invert"
                   />
                 </Link>
               </div>
@@ -133,9 +133,9 @@ export default function Home() {
           <div className="3xl:h-172.5 3xl:w-125 hidden h-136 w-100 -translate-x-10 -translate-y-3 place-items-center overflow-hidden rounded-lg border border-white/20 backdrop-blur-xl lg:inline">
             <div className="flex w-full place-items-center justify-between bg-white/5 px-5 py-3 backdrop-blur-xl">
               <div className="pointer-events-auto flex place-items-center justify-center gap-2">
-                <span className="h-3 w-3 rounded-full border-2 border-red-400/80 bg-red-400/60 hover:bg-red-400/80"></span>
-                <span className="h-3 w-3 rounded-full border-2 border-yellow-400/80 bg-yellow-400/60 hover:bg-yellow-400/80"></span>
-                <span className="h-3 w-3 rounded-full border-2 border-green-400/80 bg-green-400/60"></span>
+                <span className="h-3.5 w-3.5 rounded-full border-2 border-red-400/80 bg-red-400/60 hover:bg-red-400"></span>
+                <span className="h-3.5 w-3.5 rounded-full border-2 border-yellow-400/80 bg-yellow-400/60 hover:bg-yellow-400"></span>
+                <span className="h-3.5 w-3.5 rounded-full border-2 border-green-400/80 bg-green-400/60 hover:bg-green-400"></span>
               </div>
               <p className="text-xs text-white/50">PROFILE_RENDER.EXE</p>
             </div>
@@ -152,6 +152,9 @@ export default function Home() {
                   alt="Resky Adhyaksa"
                   className="-translate-y-32 scale-200 object-cover"
                 />
+                <p className="fixed bottom-0 rounded-tr-sm border-white/5 bg-white/50 px-2 py-1 text-xs text-white backdrop-blur-xl">
+                  Location: MT. Prau
+                </p>
               </div>
             </div>
             <div className="flex h-full w-full flex-col bg-white/5 py-3 text-xs text-white/50 backdrop-blur-xl">

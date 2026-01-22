@@ -12,6 +12,9 @@ export default function NavigationBar({ pathname }) {
         {pathname}
       </Link>
       <section className="hidden place-items-center gap-6 font-bold md:flex">
+        <Link href="/" className="text-white/70 hover:text-white">
+          Experiences
+        </Link>
         <Link href="/home" className="text-white/70 hover:text-white">
           Project
         </Link>

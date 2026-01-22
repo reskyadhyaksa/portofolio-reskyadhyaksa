@@ -3,8 +3,9 @@
 @theme {
   --breakpoint-3xl: 120rem;
   --color-primary: #021526;
-  --color-secondary: #03346E;
+  --color-secondary: #03346e;
   --animate-slide-down: slide-down 0.9s cubic-bezier(0.4, 0, 0.2, 1) both;
+  --animate-blink: blink 2s cubic-bezier(0.4, 0, 0.2, 1) both infinite;
 
   @keyframes slide-down {
     from {
@@ -16,20 +17,29 @@
       opacity: 1;
     }
   }
+
+  @keyframes blink {
+    0%, 100% {
+      opacity: 0;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
 }
 
 body {
   font-family: var(--font-jetbrains);
 }
 
-.tile-grid{
+.tile-grid {
   display: grid;
   height: 100dvh;
   width: 100dvw;
   opacity: 40%;
 }
 
-@media (min-width: 300px){
+@media (min-width: 300px) {
   .tile-grid {
     grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
     grid-template-rows: repeat(auto-fill, minmax(60px, 1fr));
@@ -40,30 +50,30 @@ body {
   }
 }
 
-@media (min-width: 640px){
+@media (min-width: 640px) {
   .tile-grid {
     grid-template-columns: repeat(auto-fill, minmax(75px, 1fr));
     grid-template-rows: repeat(auto-fill, minmax(75px, 1fr));
   }
-  
+
   .navigation {
     width: 600px;
   }
 }
 
-@media (min-width: 1024px){
+@media (min-width: 1024px) {
   .tile-grid {
     grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
     grid-template-rows: repeat(auto-fill, minmax(90px, 1fr));
   }
-  
+
   .navigation {
     width: 1050px;
   }
 }
 
-@media (min-width: 1300px){
-  .navigation{
+@media (min-width: 1300px) {
+  .navigation {
     width: 1200px;
   }
 }

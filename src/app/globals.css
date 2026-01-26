@@ -6,6 +6,7 @@
   --color-secondary: #03346e;
   --animate-slide-down: slide-down 0.9s cubic-bezier(0.4, 0, 0.2, 1) both;
   --animate-blink: blink 2s cubic-bezier(0.4, 0, 0.2, 1) both infinite;
+  --animate-raining: rain 1.5s both infinite;
 
   @keyframes slide-down {
     from {
@@ -24,6 +25,21 @@
     }
     50% {
       opacity: 1;
+    }
+  }
+
+  @keyframes rain {
+    0% {
+      transform: translateY(0) scale(1);
+    }
+    70% {
+      transform: translateY(18px) scale(1);
+    }
+    85% {
+      transform: translateY(18px) scale(1);
+    }
+    100% {
+      opacity: 0;
     }
   }
 }
@@ -80,4 +96,16 @@ body {
 
 .tile {
   box-sizing: border-box;
+}
+
+.cloud::before{
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 3.5px;
+  height: 15px;
+  width: 15px;
+  background: #b9b9b9;
+  border-radius: 50%;
+  box-shadow: 10px 0 0 3px #b9b9b9;
 }

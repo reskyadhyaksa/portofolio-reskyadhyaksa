@@ -181,7 +181,7 @@ export default function Home() {
               <p className="whitespace-pre">
                 {"\t\t\t"}self.role ={" "}
                 <span className="text-green-300">
-                  {'"'}CS_BACHELOR{'"'}
+                  {'"'}FRESHGRADUTE{'"'}
                 </span>
               </p>
               <p className="whitespace-pre">

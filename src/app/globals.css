@@ -20,7 +20,8 @@
   }
 
   @keyframes blink {
-    0%, 100% {
+    0%,
+    100% {
       opacity: 0;
     }
     50% {
@@ -98,8 +99,8 @@ body {
   box-sizing: border-box;
 }
 
-.cloud::before{
-  content: '';
+.cloud::before {
+  content: "";
   position: absolute;
   top: -8px;
   left: 3.5px;

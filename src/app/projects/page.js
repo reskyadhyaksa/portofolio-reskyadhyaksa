@@ -1,4 +1,4 @@
-import NavigationBar from "../component/navbar";
+import NavigationBar from "../../component/navbar";
 
 export default function ProjectPage() {
 

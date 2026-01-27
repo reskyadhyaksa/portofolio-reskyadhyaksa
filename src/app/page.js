@@ -1,14 +1,12 @@
 import Image from "next/image";
-import TileGrid from "./component/tilegrid";
-import NavigationBar from "./component/navbar";
+import TileGrid from "../component/tilegrid";
+import NavigationBar from "../component/navbar";
 import Link from "next/link";
 
 export default function Home() {
   return (
     <div className="bg-primary relative min-h-screen w-full overflow-hidden">
-      <div className="fixed top-4 z-1000 flex w-full justify-center">
-        <NavigationBar pathname={"Resky Adhyaksa"} />
-      </div>
+      
       <main className="pointer-events-none relative z-10 flex w-full flex-col text-white">
         <div className="3xl:px-52 pointer-events-none mt-24 flex min-h-[calc(100vh-10rem)] flex-row place-items-center justify-between px-10 md:px-32">
           <div className="flex h-full flex-col justify-center gap-5 md:-translate-y-10">
@@ -42,7 +40,7 @@ export default function Home() {
                   width={20}
                   className=""
                 />
-                <p className="text-sm">Fullstack Dev</p>
+                <p className="3xl:text-sm text-xs">Fullstack Dev</p>
               </button>
               <button className="3xl:w-48 flex w-46 place-items-center justify-center gap-2 rounded-sm border border-white/10 bg-white/5 py-2 backdrop-blur-xl md:w-40">
                 <Image
@@ -52,7 +50,7 @@ export default function Home() {
                   width={20}
                   className=""
                 />
-                <p className="text-sm">IT Support</p>
+                <p className="3xl:text-sm text-xs">IT Support</p>
               </button>
             </div>
             <p className="3xl:w-150 md:text-md 3xl:text-xl w-72 text-xs text-white/50 md:w-120">
@@ -71,7 +69,7 @@ export default function Home() {
                 download
                 target="_blank"
                 rel="noopener noreferrer"
-                className="pointer-events-auto w-fit cursor-pointer rounded-sm bg-white px-10 py-2 text-base font-bold text-black"
+                className="pointer-events-auto w-fit cursor-pointer rounded-sm bg-white px-10 py-2 text-xs sm:text-sm lg:text-base font-bold text-black"
               >
                 Download CV
               </Link>
@@ -205,7 +203,7 @@ export default function Home() {
       </main>
       <TileGrid />
       <div className="relative flex justify-center">
-        <Link href={"/experiences"} className="animate-blink cursor-pointer text-white/50 text-sm">
+        <Link href={"/experiences"} className="animate-blink cursor-pointer text-white/50 text-xs sm:text-sm">
           Explore More...
         </Link>
         <span className="animate-blink absolute bottom-0 w-10 translate-y-1 border-b border-white/20"></span>

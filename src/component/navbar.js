@@ -70,17 +70,17 @@ export default function NavigationBar({ pathname }) {
         className="flex place-items-center gap-2 font-bold text-white"
       >
         <div className="cloud relative h-2.5 w-9 translate-y-0.5 rounded-full bg-[#b9b9b9]">
-          <div className="absolute z-1 flex w-full justify-center">
-            <span className="animate-raining relative mr-px h-0.75 w-0.75 rounded-full bg-[#b9b9b9] [--i:11] [animation-delay:calc(var(--i)*100ms)]"></span>
-            <span className="animate-raining relative mr-px h-0.75 w-0.75 rounded-full bg-[#b9b9b9] [--i:14] [animation-delay:calc(var(--i)*100ms)]"></span>
-            <span className="animate-raining relative mr-px h-0.75 w-0.75 rounded-full bg-[#b9b9b9] [--i:10] [animation-delay:calc(var(--i)*100ms)]"></span>
-            <span className="animate-raining relative mr-px h-0.75 w-0.75 rounded-full bg-[#b9b9b9] [--i:18] [animation-delay:calc(var(--i)*100ms)]"></span>
-            <span className="animate-raining relative mr-px h-0.75 w-0.75 rounded-full bg-[#b9b9b9] [--i:13] [animation-delay:calc(var(--i)*100ms)]"></span>
-            <span className="animate-raining relative mr-px h-0.75 w-0.75 rounded-full bg-[#b9b9b9] [--i:16] [animation-delay:calc(var(--i)*100ms)]"></span>
+          <div className="absolute -z-1 flex w-full justify-center">
+            <span className="animate-raining relative mr-px h-0.75 w-0.75 rounded-full bg-[#274C83] [--i:11] [animation-delay:calc(var(--i)*100ms)]"></span>
+            <span className="animate-raining relative mr-px h-0.75 w-0.75 rounded-full bg-[#274C83] [--i:14] [animation-delay:calc(var(--i)*100ms)]"></span>
+            <span className="animate-raining relative mr-px h-0.75 w-0.75 rounded-full bg-[#274C83] [--i:10] [animation-delay:calc(var(--i)*100ms)]"></span>
+            <span className="animate-raining relative mr-px h-0.75 w-0.75 rounded-full bg-[#274C83] [--i:18] [animation-delay:calc(var(--i)*100ms)]"></span>
+            <span className="animate-raining relative mr-px h-0.75 w-0.75 rounded-full bg-[#274C83] [--i:13] [animation-delay:calc(var(--i)*100ms)]"></span>
+            <span className="animate-raining relative mr-px h-0.75 w-0.75 rounded-full bg-[#274C83] [--i:16] [animation-delay:calc(var(--i)*100ms)]"></span>
           </div>
         </div>
         <div className="flex flex-col">
-          {location && <p className="font-bold">{city}</p>}
+          {location && <p className="font-bold text-sm">{city}</p>}
           {temp && (
             <p className="text-xs text-white/50">
               {temp.temp}&#176;|{temp.weather}
@@ -89,7 +89,7 @@ export default function NavigationBar({ pathname }) {
         </div>
       </Link>
       <section className="hidden place-items-center gap-6 font-bold md:flex">
-        <Link href="/" className="text-white/70 hover:text-white">
+        <Link href="/experiences" className="text-white/70 hover:text-white">
           Experiences
         </Link>
         <Link href="/home" className="text-white/70 hover:text-white">

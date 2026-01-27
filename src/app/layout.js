@@ -1,5 +1,6 @@
 import { Geist, Geist_Mono, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+import NavigationBar from "@/component/navbar";
 
 const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains",
@@ -17,6 +18,9 @@ export default function RootLayout({ children }) {
       <body
         className={`${jetbrainsMono.variable} antialiased`}
       >
+        <div className="fixed top-4 z-1000 flex w-full justify-center">
+          <NavigationBar pathname={"Resky Adhyaksa"} />
+        </div>
         {children}
       </body>
     </html>

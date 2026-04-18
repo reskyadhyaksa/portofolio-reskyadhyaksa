@@ -19,7 +19,7 @@ export default function RootLayout({ children }) {
         className={`${jetbrainsMono.variable} antialiased`}
       >
         <div className="fixed top-4 z-1000 flex w-full justify-center">
-          <NavigationBar pathname={"Resky Adhyaksa"} />
+          <NavigationBar/>
         </div>
         {children}
       </body>

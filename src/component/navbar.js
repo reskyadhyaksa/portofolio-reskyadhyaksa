@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-export default function NavigationBar({ pathname }) {
+export default function NavigationBar() {
   const [open, SetOpen] = useState(null);
   const [location, setLocation] = useState(null);
   const [city, setCity] = useState(null);
@@ -51,8 +51,16 @@ export default function NavigationBar({ pathname }) {
       const res = await fetch(
         `/api/weather?lat=${location.lat}&lon=${location.lon}`,
       );
-      const json = await res.json();
 
+      const json = await res.json();
+      
+      if(!json.current.temp) {
+        setTemp({
+          temp: 'Location not found!',
+          weather: '',
+        })
+      }
+      
       setTemp({
         temp: json.current.temp,
         weather: json.current.weather[0].main,
@@ -95,7 +103,7 @@ export default function NavigationBar({ pathname }) {
         <Link href="/home" className="text-white/70 hover:text-white">
           Project
         </Link>
-        <Link href="#" className="text-white/70 hover:text-white">
+        <Link href="/about-me" className="text-white/70 hover:text-white">
           About Me
         </Link>
         <Link href="#" className="rounded-full bg-blue-500 px-4 py-1">
@@ -117,7 +125,7 @@ export default function NavigationBar({ pathname }) {
           />
         </button>
         {open && (
-          <div className="fixed top-16 left-0 flex w-full flex-col rounded-sm border-white/10 bg-blue-900 px-5 py-2 backdrop-blur-xl">
+          <div className="fixed top-16 left-0 flex w-full flex-col rounded-sm border-white/10 bg-blue-900 px-5 py-2 backdrop-blur-xl animate-slide-left">
             <Link
               href="/"
               className="mb-2 border-b-2 text-white hover:text-white active:bg-white/50"

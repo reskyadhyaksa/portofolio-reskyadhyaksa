@@ -18,8 +18,6 @@ export default function Grid() {
       const rows = Math.floor(window.innerHeight / size);
       setCount(cols * rows);
     };
-
-    console.log(window.innerWidth);
     
     calc();
     window.addEventListener("resize", calc);

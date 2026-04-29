@@ -100,6 +100,9 @@ export default function NavigationBar() {
         <Link href="/experiences" className="text-white/70 hover:text-white">
           Experiences
         </Link>
+        <Link href="/trading" className="text-white/70 hover:text-white">
+          Trading
+        </Link>
         <Link href="/home" className="text-white/70 hover:text-white">
           Project
         </Link>

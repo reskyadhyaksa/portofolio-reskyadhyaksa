@@ -7,7 +7,19 @@
   --animate-slide-down: slide-down 0.9s cubic-bezier(0.4, 0, 0.2, 1) both;
   --animate-blink: blink 2s cubic-bezier(0.4, 0, 0.2, 1) both infinite;
   --animate-raining: rain 1.5s both infinite;
-  --animate-slide-left : slide-left 0.5s linear;
+  --animate-slide-left: slide-left 0.5s linear;
+  --animate-fade-in-up: fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+
+  @keyframes fade-in-up {
+    from {
+      transform: translateY(20px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
 
   @keyframes slide-down {
     from {
@@ -120,4 +132,25 @@ body {
   background: #b9b9b9;
   border-radius: 50%;
   box-shadow: 10px 0 0 3px #b9b9b9;
+}
+
+/* Custom Scrollbar Styles */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.15) rgba(255, 255, 255, 0.03);
 }

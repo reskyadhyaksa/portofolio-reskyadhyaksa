@@ -149,7 +149,11 @@ export default function TinakuProjectDetail() {
                 <div className="absolute -right-10 -top-10 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl"></div>
                 <h3 className="text-sm uppercase tracking-widest text-white/50 font-bold mb-4">Peran Saya</h3>
                 <p className="text-2xl font-bold text-white mb-2">Core Developer</p>
-                <p className="text-blue-400 font-medium">Full-Stack Development</p>
+                <p className="text-blue-400 font-medium mb-4">Full-Stack Development</p>
+                <div className="border-t border-white/10 pt-4">
+                  <h4 className="text-xs uppercase tracking-widest text-white/50 font-bold mb-1">Waktu Pengerjaan</h4>
+                  <p className="text-white font-medium">Maret - April 2026</p>
+                </div>
               </div>
 
               <div className="bg-white/5 p-8 rounded-3xl border border-white/10 backdrop-blur-sm relative overflow-hidden">
@@ -160,6 +164,38 @@ export default function TinakuProjectDetail() {
                   <span className="px-4 py-2 rounded-xl bg-gray-500/10 text-gray-300 text-sm font-medium border border-gray-500/20">Next.js</span>
                   <span className="px-4 py-2 rounded-xl bg-cyan-500/10 text-cyan-300 text-sm font-medium border border-cyan-500/20">React</span>
                   <span className="px-4 py-2 rounded-xl bg-teal-500/10 text-teal-300 text-sm font-medium border border-teal-500/20">Tailwind CSS</span>
+                </div>
+              </div>
+
+              <div className="bg-white/5 p-8 rounded-3xl border border-white/10 backdrop-blur-sm relative overflow-hidden">
+                <div className="absolute -right-10 -bottom-10 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl"></div>
+                <h3 className="text-sm uppercase tracking-widest text-white/50 font-bold mb-6">Infrastruktur & DevOps</h3>
+                <div className="space-y-3 text-sm">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-blue-400"></span>
+                    <span className="text-white/60">Server:</span>
+                    <span className="text-white font-medium">AWS EC2 (t3.micro)</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                    <span className="text-white/60">Process Manager:</span>
+                    <span className="text-white font-medium">PM2</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-purple-400"></span>
+                    <span className="text-white/60">Web Server:</span>
+                    <span className="text-white font-medium">Nginx</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-rose-400"></span>
+                    <span className="text-white/60">Akses Keamanan:</span>
+                    <span className="text-white font-medium">SSH Setup & Custom Port</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-yellow-400"></span>
+                    <span className="text-white/60">Domain & SSL:</span>
+                    <span className="text-white font-medium">Custom Domain + HTTPS</span>
+                  </div>
                 </div>
               </div>
 

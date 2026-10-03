@@ -19,27 +19,27 @@ export default function AboutHero() {
     {
       icon: Briefcase,
       value: "Enterprise Scale",
-      label: "HRIS & Banking Backend Systems",
+      label: "HRIS & Banking Backends",
       color: "text-cyan-400",
       border: "border-cyan-500/30",
     },
     {
       icon: ShieldCheck,
-      value: "< 4 Hours SLA",
-      label: "Mission-Critical Production Fixes",
+      value: "< 4h SLA Target",
+      label: "Critical Production Fixes",
       color: "text-emerald-400",
       border: "border-emerald-500/30",
     },
     {
       icon: GraduationCap,
       value: "S1 Informatics",
-      label: "Telkom University (GPA 3.08)",
+      label: "Telkom University (3.08)",
       color: "text-purple-400",
       border: "border-purple-500/30",
     },
     {
       icon: Award,
-      value: "SINTA 2 & IP License",
+      value: "SINTA 2 & IP",
       label: "Jurnal RESTI & e-Hak Cipta",
       color: "text-amber-400",
       border: "border-amber-500/30",
@@ -47,88 +47,90 @@ export default function AboutHero() {
   ];
 
   return (
-    <section className="space-y-6 pointer-events-none">
-      <div className="rounded-3xl border border-slate-700/80 bg-gradient-to-b from-[#091526]/95 via-[#050d17]/95 to-[#02050b]/98 p-6 sm:p-8 md:p-10 backdrop-blur-2xl shadow-2xl shadow-blue-950/40 relative overflow-hidden pointer-events-auto">
+    <section className="space-y-4 sm:space-y-6 pointer-events-none">
+      <div className="rounded-2xl sm:rounded-3xl border border-slate-700/80 bg-gradient-to-b from-[#091526]/95 via-[#050d17]/95 to-[#02050b]/98 p-4 sm:p-6 md:p-8 backdrop-blur-2xl shadow-2xl shadow-blue-950/40 relative overflow-hidden pointer-events-auto">
         <div className="absolute -top-24 -right-24 w-60 h-60 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-24 -left-24 w-60 h-60 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-          <div className="lg:col-span-7 space-y-4">
-            <div className="flex flex-wrap items-center gap-2.5">
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-cyan-500/40 bg-cyan-950/60 px-3.5 py-1 text-xs font-bold text-cyan-300 font-mono shadow-sm">
-                <Sparkles className="h-3.5 w-3.5 fill-cyan-400 text-cyan-400" />
-                <span>FULL STACK DEVELOPER // DEVOPS</span>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
+          <div className="lg:col-span-7 space-y-3 sm:space-y-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-1 rounded-full border border-cyan-500/40 bg-cyan-950/60 px-2.5 py-0.5 text-[10px] sm:text-xs font-bold text-cyan-300 font-mono shadow-sm">
+                <Sparkles className="h-3 w-3 fill-cyan-400 text-cyan-400" />
+                <span>FULL STACK // DEVOPS</span>
               </span>
-              <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/40 bg-emerald-950/50 px-3 py-1 text-xs font-mono font-medium text-emerald-300 shadow-sm">
-                <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span>Available for Engineering Roles</span>
+              <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/40 bg-emerald-950/50 px-2.5 py-0.5 text-[10px] sm:text-xs font-mono font-medium text-emerald-300 shadow-sm">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span>Available for Roles</span>
               </span>
             </div>
 
             <div>
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-white leading-tight">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black tracking-tight text-white leading-tight">
                 Resky Adhyaksa
               </h1>
-              <p className="mt-2 text-base sm:text-lg font-semibold text-cyan-400 flex items-center gap-2">
-                <span>Enterprise Full Stack Web Developer &amp; Cloud DevOps</span>
+              <p className="mt-1 text-xs sm:text-sm md:text-base font-semibold text-cyan-400">
+                Enterprise Full Stack Web Developer &amp; Cloud DevOps
               </p>
-              <div className="flex items-center gap-2 text-xs sm:text-sm font-mono text-slate-400 mt-1">
-                <MapPin className="w-3.5 h-3.5 text-slate-400" />
+              <div className="flex items-center gap-1.5 text-[11px] sm:text-xs font-mono text-slate-400 mt-0.5">
+                <MapPin className="w-3 h-3 text-slate-400 shrink-0" />
                 <span>Jakarta Pusat / Bandung, Indonesia</span>
               </div>
             </div>
 
-            <p className="text-sm sm:text-base text-slate-200 leading-relaxed font-normal">
+            <p className="text-xs sm:text-sm md:text-base text-slate-200 leading-relaxed font-normal line-clamp-3 sm:line-clamp-none">
               Full Stack Developer with experience building and supporting enterprise HRIS platforms, high-throughput RESTful APIs, and cloud-native applications. Proficient in Java Spring Boot, Next.js, AngularJS, SQL, AWS, and Salesforce integration, with proven hands-on expertise in backend development, production deployment pipelines, and resolving mission-critical issues in SLA-driven environments.
             </p>
 
-            <div className="flex flex-wrap items-center gap-3 pt-2">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 pt-1 sm:pt-2">
+              <Link
+                href="/cv.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                download
+                className="inline-flex items-center gap-1.5 rounded-xl border border-blue-500/40 bg-gradient-to-r from-blue-600 to-cyan-600 px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs font-bold text-white hover:brightness-110 shadow-md shadow-blue-950/50 transition-all active:scale-95"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>Download CV</span>
+              </Link>
+
               <a
                 href="mailto:reskyadhyaksa19@gmail.com"
-                className="inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-[#060e1c] px-3.5 py-2 text-xs font-mono text-slate-200 hover:border-cyan-500/50 hover:bg-[#0c1830] hover:text-white transition-all shadow-sm active:scale-95"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-700 bg-[#060e1c] px-3 py-1.5 sm:px-3.5 sm:py-2 text-xs font-mono text-slate-200 hover:border-cyan-500/50 hover:bg-[#0c1830] hover:text-white transition-all shadow-sm active:scale-95"
               >
                 <Mail className="w-3.5 h-3.5 text-cyan-400" />
-                <span>reskyadhyaksa19@gmail.com</span>
+                <span className="hidden sm:inline">reskyadhyaksa19@gmail.com</span>
+                <span className="sm:hidden">Email</span>
               </a>
 
               <a
                 href="tel:+6281244004082"
-                className="inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-[#060e1c] px-3.5 py-2 text-xs font-mono text-slate-200 hover:border-cyan-500/50 hover:bg-[#0c1830] hover:text-white transition-all shadow-sm active:scale-95"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-700 bg-[#060e1c] px-3 py-1.5 sm:px-3.5 sm:py-2 text-xs font-mono text-slate-200 hover:border-cyan-500/50 hover:bg-[#0c1830] hover:text-white transition-all shadow-sm active:scale-95"
               >
                 <Phone className="w-3.5 h-3.5 text-emerald-400" />
-                <span>+62 812-4400-4082</span>
+                <span className="hidden sm:inline">+62 812-4400-4082</span>
+                <span className="sm:hidden">Phone</span>
               </a>
 
               <a
                 href="https://linkedin.com/in/reskyadhyaksa"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-[#060e1c] px-3.5 py-2 text-xs font-mono text-slate-200 hover:border-blue-500/50 hover:bg-[#0c1830] hover:text-white transition-all shadow-sm active:scale-95"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-700 bg-[#060e1c] px-3 py-1.5 sm:px-3.5 sm:py-2 text-xs font-mono text-slate-200 hover:border-blue-500/50 hover:bg-[#0c1830] hover:text-white transition-all shadow-sm active:scale-95"
               >
                 <Image
                   src="/linkedin.svg"
-                  width={14}
-                  height={14}
+                  width={13}
+                  height={13}
                   alt="LinkedIn"
                   className="brightness-0 invert opacity-80"
                 />
                 <span>LinkedIn</span>
               </a>
-
-              <Link
-                href="/cv.pdf"
-                target="_blank"
-                rel="noopener noreferrer"
-                download
-                className="inline-flex items-center gap-2 rounded-xl border border-blue-500/40 bg-gradient-to-r from-blue-600 to-cyan-600 px-4 py-2 text-xs font-bold text-white hover:brightness-110 shadow-md shadow-blue-950/50 transition-all active:scale-95"
-              >
-                <Download className="w-3.5 h-3.5" />
-                <span>Download CV</span>
-              </Link>
             </div>
           </div>
 
-          <div className="lg:col-span-5">
+          <div className="hidden lg:block lg:col-span-5">
             <div className="rounded-2xl border border-slate-700/80 bg-[#040914] overflow-hidden shadow-2xl font-mono text-xs">
               <div className="flex items-center justify-between border-b border-slate-800 bg-[#0d1627] px-4 py-3">
                 <div className="flex items-center gap-2">
@@ -186,22 +188,22 @@ export default function AboutHero() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 pt-8 mt-8 border-t border-slate-800/80">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5 pt-4 sm:pt-6 mt-4 sm:mt-6 border-t border-slate-800/80">
           {quickMetrics.map((item, idx) => {
             const IconComp = item.icon;
             return (
               <div
                 key={idx}
-                className={`rounded-2xl border border-slate-800 bg-[#040914] p-4 shadow-md flex items-center gap-3.5 hover:${item.border} hover:bg-[#071122] transition-all group`}
+                className={`rounded-xl sm:rounded-2xl border border-slate-800 bg-[#040914] p-3 sm:p-4 shadow-md flex items-center gap-2.5 sm:gap-3.5 hover:${item.border} hover:bg-[#071122] transition-all group`}
               >
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#091526] border border-slate-700/80 group-hover:scale-105 transition-transform shadow-inner">
-                  <IconComp className={`w-5 h-5 ${item.color}`} />
+                <div className="flex h-9 w-9 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-lg sm:rounded-xl bg-[#091526] border border-slate-700/80 group-hover:scale-105 transition-transform shadow-inner">
+                  <IconComp className={`w-4 h-4 sm:w-5 sm:h-5 ${item.color}`} />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-sm sm:text-base font-bold text-white group-hover:text-cyan-300 transition-colors truncate">
+                  <p className="text-xs sm:text-sm md:text-base font-bold text-white group-hover:text-cyan-300 transition-colors truncate">
                     {item.value}
                   </p>
-                  <p className="text-[11px] text-slate-400 mt-0.5 leading-snug truncate">
+                  <p className="text-[10px] sm:text-[11px] text-slate-400 mt-0.5 leading-snug truncate">
                     {item.label}
                   </p>
                 </div>

@@ -1,4 +1,6 @@
-import { Briefcase, CheckCircle2, Calendar, MapPin, Building2, Server, Terminal } from "lucide-react";
+"use client";
+import { useState } from "react";
+import { Briefcase, CheckCircle2, Calendar, MapPin, Building2, ChevronDown, ChevronUp } from "lucide-react";
 
 const WORK_EXPERIENCES = [
   {
@@ -40,8 +42,17 @@ const WORK_EXPERIENCES = [
 ];
 
 export default function AboutExperienceTimeline() {
+  const [expanded, setExpanded] = useState({});
+
+  const toggleExpand = (idx) => {
+    setExpanded((prev) => ({
+      ...prev,
+      [idx]: !prev[idx],
+    }));
+  };
+
   return (
-    <section className="space-y-6 pointer-events-none">
+    <section className="space-y-4 sm:space-y-6 pointer-events-none">
       <div className="flex items-center gap-3 pointer-events-none">
         <div className="flex h-8 w-8 items-center justify-center rounded-xl border border-blue-500/30 bg-blue-500/10 text-blue-300">
           <Briefcase className="h-4 w-4" />
@@ -56,65 +67,91 @@ export default function AboutExperienceTimeline() {
         </div>
       </div>
 
-      <div className="space-y-6 pointer-events-none">
-        {WORK_EXPERIENCES.map((exp, idx) => (
-          <div
-            key={idx}
-            className="rounded-3xl border border-slate-700/80 bg-[#091224] p-6 sm:p-8 shadow-xl relative overflow-hidden pointer-events-auto group hover:border-cyan-500/40 transition-all"
-          >
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-slate-800">
-              <div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className={`px-3 py-1 rounded-full text-[11px] font-mono font-bold border ${exp.badgeColor}`}>
-                    {exp.type}
-                  </span>
-                  <span className="text-xs font-mono text-slate-400 flex items-center gap-1">
-                    <Calendar className="w-3.5 h-3.5 text-slate-500" />
-                    {exp.period}
-                  </span>
-                </div>
-                <h3 className="text-lg sm:text-xl font-bold text-white mt-2 group-hover:text-cyan-300 transition-colors">
-                  {exp.role}
-                </h3>
-                <div className="flex flex-wrap items-center gap-2 text-xs font-mono text-cyan-400 mt-0.5 font-semibold">
-                  <span className="flex items-center gap-1">
-                    <Building2 className="w-3.5 h-3.5" />
-                    {exp.company}
-                  </span>
-                  <span className="text-slate-600">|</span>
-                  <span className="text-slate-400 flex items-center gap-1">
-                    <MapPin className="w-3.5 h-3.5" />
-                    {exp.location}
-                  </span>
+      <div className="space-y-4 sm:space-y-6 pointer-events-none">
+        {WORK_EXPERIENCES.map((exp, idx) => {
+          const isExpanded = Boolean(expanded[idx]);
+          const visibleHighlights = isExpanded ? exp.highlights : exp.highlights.slice(0, 2);
+          const hiddenCount = exp.highlights.length - 2;
+
+          return (
+            <div
+              key={idx}
+              className="rounded-2xl sm:rounded-3xl border border-slate-700/80 bg-[#091224] p-4 sm:p-6 md:p-8 shadow-xl relative overflow-hidden pointer-events-auto group hover:border-cyan-500/40 transition-all"
+            >
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 sm:pb-4 border-b border-slate-800">
+                <div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className={`px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full text-[10px] sm:text-[11px] font-mono font-bold border ${exp.badgeColor}`}>
+                      {exp.type}
+                    </span>
+                    <span className="text-[11px] sm:text-xs font-mono text-slate-400 flex items-center gap-1">
+                      <Calendar className="w-3.5 h-3.5 text-slate-500" />
+                      {exp.period}
+                    </span>
+                  </div>
+                  <h3 className="text-base sm:text-xl font-bold text-white mt-1.5 sm:mt-2 group-hover:text-cyan-300 transition-colors">
+                    {exp.role}
+                  </h3>
+                  <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-mono text-cyan-400 mt-0.5 font-semibold">
+                    <span className="flex items-center gap-1">
+                      <Building2 className="w-3.5 h-3.5 shrink-0" />
+                      {exp.company}
+                    </span>
+                    <span className="text-slate-600">|</span>
+                    <span className="text-slate-400 flex items-center gap-1">
+                      <MapPin className="w-3.5 h-3.5 shrink-0" />
+                      {exp.location}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <p className="text-xs sm:text-sm text-slate-300 mt-4 leading-relaxed font-normal">
-              {exp.summary}
-            </p>
+              <p className="text-xs sm:text-sm text-slate-300 mt-3 sm:mt-4 leading-relaxed font-normal">
+                {exp.summary}
+              </p>
 
-            <div className="mt-4 space-y-2.5">
-              {exp.highlights.map((h, hIdx) => (
-                <div key={hIdx} className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-200 leading-relaxed font-normal">
-                  <CheckCircle2 className="w-4 h-4 text-cyan-400 mt-0.5 shrink-0" />
-                  <span>{h}</span>
+              <div className="mt-3 sm:mt-4 space-y-2 sm:space-y-2.5">
+                {visibleHighlights.map((h, hIdx) => (
+                  <div key={hIdx} className="flex items-start gap-2 sm:gap-2.5 text-xs sm:text-sm text-slate-200 leading-relaxed font-normal">
+                    <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400 mt-0.5 shrink-0" />
+                    <span>{h}</span>
+                  </div>
+                ))}
+              </div>
+
+              {hiddenCount > 0 && (
+                <div className="pt-2">
+                  <button
+                    type="button"
+                    onClick={() => toggleExpand(idx)}
+                    className="inline-flex items-center gap-1.5 text-xs font-mono font-bold text-cyan-400 hover:text-cyan-300 transition-colors py-1 active:scale-95"
+                  >
+                    <span>{isExpanded ? "Show Less" : `View ${hiddenCount} More Key Deliverables`}</span>
+                    {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                  </button>
                 </div>
-              ))}
-            </div>
+              )}
 
-            <div className="flex flex-wrap gap-1.5 pt-6 border-t border-slate-800/80 mt-6">
-              {exp.tech.map((t, tIdx) => (
-                <span
-                  key={tIdx}
-                  className="rounded-lg border border-slate-700 bg-[#040914] px-2.5 py-1 font-mono text-[11px] text-slate-300 group-hover:border-slate-600 transition-colors"
-                >
-                  {t}
-                </span>
-              ))}
+              <div className="flex flex-wrap gap-1.5 pt-4 sm:pt-6 border-t border-slate-800/80 mt-4 sm:mt-6">
+                {exp.tech.map((t, tIdx) => (
+                  <span
+                    key={tIdx}
+                    className={`rounded-lg border border-slate-700 bg-[#040914] px-2 py-0.5 sm:px-2.5 sm:py-1 font-mono text-[10px] sm:text-[11px] text-slate-300 group-hover:border-slate-600 transition-colors ${
+                      tIdx >= 5 ? "hidden sm:inline-flex" : "inline-flex"
+                    }`}
+                  >
+                    {t}
+                  </span>
+                ))}
+                {exp.tech.length > 5 && (
+                  <span className="sm:hidden inline-flex items-center rounded-lg border border-slate-700 bg-[#040914] px-1.5 py-0.5 font-mono text-[10px] text-slate-400">
+                    +{exp.tech.length - 5}
+                  </span>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </section>
   );

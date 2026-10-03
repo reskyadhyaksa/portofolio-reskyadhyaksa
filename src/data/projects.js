@@ -34,6 +34,7 @@ export const projects = [
     category: "web",
     featured: true,
     detailUrl: "/projects/monitorx",
+    liveUrl: "https://tinaku.net",
     summary: "Comprehensive real-time server monitoring dashboard retrieving hardware telemetry via SNMPv3 protocol with automated alert thresholds.",
     bullets: [
       "Designed and developed the full-stack architecture, handling both front-end and back-end development for a responsive monitoring dashboard.",

@@ -291,26 +291,30 @@ export default function ProjectsTab({
               <p className="text-purple-400 font-bold">{"}"}</p>
             </div>
 
-            {(activeProject.detailUrl || activeProject.liveUrl) && (
+            {(activeProject.detailUrl || activeProject.liveUrl || activeProject.githubUrl) && (
               <div className="pt-2 border-t border-white/[0.08] flex items-center justify-between gap-2">
                 {activeProject.detailUrl ? (
                   <Link
                     href={activeProject.detailUrl}
                     className="inline-flex items-center gap-1 text-[11px] font-semibold text-purple-300 hover:text-white bg-purple-500/20 border border-purple-500/30 px-2.5 py-1 rounded-lg transition-all active:scale-95"
                   >
-                    <span>View Case Study</span>
+                    <span>View Detail</span>
                     <ArrowUpRight className="w-3 h-3" />
                   </Link>
                 ) : <div />}
 
-                {activeProject.liveUrl && (
+                {(activeProject.liveUrl || activeProject.githubUrl) && (
                   <a
-                    href={activeProject.liveUrl}
+                    href={activeProject.liveUrl || activeProject.githubUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1 text-[11px] font-semibold text-cyan-300 hover:text-white bg-cyan-500/20 border border-cyan-500/30 px-2.5 py-1 rounded-lg transition-all active:scale-95"
                   >
-                    <span>Live Demo</span>
+                    <span>
+                      {(activeProject.liveUrl || activeProject.githubUrl).toLowerCase().includes("github.com")
+                        ? "GitHub"
+                        : "Production"}
+                    </span>
                     <ExternalLink className="w-3 h-3" />
                   </a>
                 )}

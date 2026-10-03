@@ -18,6 +18,9 @@ export default function DeckCommandBar({ project }) {
     }
   };
 
+  const projectUrl = project.liveUrl || project.githubUrl;
+  const isGithub = Boolean(projectUrl && projectUrl.toLowerCase().includes("github.com"));
+
   return (
     <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800/80 pb-6 mb-8 sm:mb-10 pointer-events-none">
       <Link
@@ -68,14 +71,14 @@ export default function DeckCommandBar({ project }) {
           <span className="hidden sm:inline">Console</span>
         </Link>
 
-        {project.liveUrl && (
+        {projectUrl && (
           <a
-            href={project.liveUrl}
+            href={projectUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 rounded-xl border border-cyan-400/50 bg-gradient-to-r from-cyan-600 to-blue-600 px-4 py-2 text-xs font-bold text-white hover:from-cyan-500 hover:to-blue-500 transition-all shadow-lg shadow-cyan-950/50 active:scale-95"
           >
-            <span>Live Site</span>
+            <span>{isGithub ? "GitHub" : "Live Site"}</span>
             <ExternalLink className="w-3.5 h-3.5" />
           </a>
         )}

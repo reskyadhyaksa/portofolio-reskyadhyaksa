@@ -32,7 +32,7 @@ export const projects = [
     period: "Feb 2025 – Mar 2025",
     tech: ["Next.js", "PostgreSQL", "JavaScript", "Express.js", "Sequelize ORM", "SNMPv3", "Python"],
     category: "web",
-    featured: true,
+    featured: false,
     detailUrl: "/projects/monitorx",
     liveUrl: "https://tinaku.net",
     summary: "Comprehensive real-time server monitoring dashboard retrieving hardware telemetry via SNMPv3 protocol with automated alert thresholds.",
@@ -51,7 +51,7 @@ export const projects = [
     period: "Oct 2024 – Jan 2025",
     tech: ["Python", "Machine Learning", "NLP", "e-Hak Cipta"],
     category: "ml",
-    featured: true,
+    featured: false,
     detailUrl: "/projects/disaster-sentiment",
     summary: "NLP classification pipeline analyzing social media posts during earthquake emergencies to assess public sentiment and urgency, officially licensed via e-Hak Cipta.",
     bullets: [

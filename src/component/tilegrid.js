@@ -18,18 +18,18 @@ export default function Grid() {
       const rows = Math.floor(window.innerHeight / size);
       setCount(cols * rows);
     };
-    
+
     calc();
     window.addEventListener("resize", calc);
     return () => window.removeEventListener("resize", calc);
   }, []);
 
   return (
-    <div className="fixed tile-grid inset-0 z-0">
+    <div className="fixed tile-grid inset-0 z-0 animate-fade-in-soft">
       {Array.from({ length: count }).map((_, i) => (
         <div
           key={i}
-          className="tile border bg-cy border-white/25 transition-colors ease-out duration-500 hover:duration-0 hover:-translate-x-1 hover:-translate-y-1 
+          className="tile border bg-cy border-white/10 transition-colors ease-out duration-500 hover:duration-0 hover:-translate-x-1 hover:-translate-y-1 
           hover:nth-[2n]:bg-blue-400 hover:nth-[4n+1]:bg-blue-500 hover:nth-[4n+3]:bg-blue-600 hover:nth-[7n]:bg-blue-700 hover:nth-[7n+3]:bg-blue-800"
         />
       ))}

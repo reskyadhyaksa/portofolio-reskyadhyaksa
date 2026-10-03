@@ -13,7 +13,7 @@ export default function Home() {
         </div>
       </main>
       <TileGrid />
-      <div className="relative flex justify-center">
+      <div className="relative flex justify-center animate-fade-in-up [animation-delay:600ms]">
         <Link href={"/experiences"} className="animate-blink cursor-pointer text-white/50 text-xs sm:text-sm">
           Explore More...
         </Link>

@@ -20,7 +20,7 @@ export default function PhotoCard() {
   }, [currentPhoto]);
 
   return(
-    <div className="3xl:h-172.5 3xl:w-125 hidden h-136 w-100 -translate-x-2 -translate-y-3 place-items-center overflow-hidden rounded-lg border border-white/20 backdrop-blur-xl lg:inline">
+    <div className="3xl:h-172.5 3xl:w-125 hidden h-136 w-100 -translate-x-2 -translate-y-3 place-items-center overflow-hidden rounded-lg border border-white/20 backdrop-blur-xl lg:inline animate-fade-in-scale [animation-delay:250ms]">
       <div className="flex w-full place-items-center justify-between bg-white/5 px-5 py-3 backdrop-blur-xl">
         <div className="pointer-events-auto flex place-items-center justify-center gap-2">
           <span className="h-3.5 w-3.5 rounded-full border-2 border-red-400/80 bg-red-400/60 hover:bg-red-400"></span>

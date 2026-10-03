@@ -1,111 +1,106 @@
-import { MapPin, Calendar, GraduationCap, Briefcase } from "lucide-react";
-import { education } from "../education";
-import { workExperiences, organizational } from "../experience";
+import { MapPin, Briefcase, GraduationCap, Users } from "lucide-react";
+import { education } from "@/data/education";
+import { workExperiences, organizational } from "@/data/experiences";
 
 export default function ExperienceTab() {
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       <div>
-        <h2 className="text-xl font-bold mb-6 flex items-center gap-2.5 text-emerald-300">
-          <Briefcase className="w-5 h-5" /> Career & Education History
+        <h2 className="text-base sm:text-lg font-bold mb-4 sm:mb-6 flex items-center gap-2 text-emerald-300">
+          <Briefcase className="w-4 h-4 sm:w-5 sm:h-5" /> Career History
         </h2>
-        
-        <div className="relative border-l-2 border-emerald-500/20 pl-6 ml-3 space-y-8">
-          
-          {/* CV. Suhuf Kertaseni Nusantara */}
-          <div className="relative group">
-            <span className="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-emerald-500 border-4 border-primary group-hover:scale-125 transition-transform duration-200"></span>
-            <div className="bg-white/5 p-6 rounded-2xl border border-white/10 hover:border-emerald-500/30 transition-all duration-300 backdrop-blur-md">
-              <div className="flex flex-col md:flex-row justify-between md:items-center mb-3 gap-2">
-                <div>
-                  <h3 className="text-lg font-bold text-white group-hover:text-emerald-300 transition-colors">CV. Suhuf Kertaseni Nusantara</h3>
-                  <p className="text-xs text-white/40 flex items-center gap-1 mt-0.5">
-                    <MapPin className="w-3 h-3" /> Bandung, Jawa Barat, Indonesia &bull; July – Sept 2023
-                  </p>
-                </div>
-                <span className="w-fit text-xs px-2.5 py-1 bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 rounded-full font-bold">
-                  Software Developer
-                </span>
-              </div>
-              <ul className="space-y-2 text-xs md:text-sm text-white/70 list-disc pl-4 leading-relaxed">
-                {workExperiences[0].bullets.map((b, i) => (
-                  <li key={i}>{b}</li>
-                ))}
-              </ul>
-            </div>
-          </div>
 
-          {/* Bangkit Academy */}
-          <div className="relative group">
-            <span className="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-blue-500 border-4 border-primary group-hover:scale-125 transition-transform duration-200"></span>
-            <div className="bg-white/5 p-6 rounded-2xl border border-white/10 hover:border-blue-500/30 transition-all duration-300 backdrop-blur-md">
-              <div className="flex flex-col md:flex-row justify-between md:items-center mb-3 gap-2">
-                <div>
-                  <h3 className="text-lg font-bold text-white group-hover:text-blue-300 transition-colors">Bangkit Academy (Mobile Development)</h3>
-                  <p className="text-xs text-white/40 flex items-center gap-1 mt-0.5">
-                    <MapPin className="w-3 h-3" /> Bandung, Jawa Barat, Indonesia &bull; Aug – Dec 2023
-                  </p>
+        <div className="relative border-l-2 border-emerald-500/30 pl-4 sm:pl-6 ml-2 sm:ml-3 space-y-4 sm:space-y-6">
+          {workExperiences.map((exp, idx) => (
+            <div key={idx} className="relative group">
+              <span className="absolute -left-[17px] sm:-left-[25px] top-5 -translate-x-1/2 -translate-y-1/2 w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-full bg-emerald-400 border-2 border-[#030a14] shadow-[0_0_6px_rgba(52,211,153,0.6)] group-hover:scale-125 transition-transform duration-200"></span>
+              <div className="bg-white/5 p-3.5 sm:p-5 rounded-xl border border-white/10 hover:border-emerald-500/30 transition-all duration-300 backdrop-blur-md">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-2 gap-1.5">
+                  <div>
+                    <h3 className="text-xs sm:text-sm font-bold text-white group-hover:text-emerald-300 transition-colors">
+                      {exp.company}
+                    </h3>
+                    <p className="text-[10px] sm:text-xs text-white/40 flex items-center gap-1 mt-0.5">
+                      <MapPin className="w-3 h-3 shrink-0" /> {exp.location} · {exp.period}
+                    </p>
+                  </div>
+                  <span className="w-fit text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5 sm:py-1 bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 rounded-full font-bold">
+                    {exp.role}
+                  </span>
                 </div>
-                <span className="w-fit text-xs px-2.5 py-1 bg-blue-500/15 border border-blue-500/30 text-blue-400 rounded-full font-bold">
-                  Studi Independen Kampus Merdeka
-                </span>
+                <ul className="space-y-1.5 text-[11px] sm:text-xs text-white/70 list-disc pl-3.5 sm:pl-4 leading-relaxed font-sans">
+                  {exp.bullets.map((b, i) => (
+                    <li key={i}>{b}</li>
+                  ))}
+                </ul>
               </div>
-              <ul className="space-y-2 text-xs md:text-sm text-white/70 list-disc pl-4 leading-relaxed">
-                {workExperiences[1].bullets.map((b, i) => (
-                  <li key={i}>{b}</li>
-                ))}
-              </ul>
             </div>
-          </div>
+          ))}
+        </div>
+      </div>
 
-          {/* Education - Telkom University */}
-          <div className="relative group">
-            <span className="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-purple-500 border-4 border-primary group-hover:scale-125 transition-transform duration-200"></span>
-            <div className="bg-white/5 p-6 rounded-2xl border border-white/10 hover:border-purple-500/30 transition-all duration-300 backdrop-blur-md">
-              <div className="flex flex-col md:flex-row justify-between md:items-center mb-3 gap-2">
-                <div>
-                  <h3 className="text-lg font-bold text-white flex items-center gap-2 group-hover:text-purple-300 transition-colors">
-                    <GraduationCap className="w-5 h-5 text-purple-400" /> Telkom University
+      <div>
+        <h2 className="text-base sm:text-lg font-bold mb-4 sm:mb-6 flex items-center gap-2 text-sky-300">
+          <GraduationCap className="w-4 h-4 sm:w-5 sm:h-5" /> Education
+        </h2>
+
+        <div className="relative border-l-2 border-sky-500/30 pl-4 sm:pl-6 ml-2 sm:ml-3 space-y-4 sm:space-y-6">
+          {education.map((edu, idx) => (
+            <div key={idx} className="relative group">
+              <span className="absolute -left-[17px] sm:-left-[25px] top-5 -translate-x-1/2 -translate-y-1/2 w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-full bg-sky-400 border-2 border-[#030a14] shadow-[0_0_6px_rgba(56,189,248,0.6)] group-hover:scale-125 transition-transform duration-200"></span>
+              <div className="bg-white/5 p-3.5 sm:p-5 rounded-xl border border-white/10 hover:border-sky-500/30 transition-all duration-300 backdrop-blur-md">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-2 gap-1.5">
+                  <div>
+                    <h3 className="text-xs sm:text-sm font-bold text-white group-hover:text-sky-300 transition-colors">
+                      {edu.institution}
+                    </h3>
+                    <p className="text-[10px] sm:text-xs text-white/40 mt-0.5">
+                      {edu.location} · {edu.period}
+                    </p>
+                  </div>
+                  <span className="w-fit text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5 sm:py-1 bg-sky-500/15 border border-sky-500/30 text-sky-400 rounded-full font-bold">
+                    {edu.degree}
+                  </span>
+                </div>
+                {edu.bullets && (
+                  <ul className="space-y-1 text-[11px] sm:text-xs text-white/70 list-disc pl-3.5 sm:pl-4 leading-relaxed font-sans">
+                    {edu.bullets.map((b, i) => (
+                      <li key={i}>{b}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <h2 className="text-base sm:text-lg font-bold mb-4 sm:mb-6 flex items-center gap-2 text-purple-300">
+          <Users className="w-4 h-4 sm:w-5 sm:h-5" /> Organizational Activities
+        </h2>
+
+        <div className="relative border-l-2 border-purple-500/30 pl-4 sm:pl-6 ml-2 sm:ml-3 space-y-4 sm:space-y-6">
+          {organizational.map((org, idx) => (
+            <div key={idx} className="relative group">
+              <span className="absolute -left-[17px] sm:-left-[25px] top-5 -translate-x-1/2 -translate-y-1/2 w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-full bg-purple-400 border-2 border-[#030a14] shadow-[0_0_6px_rgba(192,132,252,0.6)] group-hover:scale-125 transition-transform duration-200"></span>
+              <div className="bg-white/5 p-3.5 sm:p-5 rounded-xl border border-white/10 hover:border-purple-500/30 transition-all duration-300 backdrop-blur-md">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-2 gap-1.5">
+                  <h3 className="text-xs sm:text-sm font-bold text-white group-hover:text-purple-300 transition-colors">
+                    {org.title}
                   </h3>
-                  <p className="text-xs text-white/40 flex items-center gap-1 mt-0.5">
-                    <MapPin className="w-3 h-3" /> Bandung, Jawa Barat, Indonesia &bull; Aug 2020 - Mei 2025
-                  </p>
+                  <span className="w-fit text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5 sm:py-1 bg-purple-500/15 border border-purple-500/30 text-purple-300 rounded-full font-bold">
+                    {org.role}
+                  </span>
                 </div>
-                <span className="w-fit text-xs px-2.5 py-1 bg-purple-500/15 border border-purple-500/30 text-purple-400 rounded-full font-bold">
-                  Bachelor in Informatics (GPA 3.08)
-                </span>
+                <ul className="space-y-1 text-[11px] sm:text-xs text-white/70 list-disc pl-3.5 sm:pl-4 leading-relaxed font-sans">
+                  {org.bullets.map((b, i) => (
+                    <li key={i}>{b}</li>
+                  ))}
+                </ul>
               </div>
-              <ul className="space-y-2 text-xs md:text-sm text-white/70 list-disc pl-4 leading-relaxed">
-                {education[0].bullets.map((b, i) => (
-                  <li key={i}>{b}</li>
-                ))}
-              </ul>
             </div>
-          </div>
-
-          {/* Organizational */}
-          <div className="relative group">
-            <span className="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-yellow-500 border-4 border-primary group-hover:scale-125 transition-transform duration-200"></span>
-            <div className="bg-white/5 p-6 rounded-2xl border border-white/10 hover:border-yellow-500/30 transition-all duration-300 backdrop-blur-md">
-              <div className="flex flex-col md:flex-row justify-between md:items-center mb-3 gap-2">
-                <div>
-                  <h3 className="text-lg font-bold text-white group-hover:text-yellow-300 transition-colors">INTERFEST – Himpunan Mahasiswa Telkom</h3>
-                  <p className="text-xs text-white/40 flex items-center gap-1 mt-0.5">
-                    <Calendar className="w-3 h-3" /> October - Nov 2021
-                  </p>
-                </div>
-                <span className="w-fit text-xs px-2.5 py-1 bg-yellow-500/15 border border-yellow-500/30 text-yellow-400 rounded-full font-bold">
-                  Staff Stage Division
-                </span>
-              </div>
-              <ul className="space-y-2 text-xs md:text-sm text-white/70 list-disc pl-4 leading-relaxed">
-                {organizational[0].bullets.map((b, i) => (
-                  <li key={i}>{b}</li>
-                ))}
-              </ul>
-            </div>
-          </div>
-
+          ))}
         </div>
       </div>
     </div>

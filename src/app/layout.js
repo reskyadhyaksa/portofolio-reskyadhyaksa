@@ -15,11 +15,11 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body
-        className={`${jetbrainsMono.variable} antialiased`}
-      >
-        <div className="fixed top-4 z-1000 flex w-full justify-center">
-          <NavigationBar/>
+      <body className={`${jetbrainsMono.variable} antialiased`}>
+        <div className="fixed top-3 sm:top-5 z-50 flex w-full justify-center px-3 sm:px-6 pointer-events-none">
+          <div className="pointer-events-auto">
+            <NavigationBar />
+          </div>
         </div>
         {children}
       </body>

@@ -84,7 +84,7 @@ export const projectDetails = {
     id: "monitorx",
     title: "MonitorX",
     subtitle: "Enterprise Server Monitoring Integrated SNMPv3 Telemetry Engine",
-    liveUrl: null,
+    liveUrl: "https://github.com/reskyadhyaksa/backend-monitoring",
     image: null,
     role: "Full-Stack Web Developer",
     roleType: "Full-Stack Development",
@@ -123,9 +123,9 @@ export function pollHardwareMetrics(hostIp, securityUser) {
   });
 
   const oids = [
-    '1.3.6.1.4.1.2021.10.1.3.1', // 1-min CPU Load
-    '1.3.6.1.4.1.2021.4.6.0',     // Avail RAM
-    '1.3.6.1.4.1.2021.9.1.9.1'     // Disk Usage %
+    '1.3.6.1.4.1.2021.10.1.3.1',
+    '1.3.6.1.4.1.2021.4.6.0',
+    '1.3.6.1.4.1.2021.9.1.9.1'
   ];
 
   return new Promise((resolve, reject) => {
@@ -171,7 +171,7 @@ export function pollHardwareMetrics(hostIp, securityUser) {
     id: "disaster-sentiment",
     title: "Disaster Sentiment Classifier",
     subtitle: "NLP Classification Pipeline for Earthquake Disaster Emergency Streams",
-    liveUrl: null,
+    liveUrl: "https://drive.google.com/file/d/1O5iInNGf3uvicbEGjTVswVfjNXLOdfJ8/view?usp=sharing",
     image: null,
     role: "Machine Learning Engineer",
     roleType: "AI & Natural Language Processing",
@@ -211,9 +211,7 @@ def build_nlp_pipeline():
             sublinear_tf=True
         )),
         ('clf', MultinomialNB(alpha=0.15))
-    ])
-
-# Model trained and licensed via e-Hak Cipta Kemenkumham RI`
+    ])`
     },
     features: [
       {

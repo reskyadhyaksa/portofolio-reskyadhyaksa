@@ -12,6 +12,7 @@ import {
   ChevronRight,
   ExternalLink,
   ArrowUpRight,
+  Lock,
 } from "lucide-react";
 import { projects, PROJECT_CATEGORIES } from "@/data/projects";
 
@@ -56,6 +57,15 @@ export default function ProjectsTab({
   const handleSelectProject = (proj) => {
     onProjectChange?.(proj.id);
     setMobileView("detail");
+  };
+
+  const getLinkLabel = (url) => {
+    if (!url) return "Overview";
+    const lower = url.toLowerCase();
+    if (lower.includes("github.com")) return "GitHub";
+    if (lower.includes("drive.google.com")) return "Drive";
+    if (lower.includes("colab")) return "Colab";
+    return "Overview";
   };
 
   return (
@@ -291,35 +301,36 @@ export default function ProjectsTab({
               <p className="text-purple-400 font-bold">{"}"}</p>
             </div>
 
-            {(activeProject.detailUrl || activeProject.liveUrl || activeProject.githubUrl) && (
-              <div className="pt-2 border-t border-white/[0.08] flex items-center justify-between gap-2">
-                {activeProject.detailUrl ? (
-                  <Link
-                    href={activeProject.detailUrl}
-                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-purple-300 hover:text-white bg-purple-500/20 border border-purple-500/30 px-2.5 py-1 rounded-lg transition-all active:scale-95"
-                  >
-                    <span>View Detail</span>
-                    <ArrowUpRight className="w-3 h-3" />
-                  </Link>
-                ) : <div />}
+            <div className="pt-2 border-t border-white/[0.08] flex items-center justify-between gap-2">
+              {activeProject.detailUrl ? (
+                <Link
+                  href={activeProject.detailUrl}
+                  className="inline-flex items-center gap-1 text-[11px] font-semibold text-purple-300 hover:text-white bg-purple-500/20 border border-purple-500/30 px-2.5 py-1 rounded-lg transition-all active:scale-95"
+                >
+                  <span>View Detail</span>
+                  <ArrowUpRight className="w-3 h-3" />
+                </Link>
+              ) : <div />}
 
-                {(activeProject.liveUrl || activeProject.githubUrl) && (
-                  <a
-                    href={activeProject.liveUrl || activeProject.githubUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-cyan-300 hover:text-white bg-cyan-500/20 border border-cyan-500/30 px-2.5 py-1 rounded-lg transition-all active:scale-95"
-                  >
-                    <span>
-                      {(activeProject.liveUrl || activeProject.githubUrl).toLowerCase().includes("github.com")
-                        ? "GitHub"
-                        : "Production"}
-                    </span>
-                    <ExternalLink className="w-3 h-3" />
-                  </a>
-                )}
-              </div>
-            )}
+              {activeProject.liveUrl || activeProject.githubUrl ? (
+                <a
+                  href={activeProject.liveUrl || activeProject.githubUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-[11px] font-semibold text-cyan-300 hover:text-white bg-cyan-500/20 border border-cyan-500/30 px-2.5 py-1 rounded-lg transition-all active:scale-95"
+                >
+                  <span>
+                    {getLinkLabel(activeProject.liveUrl || activeProject.githubUrl)}
+                  </span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              ) : (
+                <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-400 bg-slate-900/60 border border-slate-700/60 px-2.5 py-1 rounded-lg select-none cursor-default">
+                  <span>Private</span>
+                  <Lock className="w-3 h-3 text-slate-500" />
+                </span>
+              )}
+            </div>
           </div>
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center text-center text-slate-500 text-xs py-6">

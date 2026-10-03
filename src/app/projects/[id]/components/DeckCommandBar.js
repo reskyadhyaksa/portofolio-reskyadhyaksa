@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, ExternalLink, Terminal, Share2, Check } from "lucide-react";
+import { ArrowLeft, ExternalLink, Terminal, Share2, Check, Lock } from "lucide-react";
 
 export default function DeckCommandBar({ project }) {
   const [copied, setCopied] = useState(false);
@@ -19,7 +19,14 @@ export default function DeckCommandBar({ project }) {
   };
 
   const projectUrl = project.liveUrl || project.githubUrl;
-  const isGithub = Boolean(projectUrl && projectUrl.toLowerCase().includes("github.com"));
+  const getLinkLabel = (url) => {
+    if (!url) return "Overview";
+    const lower = url.toLowerCase();
+    if (lower.includes("github.com")) return "GitHub";
+    if (lower.includes("drive.google.com")) return "Drive";
+    if (lower.includes("colab")) return "Colab";
+    return "Overview";
+  };
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800/80 pb-6 mb-8 sm:mb-10 pointer-events-none">
@@ -71,16 +78,21 @@ export default function DeckCommandBar({ project }) {
           <span className="hidden sm:inline">Console</span>
         </Link>
 
-        {projectUrl && (
+        {projectUrl ? (
           <a
             href={projectUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 rounded-xl border border-cyan-400/50 bg-gradient-to-r from-cyan-600 to-blue-600 px-4 py-2 text-xs font-bold text-white hover:from-cyan-500 hover:to-blue-500 transition-all shadow-lg shadow-cyan-950/50 active:scale-95"
           >
-            <span>{isGithub ? "GitHub" : "Live Site"}</span>
+            <span>{getLinkLabel(projectUrl)}</span>
             <ExternalLink className="w-3.5 h-3.5" />
           </a>
+        ) : (
+          <span className="inline-flex items-center gap-1.5 rounded-xl border border-slate-700/60 bg-slate-900/60 px-4 py-2 text-xs font-semibold text-slate-400 select-none cursor-default">
+            <span>Private</span>
+            <Lock className="w-3.5 h-3.5 text-slate-500" />
+          </span>
         )}
       </div>
     </div>

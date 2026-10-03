@@ -10,6 +10,7 @@ import {
   Terminal,
   CheckCircle2,
   StarIcon,
+  Lock,
 } from "lucide-react";
 import FeaturedSlideVisual from "./FeaturedSlideVisual";
 
@@ -55,7 +56,14 @@ export default function FeaturedCarousel({ featuredProjects = [] }) {
   };
 
   const projectUrl = currentProject.liveUrl || currentProject.githubUrl;
-  const isGithub = Boolean(projectUrl && projectUrl.toLowerCase().includes("github.com"));
+  const getLinkLabel = (url) => {
+    if (!url) return "Overview";
+    const lower = url.toLowerCase();
+    if (lower.includes("github.com")) return "GitHub";
+    if (lower.includes("drive.google.com")) return "Drive";
+    if (lower.includes("colab")) return "Colab";
+    return "Overview";
+  };
 
   return (
     <section className="space-y-3 sm:space-y-4 pointer-events-none">
@@ -178,16 +186,21 @@ export default function FeaturedCarousel({ featuredProjects = [] }) {
               </Link>
 
               <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-                {projectUrl && (
+                {projectUrl ? (
                   <a
                     href={projectUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-cyan-500/40 bg-cyan-950/60 px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-bold text-cyan-300 hover:bg-cyan-900/80 hover:text-white transition-all active:scale-95 shadow-sm flex-1 sm:flex-initial"
                   >
-                    <span>{isGithub ? "GitHub" : "Production"}</span>
+                    <span>{getLinkLabel(projectUrl)}</span>
                     <ExternalLink className="h-3.5 w-3.5" />
                   </a>
+                ) : (
+                  <span className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-700/60 bg-slate-900/60 px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-semibold text-slate-400 select-none cursor-default shadow-sm flex-1 sm:flex-initial">
+                    <span>Private</span>
+                    <Lock className="h-3.5 w-3.5 text-slate-500" />
+                  </span>
                 )}
 
                 {currentProject.detailUrl && (

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, ExternalLink } from "lucide-react";
+import { ArrowLeft, ExternalLink, Lock } from "lucide-react";
 
 export default function CaseStudyHero({ project }) {
   return (
@@ -22,16 +22,29 @@ export default function CaseStudyHero({ project }) {
           </p>
         </div>
 
-        {project.liveUrl && (
+        {project.liveUrl ? (
           <a
             href={project.liveUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 py-3 px-6 bg-blue-600/20 text-blue-300 border border-blue-500/40 hover:bg-blue-600 hover:text-white rounded-2xl font-semibold transition-all duration-300 backdrop-blur-md active:scale-95 shadow-lg shadow-blue-950/40 shrink-0"
           >
-            <span>Kunjungi Website</span>
+            <span>
+              {project.liveUrl.toLowerCase().includes("github.com")
+                ? "GitHub"
+                : project.liveUrl.toLowerCase().includes("drive.google.com")
+                ? "Drive"
+                : project.liveUrl.toLowerCase().includes("colab")
+                ? "Colab"
+                : "Overview"}
+            </span>
             <ExternalLink className="w-4 h-4" />
           </a>
+        ) : (
+          <span className="inline-flex items-center gap-2 py-3 px-6 bg-slate-900/60 text-slate-400 border border-slate-700/60 rounded-2xl font-semibold backdrop-blur-md select-none cursor-default shrink-0">
+            <span>Private</span>
+            <Lock className="w-4 h-4 text-slate-500" />
+          </span>
         )}
       </div>
     </div>

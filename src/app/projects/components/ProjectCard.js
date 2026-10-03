@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ExternalLink, Terminal, ArrowUpRight, Sparkles } from "lucide-react";
+import { ExternalLink, Terminal, ArrowUpRight, Sparkles, Lock } from "lucide-react";
 
 export default function ProjectCard({ project, viewMode = "grid" }) {
   const getCategoryStyles = (cat) => {
@@ -16,7 +16,15 @@ export default function ProjectCard({ project, viewMode = "grid" }) {
   };
 
   const projectUrl = project.liveUrl || project.githubUrl;
-  const isGithub = Boolean(projectUrl && projectUrl.toLowerCase().includes("github.com"));
+
+  const getLinkLabel = (url) => {
+    if (!url) return "Overview";
+    const lower = url.toLowerCase();
+    if (lower.includes("github.com")) return "GitHub";
+    if (lower.includes("drive.google.com")) return "Drive";
+    if (lower.includes("colab")) return "Colab";
+    return "Overview";
+  };
 
   if (viewMode === "list") {
     return (
@@ -74,16 +82,21 @@ export default function ProjectCard({ project, viewMode = "grid" }) {
 
         <div className="flex lg:flex-col items-center lg:items-end justify-between lg:justify-center gap-2.5 pt-3 sm:pt-4 lg:pt-0 border-t lg:border-t-0 border-slate-800 shrink-0">
           <div className="flex items-center gap-2">
-            {projectUrl && (
+            {projectUrl ? (
               <a
                 href={projectUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1 rounded-lg border border-cyan-500/40 bg-cyan-950/60 px-3 py-1.5 text-xs font-semibold text-cyan-200 hover:bg-cyan-900/80 hover:text-white transition-all active:scale-95 shadow-sm"
               >
-                <span>{isGithub ? "GitHub" : "Live"}</span>
+                <span>{getLinkLabel(projectUrl)}</span>
                 <ExternalLink className="h-3 w-3" />
               </a>
+            ) : (
+              <span className="inline-flex items-center gap-1 rounded-lg border border-slate-700/60 bg-slate-900/60 px-3 py-1.5 text-xs font-semibold text-slate-400 select-none cursor-default shadow-sm">
+                <span>Private</span>
+                <Lock className="h-3 w-3 text-slate-500" />
+              </span>
             )}
 
             {project.detailUrl && (
@@ -173,16 +186,21 @@ export default function ProjectCard({ project, viewMode = "grid" }) {
         </Link>
 
         <div className="flex items-center gap-2">
-          {projectUrl && (
+          {projectUrl ? (
             <a
               href={projectUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 rounded-lg border border-cyan-500/40 bg-cyan-950/60 px-2.5 py-1 text-xs font-semibold text-cyan-200 hover:bg-cyan-900/80 hover:text-white transition-all active:scale-95"
             >
-              <span>{isGithub ? "GitHub" : "Live"}</span>
+              <span>{getLinkLabel(projectUrl)}</span>
               <ExternalLink className="h-3 w-3" />
             </a>
+          ) : (
+            <span className="inline-flex items-center gap-1 rounded-lg border border-slate-700/60 bg-slate-900/60 px-2.5 py-1 text-xs font-semibold text-slate-400 select-none cursor-default">
+              <span>Private</span>
+              <Lock className="h-3 w-3 text-slate-500" />
+            </span>
           )}
 
           {project.detailUrl && (

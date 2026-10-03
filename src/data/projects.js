@@ -34,7 +34,7 @@ export const projects = [
     category: "web",
     featured: false,
     detailUrl: "/projects/monitorx",
-    liveUrl: "https://tinaku.net",
+    liveUrl: "https://github.com/reskyadhyaksa/backend-monitoring",
     summary: "Comprehensive real-time server monitoring dashboard retrieving hardware telemetry via SNMPv3 protocol with automated alert thresholds.",
     bullets: [
       "Designed and developed the full-stack architecture, handling both front-end and back-end development for a responsive monitoring dashboard.",
@@ -45,6 +45,22 @@ export const projects = [
     ]
   },
   {
+    id: "bone-fractures",
+    title: "Automated Bone Fractures Detection (VGG16)",
+    role: "Machine Learning Engineer",
+    period: "Sept 2024 – Feb 2025",
+    tech: ["Python", "Deep Learning", "CNN", "VGG16", "Transfer Learning"],
+    category: "ml",
+    liveUrl: "https://jurnal.iaii.or.id/index.php/RESTI/article/view/6101",
+    summary: "Deep Convolutional Neural Network (CNN) using VGG16 transfer learning to automate bone fracture detection on medical X-ray scans, published in Jurnal RESTI (SINTA 2).",
+    bullets: [
+      "Designed and trained a Convolutional Neural Network (CNN) using VGG16 to classify bone fractures from X-ray images.",
+      "Performed data augmentation and preprocessing, including normalization and enhancement.",
+      "Implemented transfer learning with pre-trained VGG16 weights to accelerate convergence.",
+      "Published research findings in Jurnal RESTI (SINTA 2 index journal)."
+    ]
+  },
+  {
     id: "disaster-sentiment",
     title: "Disaster Sentiment Analyst Classifier",
     role: "Machine Learning Engineer",
@@ -52,7 +68,8 @@ export const projects = [
     tech: ["Python", "Machine Learning", "NLP", "e-Hak Cipta"],
     category: "ml",
     featured: false,
-    detailUrl: "/projects/disaster-sentiment",
+    // detailUrl: "/projects/disaster-sentiment",
+    liveUrl: "https://drive.google.com/file/d/1O5iInNGf3uvicbEGjTVswVfjNXLOdfJ8/view?usp=sharing",
     summary: "NLP classification pipeline analyzing social media posts during earthquake emergencies to assess public sentiment and urgency, officially licensed via e-Hak Cipta.",
     bullets: [
       "Developed an ML-based system for sentiment analysis on earthquake disaster social media posts, officially licensed through e-Hak Cipta.",
@@ -73,21 +90,6 @@ export const projects = [
       "Implemented and compared feature extraction techniques: CED, GLCM, KMeans, LBP, LBP-GLCM, and HOG.",
       "Achieved 95% classification accuracy using HOG (Histogram of Oriented Gradients), outperforming traditional methods.",
       "Optimized SVM hyperparameters, reducing false positives and improving detection reliability."
-    ]
-  },
-  {
-    id: "bone-fractures",
-    title: "Automated Bone Fractures Detection (VGG16)",
-    role: "Machine Learning Engineer",
-    period: "Sept 2024 – Feb 2025",
-    tech: ["Python", "Deep Learning", "CNN", "VGG16", "Transfer Learning"],
-    category: "ml",
-    summary: "Deep Convolutional Neural Network (CNN) using VGG16 transfer learning to automate bone fracture detection on medical X-ray scans, published in Jurnal RESTI (SINTA 2).",
-    bullets: [
-      "Designed and trained a Convolutional Neural Network (CNN) using VGG16 to classify bone fractures from X-ray images.",
-      "Performed data augmentation and preprocessing, including normalization and enhancement.",
-      "Implemented transfer learning with pre-trained VGG16 weights to accelerate convergence.",
-      "Published research findings in Jurnal RESTI (SINTA 2 index journal)."
     ]
   },
   {

@@ -1,8 +1,10 @@
 import { DEFAULT_IMAGE_MODEL_ID, MAX_IMAGE_PROMPT_LENGTH, isSupportedImageModel, type ImageModelId } from "./chat-config";
+import { resolveImageOptions, type ImageOptions } from "./image-options";
 
 export interface ImageGenerationPayload {
   prompt: string;
   model: ImageModelId;
+  options: ImageOptions;
 }
 
 export type ImagePayloadValidationResult =
@@ -11,7 +13,7 @@ export type ImagePayloadValidationResult =
 
 export function validateImagePayload(body: unknown): ImagePayloadValidationResult {
   if (!body || typeof body !== "object") return { valid: false, reason: "Invalid JSON body" };
-  const { prompt, model } = body as Record<string, unknown>;
+  const { prompt, model, options } = body as Record<string, unknown>;
 
   const trimmedPrompt = typeof prompt === "string" ? prompt.trim() : "";
   if (!trimmedPrompt || trimmedPrompt.length > MAX_IMAGE_PROMPT_LENGTH) {
@@ -21,5 +23,8 @@ export function validateImagePayload(body: unknown): ImagePayloadValidationResul
   const resolvedModel = model === undefined ? DEFAULT_IMAGE_MODEL_ID : model;
   if (!isSupportedImageModel(resolvedModel)) return { valid: false, reason: "Unsupported image model" };
 
-  return { valid: true, payload: { prompt: trimmedPrompt, model: resolvedModel } };
+  const resolvedOptions = resolveImageOptions(options);
+  if (!resolvedOptions) return { valid: false, reason: "Invalid image options" };
+
+  return { valid: true, payload: { prompt: trimmedPrompt, model: resolvedModel, options: resolvedOptions } };
 }

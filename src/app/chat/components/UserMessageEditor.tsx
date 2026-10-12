@@ -43,7 +43,7 @@ export default function UserMessageEditor({ initialContent, onSubmit, onCancel }
         maxLength={MAX_MESSAGE_LENGTH}
         onChange={(event) => setValue(event.target.value)}
         onKeyDown={handleKeyDown}
-        className="custom-scrollbar block w-full resize-none bg-transparent px-2 py-1 text-[12.5px] leading-[1.6] text-[#e3e3e3] focus:outline-none"
+        className="custom-scrollbar block w-full resize-none bg-transparent px-2 py-1 text-base leading-[1.6] text-[#e3e3e3] sm:text-[12.5px] focus:outline-none"
       />
       <p className="px-2 pt-1 text-[10.5px] text-[#9aa0a6]">Messages after this one will be removed.</p>
       <div className="flex justify-end gap-1.5 pt-1.5">

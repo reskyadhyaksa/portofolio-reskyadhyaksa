@@ -2,6 +2,7 @@
 import { Loader2 } from "lucide-react";
 import { MESSAGE_TTL_HOURS } from "@/lib/chat-config";
 import type { GeneratedImage } from "@/lib/chat-types";
+import { resolveImageSizeOption } from "@/lib/image-options";
 import type { useAttachmentQueue } from "../hooks/useAttachmentQueue";
 import type { useChatMessages } from "../hooks/useChatMessages";
 import { useBalance } from "../hooks/useBalance";
@@ -71,6 +72,7 @@ export default function ChatPanel({
             isSending={chat.isSending}
             isGeneratingImage={composer.isImageMode}
             pendingModelId={composer.activeModel}
+            pendingImageAspect={resolveImageSizeOption(composer.imageOptions.size)}
             controls={messageControls}
           />
         )}
@@ -91,6 +93,8 @@ export default function ChatPanel({
           isDisabled={!sessionId}
           isImageMode={composer.isImageMode}
           onToggleImageMode={composer.toggleImageMode}
+          imageOptions={composer.imageOptions}
+          onImageOptionChange={composer.updateImageOption}
         />
         <div className="mt-1.5 flex items-center justify-between gap-3 text-[10px] text-[#9aa0a6]/80">
           <p className="min-w-0 flex-1 truncate">

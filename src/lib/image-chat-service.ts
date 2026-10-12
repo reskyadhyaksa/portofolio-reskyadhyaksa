@@ -17,7 +17,7 @@ export async function generateImageInChat(sessionId: string, payload: ImageGener
   let storedUrl: string | null = null;
 
   try {
-    storedUrl = await generateImage(payload.prompt, payload.model);
+    storedUrl = await generateImage(payload.prompt, payload.model, payload.options);
     const image = insertGeneratedImage(sessionId, payload.prompt, storedUrl);
     const assistantMessage = insertMessage({
       sessionId,

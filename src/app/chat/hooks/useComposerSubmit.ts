@@ -28,12 +28,12 @@ export function useComposerSubmit({ sessionId, draft, onDraftChange, chat, queue
     const model = composer.activeModel;
     onDraftChange("");
     const isSent = await chat.submitExchange({ model, content: trimmedDraft, attachments: [] }, async (activeSessionId) => {
-      const result = await requestImageGeneration(activeSessionId, trimmedDraft, model);
+      const result = await requestImageGeneration(activeSessionId, trimmedDraft, model, composer.imageOptions);
       onImageGenerated(result.image);
       return result;
     });
     if (!isSent) onDraftChange(draft);
-  }, [chat, composer.activeModel, draft, onDraftChange, onImageGenerated, trimmedDraft]);
+  }, [chat, composer.activeModel, composer.imageOptions, draft, onDraftChange, onImageGenerated, trimmedDraft]);
 
   const submitTextMessage = useCallback(async () => {
     const submittedAttachments = queue.readyAttachments;

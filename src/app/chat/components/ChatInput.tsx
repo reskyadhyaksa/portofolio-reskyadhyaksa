@@ -2,11 +2,13 @@
 import { useRef, type ChangeEvent, type ClipboardEvent, type FormEvent, type KeyboardEvent } from "react";
 import { ArrowUp, Loader2, Paperclip } from "lucide-react";
 import { ACCEPTED_FILE_INPUT, MAX_IMAGE_PROMPT_LENGTH, MAX_MESSAGE_LENGTH } from "@/lib/chat-config";
+import type { ImageOptions } from "@/lib/image-options";
 import type { PendingAttachment } from "../hooks/useAttachmentQueue";
 import { useAutoResizeTextarea } from "../hooks/useAutoResizeTextarea";
 import { extractClipboardImages } from "../services/clipboard-images";
 import AttachmentChip from "./AttachmentChip";
 import ImageModeToggle from "./ImageModeToggle";
+import ImageOptionsPanel from "./ImageOptionsPanel";
 
 const TEXTAREA_MAX_HEIGHT = 160;
 
@@ -23,6 +25,8 @@ interface ChatInputProps {
   isDisabled: boolean;
   isImageMode: boolean;
   onToggleImageMode: () => void;
+  imageOptions: ImageOptions;
+  onImageOptionChange: <Key extends keyof ImageOptions>(key: Key, value: ImageOptions[Key]) => void;
 }
 
 export default function ChatInput({
@@ -38,6 +42,8 @@ export default function ChatInput({
   isDisabled,
   isImageMode,
   onToggleImageMode,
+  imageOptions,
+  onImageOptionChange,
 }: ChatInputProps) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const textareaRef = useAutoResizeTextarea(value, TEXTAREA_MAX_HEIGHT);
@@ -79,6 +85,8 @@ export default function ChatInput({
         </ul>
       )}
 
+      {isImageMode && <ImageOptionsPanel options={imageOptions} onChange={onImageOptionChange} disabled={isSending} />}
+
       <label htmlFor="chat-prompt" className="sr-only">
         Message the assistant
       </label>
@@ -93,7 +101,7 @@ export default function ChatInput({
         onKeyDown={handleKeyDown}
         onPaste={handlePaste}
         placeholder={isImageMode ? "Describe the image to generate…" : "Ask anything…"}
-        className="custom-scrollbar block w-full resize-none bg-transparent px-3 pb-0.5 pt-2 text-[13px] leading-5 text-[#e3e3e3] placeholder:text-[#9aa0a6] focus:outline-none disabled:cursor-not-allowed"
+        className="custom-scrollbar block w-full resize-none bg-transparent px-3 pb-0.5 pt-2 text-base leading-5 text-[#e3e3e3] sm:text-[13px] placeholder:text-[#9aa0a6] focus:outline-none disabled:cursor-not-allowed"
       />
 
       <div className="flex items-center justify-between gap-2 px-1 pt-1">

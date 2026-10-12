@@ -7,7 +7,7 @@ interface AssistantAvatarProps {
   isThinking?: boolean;
 }
 
-const THINKING_CLASS = "animate-pulse motion-reduce:animate-none";
+const THINKING_CLASS = "animate-loading-pulse";
 
 export default function AssistantAvatar({ modelId = null, isThinking = false }: AssistantAvatarProps) {
   const provider = findModelProvider(modelId);

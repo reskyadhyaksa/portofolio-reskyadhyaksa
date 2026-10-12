@@ -1,4 +1,5 @@
 import { SESSION_HEADER } from "@/lib/chat-config";
+import type { ImageOptions } from "@/lib/image-options";
 import type {
   ApiResponse,
   Attachment,
@@ -77,11 +78,16 @@ export interface ImageGenerationResult {
   assistantMessage: ChatMessage;
 }
 
-export function requestImageGeneration(sessionId: string, prompt: string, model: string): Promise<ImageGenerationResult> {
+export function requestImageGeneration(
+  sessionId: string,
+  prompt: string,
+  model: string,
+  options: ImageOptions
+): Promise<ImageGenerationResult> {
   return requestJson<ImageGenerationResult>("/api/images", sessionId, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ prompt, model }),
+    body: JSON.stringify({ prompt, model, options }),
   });
 }
 

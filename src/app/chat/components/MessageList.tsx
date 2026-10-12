@@ -8,10 +8,11 @@ interface MessageListProps {
   isSending: boolean;
   isGeneratingImage?: boolean;
   pendingModelId?: string | null;
+  pendingImageAspect?: { width: number; height: number };
   controls?: UserMessageControls;
 }
 
-export default function MessageList({ messages, isSending, isGeneratingImage = false, pendingModelId = null, controls }: MessageListProps) {
+export default function MessageList({ messages, isSending, isGeneratingImage = false, pendingModelId = null, pendingImageAspect, controls }: MessageListProps) {
   const scrollTrigger = `${messages.length}-${isSending}`;
   const bottomAnchorRef = useAutoScroll<HTMLDivElement>(scrollTrigger);
 
@@ -20,7 +21,9 @@ export default function MessageList({ messages, isSending, isGeneratingImage = f
       {messages.map((message) => (
         <MessageBubble key={message.id} message={message} controls={controls} />
       ))}
-      {isSending && <TypingIndicator variant={isGeneratingImage ? "image" : "text"} modelId={pendingModelId} />}
+      {isSending && (
+        <TypingIndicator variant={isGeneratingImage ? "image" : "text"} modelId={pendingModelId} imageAspect={pendingImageAspect} />
+      )}
       <div ref={bottomAnchorRef} aria-hidden="true" />
     </section>
   );

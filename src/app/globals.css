@@ -12,6 +12,7 @@
   --animate-fade-in-down: fade-in-down 0.75s cubic-bezier(0.16, 1, 0.3, 1) both;
   --animate-fade-in-scale: fade-in-scale 0.85s cubic-bezier(0.16, 1, 0.3, 1) both;
   --animate-fade-in-soft: fade-in-soft 1s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-loading-pulse: loading-pulse 1.4s ease-in-out infinite;
 
   @keyframes fade-in-up {
     from {
@@ -51,6 +52,16 @@
       opacity: 0;
     }
     to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes loading-pulse {
+    0%,
+    100% {
+      opacity: 0.3;
+    }
+    50% {
       opacity: 1;
     }
   }
@@ -107,6 +118,11 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+
+  .animate-loading-pulse {
+    animation-duration: 1.6s !important;
+    animation-iteration-count: infinite !important;
   }
 }
 

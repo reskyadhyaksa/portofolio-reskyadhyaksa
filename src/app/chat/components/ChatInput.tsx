@@ -1,9 +1,10 @@
 "use client";
-import { useRef, type ChangeEvent, type FormEvent, type KeyboardEvent } from "react";
+import { useRef, type ChangeEvent, type ClipboardEvent, type FormEvent, type KeyboardEvent } from "react";
 import { ArrowUp, Loader2, Paperclip } from "lucide-react";
 import { ACCEPTED_FILE_INPUT, MAX_IMAGE_PROMPT_LENGTH, MAX_MESSAGE_LENGTH } from "@/lib/chat-config";
 import type { PendingAttachment } from "../hooks/useAttachmentQueue";
 import { useAutoResizeTextarea } from "../hooks/useAutoResizeTextarea";
+import { extractClipboardImages } from "../services/clipboard-images";
 import AttachmentChip from "./AttachmentChip";
 import ImageModeToggle from "./ImageModeToggle";
 
@@ -52,6 +53,14 @@ export default function ChatInput({
     if (canSubmit) onSubmit();
   };
 
+  const handlePaste = (event: ClipboardEvent<HTMLTextAreaElement>) => {
+    if (!canAttach || isImageMode) return;
+    const images = extractClipboardImages(event.clipboardData);
+    if (images.length === 0) return;
+    event.preventDefault();
+    onAddFiles(images);
+  };
+
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     onAddFiles(Array.from(event.target.files ?? []));
     event.target.value = "";
@@ -82,6 +91,7 @@ export default function ChatInput({
         disabled={isDisabled}
         onChange={(event) => onChange(event.target.value)}
         onKeyDown={handleKeyDown}
+        onPaste={handlePaste}
         placeholder={isImageMode ? "Describe the image to generate…" : "Ask anything…"}
         className="custom-scrollbar block w-full resize-none bg-transparent px-3 pb-0.5 pt-2 text-[13px] leading-5 text-[#e3e3e3] placeholder:text-[#9aa0a6] focus:outline-none disabled:cursor-not-allowed"
       />

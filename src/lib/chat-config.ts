@@ -43,7 +43,7 @@ export const IMAGE_MODELS = [
 export type ChatModelId = (typeof CHAT_MODELS)[number]["id"];
 export type ImageModelId = (typeof IMAGE_MODELS)[number]["id"];
 
-export const DEFAULT_MODEL_ID: ChatModelId = "claude-fable-5";
+export const DEFAULT_MODEL_ID: ChatModelId = "gpt-6-luna";
 export const DEFAULT_IMAGE_MODEL_ID: ImageModelId = "gpt-image-2";
 export const GENERATED_IMAGE_REPLY = "Here is your generated image.";
 

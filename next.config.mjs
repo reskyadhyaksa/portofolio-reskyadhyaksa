@@ -1,6 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  /* config options here */
+  serverExternalPackages: ["better-sqlite3"],
+  async rewrites() {
+    return [{ source: "/uploads/:file", destination: "/api/uploads/:file" }];
+  },
 };
 
 export default nextConfig;

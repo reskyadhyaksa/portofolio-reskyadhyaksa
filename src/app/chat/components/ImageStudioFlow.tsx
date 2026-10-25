@@ -1,17 +1,17 @@
 "use client";
-import { useState, useRef } from "react";
+import { useRef, useState } from "react";
 import Image from "next/image";
 import {
   Download,
-  Eye,
-  Sparkles,
-  Wand2,
   Image as ImageIcon,
-  Upload,
-  X,
+  Sparkles,
   Loader2,
   Copy,
   Check,
+  Eye,
+  Wand2,
+  X,
+  Upload,
 } from "lucide-react";
 import { IMAGE_MODELS, type ImageModelId } from "@/lib/chat-config";
 import type { GeneratedImage } from "@/lib/chat-types";
@@ -22,7 +22,12 @@ interface ImageStudioFlowProps {
   sessionId: string | null;
   images: GeneratedImage[];
   isGenerating: boolean;
-  onGenerate: (prompt: string, model: ImageModelId, options: ImageOptions, referenceImageUrl?: string) => Promise<void>;
+  onGenerate: (
+    prompt: string,
+    model: ImageModelId,
+    options: ImageOptions,
+    referenceImageUrl?: string
+  ) => Promise<void>;
 }
 
 export default function ImageStudioFlow({
@@ -89,11 +94,11 @@ export default function ImageStudioFlow({
   };
 
   return (
-    <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-[#030712]">
+    <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-[#131314]">
       <div className="custom-scrollbar flex-1 overflow-y-auto px-4 py-4 sm:px-6 md:px-8">
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-500/10 text-cyan-400 border border-blue-500/20">
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
               <ImageIcon className="h-4 w-4" />
             </span>
             <h2 className="text-sm font-semibold tracking-wide text-white">Image Studio Flow</h2>
@@ -104,7 +109,7 @@ export default function ImageStudioFlow({
         </div>
 
         {images.length === 0 && !isGenerating ? (
-          <div className="flex min-h-[320px] flex-col items-center justify-center rounded-3xl border border-dashed border-white/[0.08] bg-white/[0.01] p-8 text-center">
+          <div className="flex min-h-[320px] flex-col items-center justify-center rounded-3xl border border-dashed border-white/[0.08] bg-[#1e1f20]/30 p-8 text-center">
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-cyan-500/30 bg-cyan-950/40 text-cyan-400 shadow-lg">
               <Sparkles className="h-6 w-6" />
             </div>
@@ -130,9 +135,9 @@ export default function ImageStudioFlow({
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 pb-44">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 pb-48">
             {isGenerating && (
-              <div className="relative aspect-square flex flex-col items-center justify-center rounded-2xl border border-cyan-500/40 bg-[#071326] p-4 shadow-xl shadow-cyan-950/40 animate-pulse">
+              <div className="relative aspect-square flex flex-col items-center justify-center rounded-2xl border border-cyan-500/40 bg-[#1e1f20] p-4 shadow-xl shadow-cyan-950/20 animate-pulse">
                 <Loader2 className="h-8 w-8 text-cyan-400 animate-spin" />
                 <p className="mt-3 text-xs font-semibold text-cyan-200">Generating image...</p>
                 <p className="mt-1 text-[11px] text-slate-400 text-center line-clamp-2">{prompt}</p>
@@ -141,7 +146,7 @@ export default function ImageStudioFlow({
             {images.map((img) => (
               <div
                 key={img.id}
-                className="group relative aspect-square overflow-hidden rounded-2xl border border-white/[0.08] bg-[#050c18] shadow-md hover:border-cyan-500/50 hover:shadow-cyan-950/30 transition-all"
+                className="group relative aspect-square overflow-hidden rounded-2xl border border-white/[0.08] bg-[#1e1f20] shadow-md hover:border-cyan-500/50 hover:shadow-cyan-950/30 transition-all"
               >
                 <Image
                   src={img.url}
@@ -199,32 +204,35 @@ export default function ImageStudioFlow({
         )}
       </div>
 
-      <div className="absolute bottom-0 inset-x-0 p-3 sm:p-5 bg-gradient-to-t from-[#02050b] via-[#02050b]/95 to-transparent backdrop-blur-xl border-t border-white/[0.08]">
-        <form onSubmit={handleSubmit} className="mx-auto max-w-4xl space-y-2.5">
+      <div className="pointer-events-none absolute bottom-3 sm:bottom-4 md:bottom-5 inset-x-0 z-20 flex justify-center px-3 sm:px-4">
+        <form
+          onSubmit={handleSubmit}
+          className="pointer-events-auto w-full max-w-4xl space-y-2 rounded-2xl sm:rounded-3xl border border-white/[0.12] bg-[#1e1f20]/80 p-2 sm:p-2.5 shadow-[0_12px_40px_rgba(0,0,0,0.65),0_1px_0_rgba(255,255,255,0.1)_inset] backdrop-blur-2xl transition-all"
+        >
           <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
-            <div className="flex items-center gap-1.5 bg-white/[0.03] p-0.5 rounded-xl border border-white/[0.06]">
+            <div className="flex items-center gap-1 rounded-xl border border-white/[0.08] bg-white/[0.04] p-0.5 backdrop-blur-md">
               <button
                 type="button"
                 onClick={() => { setIsEditMode(false); setReferenceImageUrl(null); }}
-                className={`flex items-center gap-1.5 px-3 py-1 rounded-lg font-medium transition-all ${
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
                   !isEditMode
-                    ? "bg-cyan-600 text-white shadow-sm"
+                    ? "bg-white/[0.14] text-white shadow-sm"
                     : "text-slate-400 hover:text-white"
                 }`}
               >
-                <Sparkles className="h-3 w-3" />
+                <Sparkles className="h-3 w-3 text-cyan-400" />
                 <span>Text to Image</span>
               </button>
               <button
                 type="button"
                 onClick={() => setIsEditMode(true)}
-                className={`flex items-center gap-1.5 px-3 py-1 rounded-lg font-medium transition-all ${
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
                   isEditMode
-                    ? "bg-cyan-600 text-white shadow-sm"
+                    ? "bg-white/[0.14] text-white shadow-sm"
                     : "text-slate-400 hover:text-white"
                 }`}
               >
-                <Wand2 className="h-3 w-3" />
+                <Wand2 className="h-3 w-3 text-cyan-400" />
                 <span>Edit Image</span>
               </button>
             </div>
@@ -233,16 +241,16 @@ export default function ImageStudioFlow({
               <select
                 value={selectedModel}
                 onChange={(e) => setSelectedModel(e.target.value as ImageModelId)}
-                className="rounded-xl border border-white/[0.08] bg-[#081224] px-2.5 py-1 text-xs font-semibold text-slate-200 focus:outline-none focus:border-cyan-500"
+                className="rounded-xl border border-white/[0.08] bg-white/[0.04] px-2.5 py-1 text-xs font-semibold text-slate-200 focus:outline-none focus:border-white/30 backdrop-blur-md cursor-pointer"
               >
                 {IMAGE_MODELS.map((m) => (
-                  <option key={m.id} value={m.id} className="bg-[#081224] text-white">
+                  <option key={m.id} value={m.id} className="bg-[#1e1f20] text-white">
                     {m.label}
                   </option>
                 ))}
               </select>
 
-              <div className="flex items-center gap-1 bg-white/[0.03] p-0.5 rounded-xl border border-white/[0.06]">
+              <div className="flex items-center gap-1 rounded-xl border border-white/[0.08] bg-white/[0.04] p-0.5 backdrop-blur-md">
                 {["1:1", "16:9", "9:16", "4:3"].map((ratio) => (
                   <button
                     key={ratio}
@@ -250,7 +258,7 @@ export default function ImageStudioFlow({
                     onClick={() => setAspectRatio(ratio)}
                     className={`px-2 py-0.5 rounded-lg text-[11px] font-mono font-medium transition-all ${
                       aspectRatio === ratio
-                        ? "bg-white/[0.12] text-white"
+                        ? "bg-white/[0.14] text-white shadow-sm font-semibold"
                         : "text-slate-400 hover:text-white"
                     }`}
                   >
@@ -259,7 +267,7 @@ export default function ImageStudioFlow({
                 ))}
               </div>
 
-              <div className="flex items-center gap-1 bg-white/[0.03] p-0.5 rounded-xl border border-white/[0.06]">
+              <div className="flex items-center gap-1 rounded-xl border border-white/[0.08] bg-white/[0.04] p-0.5 backdrop-blur-md">
                 {["512", "1K", "2K"].map((res) => (
                   <button
                     key={res}
@@ -267,7 +275,7 @@ export default function ImageStudioFlow({
                     onClick={() => setResolution(res)}
                     className={`px-2 py-0.5 rounded-lg text-[11px] font-mono font-medium transition-all ${
                       resolution === res
-                        ? "bg-white/[0.12] text-white"
+                        ? "bg-white/[0.14] text-white shadow-sm font-semibold"
                         : "text-slate-400 hover:text-white"
                     }`}
                   >
@@ -279,7 +287,7 @@ export default function ImageStudioFlow({
           </div>
 
           {isEditMode && (
-            <div className="flex items-center gap-2 rounded-xl border border-cyan-500/30 bg-cyan-950/20 px-3 py-2">
+            <div className="flex items-center gap-2 rounded-xl border border-cyan-500/30 bg-cyan-950/20 px-3 py-1.5">
               <input
                 ref={fileInputRef}
                 type="file"
@@ -288,7 +296,7 @@ export default function ImageStudioFlow({
                 className="hidden"
               />
               {referenceImageUrl ? (
-                <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg border border-cyan-500/50">
+                <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-lg border border-cyan-500/50">
                   <Image src={referenceImageUrl} alt="Reference" fill className="object-cover" unoptimized />
                   <button
                     type="button"
@@ -303,31 +311,31 @@ export default function ImageStudioFlow({
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={isUploadingRef}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-cyan-500/50 bg-cyan-900/30 px-3 py-1.5 text-xs font-semibold text-cyan-200 hover:bg-cyan-900/50 transition-colors"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-cyan-500/50 bg-cyan-900/30 px-2.5 py-1 text-xs font-semibold text-cyan-200 hover:bg-cyan-900/50 transition-colors"
                 >
                   {isUploadingRef ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Upload className="h-3.5 w-3.5" />}
-                  <span>Upload Reference Image</span>
+                  <span>Upload Reference</span>
                 </button>
               )}
-              <span className="text-[11px] text-slate-300">
-                {referenceImageUrl ? "Image loaded for editing. Type your modification instructions below." : "Pick or upload an image to edit."}
+              <span className="text-[11px] text-slate-300 truncate">
+                {referenceImageUrl ? "Reference loaded. Type edit instructions below." : "Pick or upload an image to edit."}
               </span>
             </div>
           )}
 
-          <div className="relative flex items-center rounded-2xl border border-white/[0.12] bg-[#060e1d] shadow-2xl focus-within:border-cyan-500">
+          <div className="relative flex items-center rounded-xl sm:rounded-2xl border border-white/[0.08] bg-white/[0.03] shadow-inner transition-all focus-within:border-white/[0.2] focus-within:bg-white/[0.06]">
             <input
               type="text"
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               placeholder={isEditMode ? "Describe how to edit the image (e.g. change background to sunset beach)..." : "Describe the image you want to generate in detail..."}
               disabled={isGenerating}
-              className="w-full bg-transparent px-4 py-3 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none"
+              className="w-full bg-transparent px-3.5 py-2.5 text-xs sm:text-sm text-white placeholder-[#9aa0a6] focus:outline-none"
             />
             <button
               type="submit"
               disabled={!prompt.trim() || isGenerating}
-              className="mr-2 inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 px-4 py-2 text-xs font-bold text-white hover:brightness-110 disabled:opacity-40 transition-all active:scale-95 shrink-0"
+              className="mr-1.5 inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 px-3.5 py-2 text-xs font-semibold text-white shadow-md hover:brightness-110 disabled:opacity-40 transition-all active:scale-95 shrink-0"
             >
               {isGenerating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
               <span>{isEditMode ? "Edit" : "Generate"}</span>
@@ -344,7 +352,7 @@ export default function ImageStudioFlow({
           onClick={() => setActivePreviewImage(null)}
         >
           <div
-            className="relative max-h-[90vh] max-w-4xl overflow-hidden rounded-3xl border border-white/[0.1] bg-[#050c18] p-3 shadow-2xl"
+            className="relative max-h-[90vh] max-w-4xl overflow-hidden rounded-3xl border border-white/[0.1] bg-[#1e1f20] p-3 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <button

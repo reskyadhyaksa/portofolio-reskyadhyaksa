@@ -107,7 +107,7 @@ export default function ChatPanel({
         />
       ) : (
         <>
-          <div className="custom-scrollbar flex min-h-0 flex-1 flex-col overflow-y-auto">
+          <div className="custom-scrollbar flex min-h-0 flex-1 flex-col overflow-y-auto pb-48 sm:pb-52">
             {isInitializing ? (
               <div role="status" className="flex flex-1 items-center justify-center text-[#9aa0a6]">
                 <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin motion-reduce:animate-none" />
@@ -128,27 +128,30 @@ export default function ChatPanel({
             )}
           </div>
 
-          <div className={`${CHAT_COLUMN_CLASS} ${CHAT_GUTTER_CLASS} pb-[max(env(safe-area-inset-bottom),8px)] pt-1.5`}>
-            {chat.error && <ChatErrorBanner message={chat.error} onDismiss={chat.dismissError} />}
-            <ChatInput
-              value={draft}
-              onChange={onDraftChange}
-              onSubmit={submit}
-              onStop={chat.stopExchange}
-              attachments={queue.items}
-              onAddFiles={queue.addFiles}
-              onRemoveAttachment={queue.removeItem}
-              canAttach={queue.canAddMore && !chat.isSending}
-              canSubmit={canSubmit}
-              isSending={chat.isSending}
-              isDisabled={!sessionId}
-              isImageMode={composer.isImageMode}
-              onToggleImageMode={composer.toggleImageMode}
-              imageOptions={composer.imageOptions}
-              onImageOptionChange={composer.updateImageOption}
-            />
-            <div className="mt-1.5 flex items-center justify-between gap-3 text-[10px] text-[#9aa0a6]/80">
-              <p className="min-w-0 flex-1 truncate">
+          <div className="pointer-events-none absolute bottom-3 sm:bottom-4 md:bottom-5 inset-x-0 z-20 flex flex-col items-center px-3 sm:px-4">
+            <div className="pointer-events-auto w-full max-w-4xl space-y-1.5">
+              {chat.error && <ChatErrorBanner message={chat.error} onDismiss={chat.dismissError} />}
+              <ChatInput
+                value={draft}
+                onChange={onDraftChange}
+                onSubmit={submit}
+                onStop={chat.stopExchange}
+                attachments={queue.items}
+                onAddFiles={queue.addFiles}
+                onRemoveAttachment={queue.removeItem}
+                canAttach={queue.canAddMore && !chat.isSending}
+                canSubmit={canSubmit}
+                isSending={chat.isSending}
+                isDisabled={!sessionId}
+                isImageMode={composer.isImageMode}
+                onToggleImageMode={composer.toggleImageMode}
+                imageOptions={composer.imageOptions}
+                onImageOptionChange={composer.updateImageOption}
+                models={composer.activeModels}
+                selectedModel={composer.activeModel}
+                onSelectModel={composer.selectModel}
+              />
+              <p className="text-center text-[10px] text-[#9aa0a6]/70 drop-shadow">
                 AI can make mistakes. Chats, files, and images are deleted automatically after {MESSAGE_TTL_HOURS} hours.
               </p>
             </div>

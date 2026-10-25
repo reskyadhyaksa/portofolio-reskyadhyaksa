@@ -4,6 +4,7 @@ import { MESSAGE_TTL_MS } from "./chat-config";
 import { deleteExpiredImages } from "./image-repository";
 import { deleteExpiredMessages } from "./message-repository";
 import { deleteExpiredSummaries } from "./summary-repository";
+import { deleteExpiredVideos } from "./video-repository";
 import { UPLOAD_DIRECTORY } from "./upload-storage";
 
 export interface CleanupReport {
@@ -42,6 +43,7 @@ export function runCleanup(): CleanupReport {
   const deletedMessages = deleteExpiredMessages();
   deleteExpiredSummaries();
   deleteExpiredImages();
+  deleteExpiredVideos();
   const { deletedFiles, failedFiles } = purgeExpiredUploads();
   return {
     deletedMessages,

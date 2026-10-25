@@ -51,11 +51,10 @@ export default function ChatToolbar({
           <button
             type="button"
             onClick={() => onSelectStudioMode("chat")}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${
-              studioMode === "chat"
-                ? "bg-[#8ab4f8]/20 text-[#8ab4f8] border border-[#8ab4f8]/40 shadow-sm"
-                : "text-slate-400 hover:text-white"
-            }`}
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${studioMode === "chat"
+              ? "bg-[#8ab4f8]/20 text-[#8ab4f8] border border-[#8ab4f8]/40 shadow-sm"
+              : "text-slate-400 hover:text-white"
+              }`}
           >
             <MessageSquare className="h-3 w-3" />
             <span>Chat</span>
@@ -63,26 +62,24 @@ export default function ChatToolbar({
           <button
             type="button"
             onClick={() => onSelectStudioMode("image")}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${
-              studioMode === "image"
-                ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-sm"
-                : "text-slate-400 hover:text-white"
-            }`}
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${studioMode === "image"
+              ? "bg-[#8ab4f8]/20 text-cyan-300 border border-cyan-500/40 shadow-sm"
+              : "text-slate-400 hover:text-white"
+              }`}
           >
             <ImageIcon className="h-3 w-3" />
-            <span>Image Flow</span>
+            <span>Image</span>
           </button>
           <button
             type="button"
             onClick={() => onSelectStudioMode("video")}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${
-              studioMode === "video"
-                ? "bg-purple-500/20 text-purple-300 border border-purple-500/40 shadow-sm"
-                : "text-slate-400 hover:text-white"
-            }`}
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${studioMode === "video"
+              ? "bg-[#8ab4f8]/20 text-purple-300 border border-purple-500/40 shadow-sm"
+              : "text-slate-400 hover:text-white"
+              }`}
           >
             <Film className="h-3 w-3" />
-            <span>Video Flow</span>
+            <span>Video</span>
           </button>
         </div>
 

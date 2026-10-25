@@ -1,7 +1,7 @@
 import { describeError, jsonFailure, jsonSuccess, readSessionId, readSessionIdList } from "@/lib/api-response";
 import { DEFAULT_VIDEO_MODEL_ID, isSupportedVideoModel, MAX_VIDEO_PROMPT_LENGTH } from "@/lib/chat-config";
 import { createVideoJob } from "@/lib/video-client";
-import { insertVideoJob, listGeneratedVideos } from "@/lib/video-repository";
+import { deleteExpiredVideos, insertVideoJob, listGeneratedVideos } from "@/lib/video-repository";
 import { UpstreamError } from "@/lib/router-http";
 
 export const runtime = "nodejs";
@@ -13,6 +13,7 @@ export function GET(request: Request) {
   if (!sessionIds) return jsonFailure("Invalid session id list", 400);
 
   try {
+    deleteExpiredVideos();
     return jsonSuccess({ videos: listGeneratedVideos(sessionIds) });
   } catch (error) {
     return jsonFailure(describeError(error, "Failed to load videos"), 500);

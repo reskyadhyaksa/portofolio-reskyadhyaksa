@@ -1,12 +1,21 @@
 import fs from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 import { UPLOAD_PUBLIC_PREFIX } from "./chat-config";
-import { IMAGE_RESPONSE_FORMAT, resolveOutputExtension, type ImageOptions } from "./image-options";
-import { postRouterJson, readRouterApiKey, readRouterEnv, UpstreamError } from "./router-http";
+import type { ImageOptions } from "./image-options";
+import { postRouterJson, readRouterEnv, UpstreamError } from "./router-http";
 import { ensureUploadDirectory, resolveUploadPath } from "./upload-storage";
 
 interface ImageGenerationResponse {
-  data?: Array<{ b64_json?: string; url?: string }>;
+  data?: Array<{ b64_json?: string; url?: string; media_type?: string }>;
+}
+
+function resolveExtensionFromMediaType(mediaType?: string, fallbackFormat?: string): string {
+  if (mediaType?.includes("jpeg") || mediaType?.includes("jpg")) return "jpg";
+  if (mediaType?.includes("webp")) return "webp";
+  if (mediaType?.includes("png")) return "png";
+  if (fallbackFormat === "jpeg") return "jpg";
+  if (fallbackFormat === "webp") return "webp";
+  return "png";
 }
 
 async function downloadImage(remoteUrl: string, signal?: AbortSignal): Promise<Buffer> {
@@ -52,12 +61,15 @@ export async function generateImage(
     model,
     prompt,
     n: 1,
-    size: options.size,
-    aspect_ratio: options.aspectRatio,
-    quality: options.quality,
-    output_format: options.outputFormat,
-    response_format: IMAGE_RESPONSE_FORMAT,
   };
+
+  if (options.aspectRatio) {
+    requestBody.aspect_ratio = options.aspectRatio;
+  }
+
+  if (options.resolution && options.resolution !== "auto") {
+    requestBody.resolution = options.resolution;
+  }
 
   if (referenceImageUrl) {
     requestBody.input_references = [
@@ -69,5 +81,7 @@ export async function generateImage(
   }
 
   const payload = await postRouterJson<ImageGenerationResponse>(endpoint, requestBody, signal);
-  return storeGeneratedImage(await extractImageBuffer(payload, signal), resolveOutputExtension(options.outputFormat));
+  const mediaType = payload.data?.[0]?.media_type;
+  const extension = resolveExtensionFromMediaType(mediaType, options.outputFormat);
+  return storeGeneratedImage(await extractImageBuffer(payload, signal), extension);
 }

@@ -8,17 +8,36 @@ export const dynamic = "force-dynamic";
 function isAuthorized(request: Request): boolean {
   const secret = process.env.CRON_SECRET;
   if (!secret) return false;
-  const provided = Buffer.from(request.headers.get("authorization") ?? "");
-  const expected = Buffer.from(`Bearer ${secret}`);
-  return provided.length === expected.length && timingSafeEqual(provided, expected);
+
+  const authHeader = request.headers.get("authorization");
+  if (authHeader) {
+    const provided = Buffer.from(authHeader);
+    const expected = Buffer.from(`Bearer ${secret}`);
+    if (provided.length === expected.length && timingSafeEqual(provided, expected)) {
+      return true;
+    }
+  }
+
+  const url = new URL(request.url);
+  const querySecret = url.searchParams.get("secret");
+  if (querySecret) {
+    const provided = Buffer.from(querySecret);
+    const expected = Buffer.from(secret);
+    if (provided.length === expected.length && timingSafeEqual(provided, expected)) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
-function handleCleanup(request: Request): Response {
+async function handleCleanup(request: Request): Promise<Response> {
   if (!process.env.CRON_SECRET) return jsonFailure("CRON_SECRET is not configured", 500);
   if (!isAuthorized(request)) return jsonFailure("Unauthorized", 401);
 
   try {
-    return jsonSuccess(runCleanup());
+    const report = await runCleanup();
+    return jsonSuccess(report);
   } catch (error) {
     return jsonFailure(describeError(error, "Cleanup failed"), 500);
   }

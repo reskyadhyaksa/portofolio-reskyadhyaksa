@@ -5,10 +5,13 @@ import { deleteExpiredImages } from "./image-repository";
 import { deleteExpiredMessages } from "./message-repository";
 import { deleteExpiredSummaries } from "./summary-repository";
 import { deleteExpiredVideos } from "./video-repository";
-import { UPLOAD_DIRECTORY } from "./upload-storage";
+import { deleteUploadedFiles, UPLOAD_DIRECTORY } from "./upload-storage";
 
 export interface CleanupReport {
   deletedMessages: number;
+  deletedSummaries: number;
+  deletedImages: number;
+  deletedVideos: number;
   deletedFiles: number;
   failedFiles: number;
   executedAt: string;
@@ -28,7 +31,13 @@ export function purgeExpiredUploads(now: number = Date.now()): Pick<CleanupRepor
     const filePath = path.join(UPLOAD_DIRECTORY, entry);
     try {
       const stats = fs.statSync(filePath);
-      if (!stats.isFile() || stats.mtimeMs >= expiryThreshold) continue;
+      if (!stats.isFile()) continue;
+
+      const timeMatch = /^(\d{13})-/.exec(entry);
+      const fileTimestamp = timeMatch ? parseInt(timeMatch[1], 10) : stats.mtimeMs;
+
+      if (fileTimestamp >= expiryThreshold && stats.mtimeMs >= expiryThreshold) continue;
+
       fs.unlinkSync(filePath);
       deletedFiles += 1;
     } catch {
@@ -39,14 +48,23 @@ export function purgeExpiredUploads(now: number = Date.now()): Pick<CleanupRepor
   return { deletedFiles, failedFiles };
 }
 
-export function runCleanup(): CleanupReport {
+export async function runCleanup(): Promise<CleanupReport> {
   const deletedMessages = deleteExpiredMessages();
-  deleteExpiredSummaries();
-  deleteExpiredImages();
-  deleteExpiredVideos();
+  const deletedSummaries = deleteExpiredSummaries();
+  const expiredImageUrls = deleteExpiredImages();
+  const expiredVideoUrls = deleteExpiredVideos();
+
+  const allExpiredUrls = [...expiredImageUrls, ...expiredVideoUrls];
+  if (allExpiredUrls.length > 0) {
+    await deleteUploadedFiles(allExpiredUrls);
+  }
+
   const { deletedFiles, failedFiles } = purgeExpiredUploads();
   return {
     deletedMessages,
+    deletedSummaries,
+    deletedImages: expiredImageUrls.length,
+    deletedVideos: expiredVideoUrls.length,
     deletedFiles,
     failedFiles,
     executedAt: new Date().toISOString(),

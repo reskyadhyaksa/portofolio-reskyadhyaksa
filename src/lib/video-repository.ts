@@ -99,9 +99,9 @@ export function deleteSessionVideos(sessionId: string): void {
   getDatabase().prepare(`DELETE FROM generated_videos WHERE session_id = ?`).run(sessionId);
 }
 
-export function deleteExpiredVideos(): number {
-  const result = getDatabase()
-    .prepare(`DELETE FROM generated_videos WHERE datetime(created_at) < datetime('now', ?)`)
-    .run(ACTIVE_WINDOW);
-  return result.changes;
+export function deleteExpiredVideos(): string[] {
+  const rows = getDatabase()
+    .prepare(`DELETE FROM generated_videos WHERE datetime(created_at) < datetime('now', ?) RETURNING url`)
+    .all(ACTIVE_WINDOW) as Array<{ url: string | null }>;
+  return rows.map((r) => r.url).filter((url): url is string => Boolean(url));
 }

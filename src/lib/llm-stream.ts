@@ -56,7 +56,7 @@ async function openCompletionStream(model: string, messages: UpstreamMessage[], 
       Accept: "text/event-stream",
       Authorization: `Bearer ${readRouterApiKey()}`,
     },
-    body: JSON.stringify({ model, messages, stream: true }),
+    body: JSON.stringify({ model, messages, stream: true, max_tokens: 8192 }),
     cache: "no-store",
     signal,
   });

@@ -1,5 +1,6 @@
 "use client";
-import { useEffect, useId, useRef, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { useDismissibleLayer } from "@/hooks/useDismissibleLayer";
 
@@ -17,6 +18,11 @@ const PANEL_WIDTH_CLASS = { md: "max-w-lg", lg: "max-w-5xl" } as const;
 export default function ModalDialog({ isOpen, title, subtitle, size = "md", onClose, children }: ModalDialogProps) {
   const panelRef = useRef<HTMLDivElement | null>(null);
   const titleId = useId();
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useDismissibleLayer({ containerRef: panelRef, isActive: isOpen, onDismiss: onClose });
 
@@ -30,17 +36,17 @@ export default function ModalDialog({ isOpen, title, subtitle, size = "md", onCl
     };
   }, [isOpen]);
 
-  if (!isOpen) return null;
+  if (!isOpen || !isMounted) return null;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 p-0 sm:items-center sm:bg-black/60 sm:p-4 sm:backdrop-blur-sm">
+  return createPortal(
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/75 p-0 sm:items-center sm:p-4 backdrop-blur-sm">
       <div
         ref={panelRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
-        className={`flex max-h-[85dvh] w-full ${PANEL_WIDTH_CLASS[size]} flex-col overflow-hidden rounded-t-2xl border border-white/[0.08] bg-[#1e1f20] shadow-2xl shadow-black/60 animate-fade-in-soft focus:outline-none sm:max-h-[88dvh] sm:rounded-2xl`}
+        className={`flex max-h-[85dvh] w-full ${PANEL_WIDTH_CLASS[size]} flex-col overflow-hidden rounded-t-2xl border border-white/[0.08] bg-[#1e1f20] shadow-2xl shadow-black/80 animate-fade-in-soft focus:outline-none sm:max-h-[88dvh] sm:rounded-2xl`}
       >
         <header className="flex shrink-0 items-start justify-between gap-3 border-b border-white/[0.06] px-4 py-3 sm:px-5">
           <div className="min-w-0">
@@ -60,6 +66,7 @@ export default function ModalDialog({ isOpen, title, subtitle, size = "md", onCl
         </header>
         {children}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

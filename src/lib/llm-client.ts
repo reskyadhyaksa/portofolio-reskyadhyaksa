@@ -22,7 +22,7 @@ export function extractCompletionText(payload: CompletionResponse): string {
 
 export async function requestChatCompletion(model: string, messages: UpstreamMessage[], signal?: AbortSignal): Promise<string> {
   const endpoint = readRouterEnv("AI_ROUTER_BASE_URL");
-  const payload = await postRouterJson<CompletionResponse>(endpoint, { model, messages, stream: false }, signal);
+  const payload = await postRouterJson<CompletionResponse>(endpoint, { model, messages, stream: false, max_tokens: 8192 }, signal);
   const completionText = extractCompletionText(payload);
   if (!completionText) throw new UpstreamError("AI router returned an empty response", 502);
   return completionText;

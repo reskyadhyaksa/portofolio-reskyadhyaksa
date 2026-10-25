@@ -54,7 +54,7 @@ export default function VideoStudioFlow({
   };
 
   return (
-    <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-[#030712]">
+    <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-[#131314]">
       <div className="custom-scrollbar flex-1 overflow-y-auto px-4 py-4 sm:px-6 md:px-8">
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -69,7 +69,7 @@ export default function VideoStudioFlow({
         </div>
 
         {videos.length === 0 && !isGenerating ? (
-          <div className="flex min-h-[320px] flex-col items-center justify-center rounded-3xl border border-dashed border-white/[0.08] bg-white/[0.01] p-8 text-center">
+          <div className="flex min-h-[320px] flex-col items-center justify-center rounded-3xl border border-dashed border-white/[0.08] bg-[#1e1f20]/30 p-8 text-center">
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-purple-500/30 bg-purple-950/40 text-purple-400 shadow-lg">
               <VideoIcon className="h-6 w-6" />
             </div>
@@ -95,9 +95,9 @@ export default function VideoStudioFlow({
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pb-44">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pb-48">
             {isGenerating && (
-              <div className="relative aspect-video flex flex-col items-center justify-center rounded-2xl border border-purple-500/40 bg-[#0c091d] p-4 shadow-xl shadow-purple-950/40 animate-pulse">
+              <div className="relative aspect-video flex flex-col items-center justify-center rounded-2xl border border-purple-500/40 bg-[#1e1f20] p-4 shadow-xl shadow-purple-950/20 animate-pulse">
                 <Loader2 className="h-8 w-8 text-purple-400 animate-spin" />
                 <p className="mt-3 text-xs font-semibold text-purple-200">Starting video generation job...</p>
                 <p className="mt-1 text-[11px] text-slate-400 text-center line-clamp-2">{prompt}</p>
@@ -106,7 +106,7 @@ export default function VideoStudioFlow({
             {videos.map((vid) => (
               <div
                 key={vid.id}
-                className="group relative overflow-hidden rounded-2xl border border-white/[0.08] bg-[#070b16] shadow-md hover:border-purple-500/50 hover:shadow-purple-950/30 transition-all flex flex-col"
+                className="group relative overflow-hidden rounded-2xl border border-white/[0.08] bg-[#1e1f20] shadow-md hover:border-purple-500/50 hover:shadow-purple-950/30 transition-all flex flex-col"
               >
                 <div className="relative aspect-video w-full bg-black/60 overflow-hidden flex items-center justify-center">
                   {vid.status === "completed" && vid.url ? (
@@ -186,18 +186,21 @@ export default function VideoStudioFlow({
         )}
       </div>
 
-      <div className="absolute bottom-0 inset-x-0 p-3 sm:p-5 bg-gradient-to-t from-[#02050b] via-[#02050b]/95 to-transparent backdrop-blur-xl border-t border-white/[0.08]">
-        <form onSubmit={handleSubmit} className="mx-auto max-w-4xl space-y-2.5">
+      <div className="pointer-events-none absolute bottom-3 sm:bottom-4 md:bottom-5 inset-x-0 z-20 flex justify-center px-3 sm:px-4">
+        <form
+          onSubmit={handleSubmit}
+          className="pointer-events-auto w-full max-w-4xl space-y-2 rounded-2xl sm:rounded-3xl border border-white/[0.12] bg-[#1e1f20]/80 p-2 sm:p-2.5 shadow-[0_12px_40px_rgba(0,0,0,0.65),0_1px_0_rgba(255,255,255,0.1)_inset] backdrop-blur-2xl transition-all"
+        >
           <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
             <div className="flex items-center gap-2">
               <span className="text-[11px] font-semibold uppercase tracking-wider text-purple-400">Model:</span>
               <select
                 value={selectedModel}
                 onChange={(e) => setSelectedModel(e.target.value as VideoModelId)}
-                className="rounded-xl border border-white/[0.08] bg-[#081224] px-2.5 py-1 text-xs font-semibold text-slate-200 focus:outline-none focus:border-purple-500"
+                className="rounded-xl border border-white/[0.08] bg-white/[0.04] px-2.5 py-1 text-xs font-semibold text-slate-200 focus:outline-none focus:border-white/30 backdrop-blur-md cursor-pointer"
               >
                 {VIDEO_MODELS.map((m) => (
-                  <option key={m.id} value={m.id} className="bg-[#081224] text-white">
+                  <option key={m.id} value={m.id} className="bg-[#1e1f20] text-white">
                     {m.label}
                   </option>
                 ))}
@@ -205,7 +208,7 @@ export default function VideoStudioFlow({
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
-              <div className="flex items-center gap-1 bg-white/[0.03] p-0.5 rounded-xl border border-white/[0.06]">
+              <div className="flex items-center gap-1 rounded-xl border border-white/[0.08] bg-white/[0.04] p-0.5 backdrop-blur-md">
                 {[4, 5, 8].map((sec) => (
                   <button
                     key={sec}
@@ -213,7 +216,7 @@ export default function VideoStudioFlow({
                     onClick={() => setDuration(sec)}
                     className={`px-2 py-0.5 rounded-lg text-[11px] font-mono font-medium transition-all ${
                       duration === sec
-                        ? "bg-purple-600 text-white"
+                        ? "bg-white/[0.14] text-white shadow-sm font-semibold"
                         : "text-slate-400 hover:text-white"
                     }`}
                   >
@@ -222,7 +225,7 @@ export default function VideoStudioFlow({
                 ))}
               </div>
 
-              <div className="flex items-center gap-1 bg-white/[0.03] p-0.5 rounded-xl border border-white/[0.06]">
+              <div className="flex items-center gap-1 rounded-xl border border-white/[0.08] bg-white/[0.04] p-0.5 backdrop-blur-md">
                 {["720p", "1080p"].map((res) => (
                   <button
                     key={res}
@@ -230,7 +233,7 @@ export default function VideoStudioFlow({
                     onClick={() => setResolution(res)}
                     className={`px-2 py-0.5 rounded-lg text-[11px] font-mono font-medium transition-all ${
                       resolution === res
-                        ? "bg-purple-600 text-white"
+                        ? "bg-white/[0.14] text-white shadow-sm font-semibold"
                         : "text-slate-400 hover:text-white"
                     }`}
                   >
@@ -239,7 +242,7 @@ export default function VideoStudioFlow({
                 ))}
               </div>
 
-              <div className="flex items-center gap-1 bg-white/[0.03] p-0.5 rounded-xl border border-white/[0.06]">
+              <div className="flex items-center gap-1 rounded-xl border border-white/[0.08] bg-white/[0.04] p-0.5 backdrop-blur-md">
                 {["16:9", "9:16", "1:1"].map((ratio) => (
                   <button
                     key={ratio}
@@ -247,7 +250,7 @@ export default function VideoStudioFlow({
                     onClick={() => setAspectRatio(ratio)}
                     className={`px-2 py-0.5 rounded-lg text-[11px] font-mono font-medium transition-all ${
                       aspectRatio === ratio
-                        ? "bg-purple-600 text-white"
+                        ? "bg-white/[0.14] text-white shadow-sm font-semibold"
                         : "text-slate-400 hover:text-white"
                     }`}
                   >
@@ -258,19 +261,19 @@ export default function VideoStudioFlow({
             </div>
           </div>
 
-          <div className="relative flex items-center rounded-2xl border border-white/[0.12] bg-[#060e1d] shadow-2xl focus-within:border-purple-500">
+          <div className="relative flex items-center rounded-xl sm:rounded-2xl border border-white/[0.08] bg-white/[0.03] shadow-inner transition-all focus-within:border-white/[0.2] focus-within:bg-white/[0.06]">
             <input
               type="text"
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               placeholder="Describe your video scene, camera motion, and action (e.g. drone shot over waves)..."
               disabled={isGenerating}
-              className="w-full bg-transparent px-4 py-3 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none"
+              className="w-full bg-transparent px-3.5 py-2.5 text-xs sm:text-sm text-white placeholder-[#9aa0a6] focus:outline-none"
             />
             <button
               type="submit"
               disabled={!prompt.trim() || isGenerating}
-              className="mr-2 inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 px-4 py-2 text-xs font-bold text-white hover:brightness-110 disabled:opacity-40 transition-all active:scale-95 shrink-0"
+              className="mr-1.5 inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 px-3.5 py-2 text-xs font-semibold text-white shadow-md hover:brightness-110 disabled:opacity-40 transition-all active:scale-95 shrink-0"
             >
               {isGenerating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
               <span>Generate Video</span>

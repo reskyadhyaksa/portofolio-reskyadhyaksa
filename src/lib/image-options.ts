@@ -26,6 +26,8 @@ export interface ImageOptions {
   size: ImageSizeId;
   quality: ImageQualityId;
   outputFormat: ImageOutputFormatId;
+  aspectRatio?: string;
+  resolution?: string;
 }
 
 export const DEFAULT_IMAGE_OPTIONS: ImageOptions = {
@@ -59,12 +61,20 @@ export function resolveOutputExtension(outputFormat: ImageOutputFormatId): strin
 export function resolveImageOptions(candidate: unknown): ImageOptions | null {
   if (candidate === undefined || candidate === null) return DEFAULT_IMAGE_OPTIONS;
   if (typeof candidate !== "object") return null;
-  const { size, quality, outputFormat } = candidate as Record<string, unknown>;
-  const resolvedSize = size === undefined ? DEFAULT_IMAGE_OPTIONS.size : size;
-  const resolvedQuality = quality === undefined ? DEFAULT_IMAGE_OPTIONS.quality : quality;
-  const resolvedFormat = outputFormat === undefined ? DEFAULT_IMAGE_OPTIONS.outputFormat : outputFormat;
+  const candidateObj = candidate as Record<string, unknown>;
+  const resolvedSize = candidateObj.size === undefined ? DEFAULT_IMAGE_OPTIONS.size : candidateObj.size;
+  const resolvedQuality = candidateObj.quality === undefined ? DEFAULT_IMAGE_OPTIONS.quality : candidateObj.quality;
+  const resolvedFormat = candidateObj.outputFormat === undefined ? DEFAULT_IMAGE_OPTIONS.outputFormat : candidateObj.outputFormat;
   if (!isImageSizeId(resolvedSize) || !isImageQualityId(resolvedQuality) || !isImageOutputFormatId(resolvedFormat)) {
     return null;
   }
-  return { size: resolvedSize, quality: resolvedQuality, outputFormat: resolvedFormat };
+  const resolvedAspectRatio = typeof candidateObj.aspectRatio === "string" ? candidateObj.aspectRatio : undefined;
+  const resolvedResolution = typeof candidateObj.resolution === "string" ? candidateObj.resolution : undefined;
+  return {
+    size: resolvedSize,
+    quality: resolvedQuality,
+    outputFormat: resolvedFormat,
+    ...(resolvedAspectRatio ? { aspectRatio: resolvedAspectRatio } : {}),
+    ...(resolvedResolution ? { resolution: resolvedResolution } : {}),
+  };
 }

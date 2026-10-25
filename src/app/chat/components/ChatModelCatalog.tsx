@@ -1,11 +1,27 @@
 "use client";
 import { useMemo, useState } from "react";
-import { EMPTY_MODEL_FILTER, filterModels, groupByProvider, listAvailableProviders, listAvailableUsages, type ModelFilter } from "@/lib/model-filter";
-import { CATALOG_CHAT_MODELS, PROVIDER_LABELS, USAGE_LABELS, type ModelProvider, type ModelUsage } from "@/lib/model-catalog";
+import {
+  EMPTY_MODEL_FILTER,
+  filterModels,
+  groupByProvider,
+  listAvailableCapabilities,
+  listAvailableProviders,
+  listAvailableUsages,
+  type ModelFilter,
+} from "@/lib/model-filter";
+import {
+  CATALOG_CHAT_MODELS,
+  PROVIDER_LABELS,
+  USAGE_LABELS,
+  CAPABILITY_LABELS,
+  type ModelProvider,
+  type ModelUsage,
+  type CapabilityFilterKey,
+} from "@/lib/model-catalog";
 import FilterChips from "./FilterChips";
 import ModelCard from "./ModelCard";
 import ModelCardGrid from "./ModelCardGrid";
-import { USAGE_ICONS } from "./model-usage-icons";
+import { USAGE_ICONS, CAPABILITY_ICONS } from "./model-usage-icons";
 import { getModelSummary } from "@/lib/model-summaries";
 
 interface ChatModelCatalogProps {
@@ -18,14 +34,16 @@ export default function ChatModelCatalog({ selectedModel, onSelect }: ChatModelC
 
   const providers = useMemo(() => listAvailableProviders(CATALOG_CHAT_MODELS), []);
   const usages = useMemo(() => listAvailableUsages(CATALOG_CHAT_MODELS), []);
+  const capabilities = useMemo(() => listAvailableCapabilities(), []);
   const groups = useMemo(() => groupByProvider(filterModels(CATALOG_CHAT_MODELS, filter)), [filter]);
 
   const updateProvider = (provider: ModelProvider | null) => setFilter((current) => ({ ...current, provider }));
   const updateUsage = (usage: ModelUsage | null) => setFilter((current) => ({ ...current, usage }));
+  const updateCapability = (capability: CapabilityFilterKey | null) => setFilter((current) => ({ ...current, capability }));
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="flex shrink-0 flex-col gap-2.5 border-b border-white/[0.06] px-4 py-3 sm:gap-3 sm:px-5">
+      <div className="flex shrink-0 flex-col gap-2 border-b border-white/[0.06] px-4 py-2.5 sm:gap-2.5 sm:px-5">
         <FilterChips
           title="Provider"
           allLabel="All providers"
@@ -33,6 +51,16 @@ export default function ChatModelCatalog({ selectedModel, onSelect }: ChatModelC
           labels={PROVIDER_LABELS}
           value={filter.provider}
           onChange={updateProvider}
+          className="min-w-0"
+        />
+        <FilterChips
+          title="Capability"
+          allLabel="All capabilities"
+          options={capabilities}
+          labels={CAPABILITY_LABELS}
+          icons={CAPABILITY_ICONS}
+          value={filter.capability}
+          onChange={updateCapability}
           className="min-w-0"
         />
         <FilterChips
@@ -62,6 +90,7 @@ export default function ChatModelCatalog({ selectedModel, onSelect }: ChatModelC
                   summary={getModelSummary(model.id)}
                   tagLabel={USAGE_LABELS[model.usage]}
                   TagIcon={USAGE_ICONS[model.usage]}
+                  capabilities={model.capabilities}
                   isSelected={model.id === selectedModel}
                   onSelect={onSelect}
                 />

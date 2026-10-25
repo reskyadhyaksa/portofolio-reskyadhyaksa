@@ -7,7 +7,7 @@ import {
   MapPin,
   Briefcase,
   GraduationCap,
-  ShieldCheck,
+  Cloud,
   Award,
   Download,
   Terminal,
@@ -24,9 +24,9 @@ export default function AboutHero() {
       border: "border-cyan-500/30",
     },
     {
-      icon: ShieldCheck,
-      value: "< 4h SLA Target",
-      label: "Critical Production Fixes",
+      icon: Cloud,
+      value: "Cloud & DevOps",
+      label: "AWS, Linux & CI/CD Pipelines",
       color: "text-emerald-400",
       border: "border-emerald-500/30",
     },
@@ -79,7 +79,7 @@ export default function AboutHero() {
             </div>
 
             <p className="text-xs sm:text-sm md:text-base text-slate-200 leading-relaxed font-normal line-clamp-3 sm:line-clamp-none">
-              Full Stack Developer with experience building and supporting enterprise HRIS platforms, high-throughput RESTful APIs, and cloud-native applications. Proficient in Java Spring Boot, Next.js, AngularJS, SQL, AWS, and Salesforce integration, with proven hands-on expertise in backend development, production deployment pipelines, and resolving mission-critical issues in SLA-driven environments.
+              Full Stack Developer with experience building and supporting enterprise HRIS platforms, high-throughput RESTful APIs, and cloud-native applications. Proficient in Java Spring Boot, Next.js, AngularJS, SQL, AWS, and Salesforce integration, with proven hands-on expertise in backend development, production deployment pipelines, and resolving mission-critical issues in high-availability enterprise environments.
             </p>
 
             <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 pt-1 sm:pt-2">
@@ -159,8 +159,8 @@ export default function AboutHero() {
                   <span className="text-purple-300 font-semibold">Spring Boot · Next.js · AWS</span>
                 </div>
                 <div className="flex items-center justify-between border-b border-slate-800/80 pb-2">
-                  <span className="text-slate-400 text-[11px]">SLA RESOLUTION</span>
-                  <span className="text-emerald-400 font-bold">&lt; 4 Hours Urgent Tickets</span>
+                  <span className="text-slate-400 text-[11px]">CLOUD &amp; INFRA</span>
+                  <span className="text-emerald-400 font-bold">AWS, Linux &amp; CI/CD</span>
                 </div>
                 <div className="flex items-center justify-between border-b border-slate-800/80 pb-2">
                   <span className="text-slate-400 text-[11px]">ACADEMIC</span>

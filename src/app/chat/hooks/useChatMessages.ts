@@ -1,7 +1,7 @@
 "use client";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { ChatMessage, ChatPostPayload } from "@/lib/chat-types";
-import { fetchChatHistory, revertToMessage, sendChatMessage } from "../services/chat-api";
+import { fetchChatHistory, revertToMessage, streamChatMessage } from "../services/chat-api";
 
 const OPTIMISTIC_PREFIX = "optimistic-";
 
@@ -10,7 +10,7 @@ interface ExchangeResult {
   assistantMessage: ChatMessage;
 }
 
-type ExchangeExecutor = (sessionId: string) => Promise<ExchangeResult>;
+type ExchangeExecutor = (sessionId: string, signal: AbortSignal) => Promise<ExchangeResult>;
 
 function createOptimisticMessage(sessionId: string, payload: ChatPostPayload): ChatMessage {
   return {
@@ -30,6 +30,10 @@ export function useChatMessages(sessionId: string | null) {
   const [isSending, setIsSending] = useState(false);
   const [isReverting, setIsReverting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [streamingReply, setStreamingReply] = useState<string | null>(null);
+  const exchangeControllerRef = useRef<AbortController | null>(null);
+
+  useEffect(() => () => exchangeControllerRef.current?.abort(), []);
 
   useEffect(() => {
     if (!sessionId) return;
@@ -59,12 +63,14 @@ export function useChatMessages(sessionId: string | null) {
       if (!sessionId || isSending) return false;
 
       const optimisticMessage = createOptimisticMessage(sessionId, payload);
+      const controller = new AbortController();
+      exchangeControllerRef.current = controller;
       setMessages((current) => [...current, optimisticMessage]);
       setIsSending(true);
       setError(null);
 
       try {
-        const { userMessage, assistantMessage } = await executeExchange(sessionId);
+        const { userMessage, assistantMessage } = await executeExchange(sessionId, controller.signal);
         setMessages((current) => [
           ...current.filter((message) => message.id !== optimisticMessage.id),
           userMessage,
@@ -73,17 +79,31 @@ export function useChatMessages(sessionId: string | null) {
         return true;
       } catch (sendError) {
         setMessages((current) => current.filter((message) => message.id !== optimisticMessage.id));
-        setError(sendError instanceof Error ? sendError.message : "Failed to send message");
+        if (!controller.signal.aborted) {
+          setError(sendError instanceof Error ? sendError.message : "Failed to send message");
+        }
         return false;
       } finally {
+        if (exchangeControllerRef.current === controller) exchangeControllerRef.current = null;
         setIsSending(false);
       }
     },
     [sessionId, isSending]
   );
 
+  const stopExchange = useCallback(() => exchangeControllerRef.current?.abort(), []);
+
   const sendMessage = useCallback(
-    (payload: ChatPostPayload) => submitExchange(payload, (activeSessionId) => sendChatMessage(activeSessionId, payload)),
+    (payload: ChatPostPayload) =>
+      submitExchange(payload, async (activeSessionId, signal) => {
+        setStreamingReply("");
+        try {
+          const onDelta = (text: string) => setStreamingReply((current) => (current ?? "") + text);
+          return await streamChatMessage(activeSessionId, payload, { onDelta }, signal);
+        } finally {
+          setStreamingReply(null);
+        }
+      }),
     [submitExchange]
   );
 
@@ -112,5 +132,17 @@ export function useChatMessages(sessionId: string | null) {
     [sessionId, isSending, isReverting]
   );
 
-  return { messages, isLoadingHistory, isSending, isReverting, error, sendMessage, submitExchange, revertFrom, dismissError };
+  return {
+    messages,
+    streamingReply,
+    isLoadingHistory,
+    isSending,
+    isReverting,
+    error,
+    sendMessage,
+    submitExchange,
+    stopExchange,
+    revertFrom,
+    dismissError,
+  };
 }

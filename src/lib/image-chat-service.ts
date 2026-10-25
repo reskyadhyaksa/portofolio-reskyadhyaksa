@@ -12,12 +12,30 @@ export interface ImageChatResult {
   assistantMessage: ChatMessage;
 }
 
-export async function generateImageInChat(sessionId: string, payload: ImageGenerationPayload): Promise<ImageChatResult> {
-  const userMessage = insertMessage({ sessionId, role: "user", content: payload.prompt, model: payload.model });
+export async function generateImageInChat(
+  sessionId: string,
+  payload: ImageGenerationPayload,
+  signal?: AbortSignal
+): Promise<ImageChatResult> {
+  const userMessage = insertMessage({
+    sessionId,
+    role: "user",
+    content: payload.prompt,
+    model: payload.model,
+    attachments: payload.referenceImageUrl
+      ? [{ url: payload.referenceImageUrl, type: "image", name: "Reference Image" }]
+      : [],
+  });
   let storedUrl: string | null = null;
 
   try {
-    storedUrl = await generateImage(payload.prompt, payload.model, payload.options);
+    storedUrl = await generateImage(
+      payload.prompt,
+      payload.model,
+      payload.options,
+      payload.referenceImageUrl,
+      signal
+    );
     const image = insertGeneratedImage(sessionId, payload.prompt, storedUrl);
     const assistantMessage = insertMessage({
       sessionId,

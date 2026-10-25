@@ -27,8 +27,8 @@ export function useComposerSubmit({ sessionId, draft, onDraftChange, chat, queue
   const submitImagePrompt = useCallback(async () => {
     const model = composer.activeModel;
     onDraftChange("");
-    const isSent = await chat.submitExchange({ model, content: trimmedDraft, attachments: [] }, async (activeSessionId) => {
-      const result = await requestImageGeneration(activeSessionId, trimmedDraft, model, composer.imageOptions);
+    const isSent = await chat.submitExchange({ model, content: trimmedDraft, attachments: [] }, async (activeSessionId, signal) => {
+      const result = await requestImageGeneration(activeSessionId, trimmedDraft, model, composer.imageOptions, signal);
       onImageGenerated(result.image);
       return result;
     });

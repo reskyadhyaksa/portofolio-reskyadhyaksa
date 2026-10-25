@@ -7,6 +7,7 @@ import { UpstreamError } from "@/lib/router-http";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 export function GET(request: Request) {
   const sessionIds = readSessionIdList(request);
@@ -29,7 +30,7 @@ export async function POST(request: Request) {
 
   try {
     deleteExpiredMessages();
-    return jsonSuccess(await generateImageInChat(sessionId, validation.payload), 201);
+    return jsonSuccess(await generateImageInChat(sessionId, validation.payload, request.signal), 201);
   } catch (error) {
     const status = error instanceof UpstreamError ? error.status : 500;
     return jsonFailure(describeError(error, "Failed to generate image"), status);

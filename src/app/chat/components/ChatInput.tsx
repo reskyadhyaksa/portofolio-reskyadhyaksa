@@ -1,12 +1,13 @@
 "use client";
 import { useRef, type ChangeEvent, type ClipboardEvent, type FormEvent, type KeyboardEvent } from "react";
-import { ArrowUp, Loader2, Paperclip } from "lucide-react";
+import { Paperclip } from "lucide-react";
 import { ACCEPTED_FILE_INPUT, MAX_IMAGE_PROMPT_LENGTH, MAX_MESSAGE_LENGTH } from "@/lib/chat-config";
 import type { ImageOptions } from "@/lib/image-options";
 import type { PendingAttachment } from "../hooks/useAttachmentQueue";
 import { useAutoResizeTextarea } from "../hooks/useAutoResizeTextarea";
 import { extractClipboardImages } from "../services/clipboard-images";
 import AttachmentChip from "./AttachmentChip";
+import ComposerSubmitButton from "./ComposerSubmitButton";
 import ImageModeToggle from "./ImageModeToggle";
 import ImageOptionsPanel from "./ImageOptionsPanel";
 
@@ -16,6 +17,7 @@ interface ChatInputProps {
   value: string;
   onChange: (value: string) => void;
   onSubmit: () => void;
+  onStop: () => void;
   attachments: PendingAttachment[];
   onAddFiles: (files: File[]) => void;
   onRemoveAttachment: (localId: string) => void;
@@ -33,6 +35,7 @@ export default function ChatInput({
   value,
   onChange,
   onSubmit,
+  onStop,
   attachments,
   onAddFiles,
   onRemoveAttachment,
@@ -120,22 +123,7 @@ export default function ChatInput({
           <ImageModeToggle isActive={isImageMode} onToggle={onToggleImageMode} disabled={isSending || isDisabled} />
         </div>
 
-        <button
-          type="submit"
-          disabled={!canSubmit}
-          aria-label={isSending ? "Sending message" : "Send message"}
-          className={`flex h-8 w-8 items-center justify-center rounded-full transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8ab4f8] focus-visible:ring-offset-2 focus-visible:ring-offset-[#1e1f20] ${
-            canSubmit
-              ? "cursor-pointer bg-[#e3e3e3] text-[#131314] hover:bg-white active:scale-95"
-              : "cursor-not-allowed bg-white/[0.06] text-[#5f6368]"
-          }`}
-        >
-          {isSending ? (
-            <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin motion-reduce:animate-none" />
-          ) : (
-            <ArrowUp aria-hidden="true" className="h-4 w-4" />
-          )}
-        </button>
+        <ComposerSubmitButton canSubmit={canSubmit} isSending={isSending} onStop={onStop} />
       </div>
     </form>
   );

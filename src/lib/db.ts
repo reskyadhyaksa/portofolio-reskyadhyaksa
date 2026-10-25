@@ -30,9 +30,22 @@ const SCHEMA_SQL = `
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   );
   CREATE INDEX IF NOT EXISTS idx_images_created ON generated_images(created_at);
+  CREATE TABLE IF NOT EXISTS generated_videos (
+    id TEXT PRIMARY KEY,
+    session_id TEXT NOT NULL,
+    prompt TEXT NOT NULL,
+    model TEXT NOT NULL,
+    url TEXT,
+    status TEXT NOT NULL,
+    duration INTEGER NOT NULL,
+    resolution TEXT NOT NULL,
+    aspect_ratio TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  );
+  CREATE INDEX IF NOT EXISTS idx_videos_created ON generated_videos(created_at);
 `;
 
-const SCHEMA_VERSION = 2;
+const SCHEMA_VERSION = 3;
 
 const globalForDatabase = globalThis as typeof globalThis & {
   chatDatabase?: Database.Database;

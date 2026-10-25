@@ -1,4 +1,5 @@
 import { Code2, FileSearch, Lightbulb, PenLine, type LucideIcon } from "lucide-react";
+import { CHAT_COLUMN_CLASS, CHAT_GUTTER_CLASS } from "./chat-layout-tokens";
 
 interface PromptSuggestion {
   icon: LucideIcon;
@@ -19,25 +20,26 @@ interface EmptyStateProps {
 
 export default function EmptyState({ onSelectPrompt }: EmptyStateProps) {
   return (
-    <section className="mx-auto flex w-full max-w-[60rem] flex-1 flex-col justify-center px-4 py-6 sm:px-6 animate-fade-in-up">
-      <h1 className="bg-gradient-to-r from-[#4285f4] via-[#9b72cb] to-[#d96570] bg-clip-text text-2xl font-medium tracking-tight text-transparent sm:text-3xl">
+    <section className={`${CHAT_COLUMN_CLASS} ${CHAT_GUTTER_CLASS} flex flex-1 flex-col justify-center py-4 animate-fade-in-up sm:py-6`}>
+      <h1 className="bg-gradient-to-r from-[#4285f4] via-[#9b72cb] to-[#d96570] bg-clip-text text-lg font-medium tracking-tight text-transparent sm:text-2xl">
         Hello there.
       </h1>
-      <p className="mt-1 text-lg font-medium tracking-tight text-[#5f6368] sm:text-2xl">How can I help you today?</p>
+      <p className="mt-0.5 text-sm font-medium tracking-tight text-[#5f6368] sm:mt-1 sm:text-lg">How can I help you today?</p>
 
-      <ul className="mt-6 grid grid-cols-1 gap-2 sm:grid-cols-2">
+      <ul className="mt-4 grid grid-cols-2 gap-2 sm:mt-5">
         {PROMPT_SUGGESTIONS.map(({ icon: Icon, label, prompt }) => (
           <li key={label}>
             <button
               type="button"
               onClick={() => onSelectPrompt(prompt)}
-              className="group flex h-full w-full cursor-pointer flex-col gap-1.5 rounded-xl bg-[#1e1f20] p-3 text-left transition-colors duration-200 hover:bg-[#28292a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8ab4f8]"
+              title={prompt}
+              className="group flex h-full min-h-11 w-full cursor-pointer flex-col justify-center gap-1.5 rounded-xl bg-[#1e1f20] p-2.5 text-left transition-colors duration-200 hover:bg-[#28292a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8ab4f8] sm:justify-start sm:p-3"
             >
-              <span className="flex items-center gap-2 text-[13px] font-medium text-[#e3e3e3]">
-                <Icon aria-hidden="true" className="h-3.5 w-3.5 text-[#8ab4f8]" />
+              <span className="flex items-center gap-2 text-[12px] font-medium text-[#e3e3e3] sm:text-[13px]">
+                <Icon aria-hidden="true" className="h-3.5 w-3.5 shrink-0 text-[#8ab4f8]" />
                 {label}
               </span>
-              <span className="line-clamp-2 text-[12px] text-[#9aa0a6]">{prompt}</span>
+              <span className="hidden text-[12px] text-[#9aa0a6] sm:line-clamp-2">{prompt}</span>
             </button>
           </li>
         ))}

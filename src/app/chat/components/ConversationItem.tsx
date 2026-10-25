@@ -28,9 +28,9 @@ export default function ConversationItem({ conversation, isActive, isDeleting, o
         onClick={() => onSelect(conversation.id)}
         aria-current={isActive ? "page" : undefined}
         title={conversation.title}
-        className="flex min-w-0 flex-1 cursor-pointer items-center gap-2 rounded-full py-1.5 pl-3 text-left text-[13px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8ab4f8]"
+        className="flex min-w-0 flex-1 cursor-pointer items-center gap-2 rounded-full py-1.5 pl-3 text-left text-[12px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8ab4f8]"
       >
-        <MessageSquare aria-hidden="true" className="h-3.5 w-3.5 shrink-0 opacity-70" />
+        <MessageSquare aria-hidden="true" className="h-3 w-3 shrink-0 opacity-70" />
         <span className="truncate">{isConfirming ? "Delete permanently?" : conversation.title}</span>
       </button>
 

@@ -126,6 +126,10 @@
   }
 }
 
+html {
+  background-color: var(--color-primary);
+}
+
 body {
   font-family: var(--font-jetbrains);
 }

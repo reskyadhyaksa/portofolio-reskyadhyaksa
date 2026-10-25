@@ -7,17 +7,17 @@ export class UpstreamError extends Error {
   }
 }
 
-interface RouterErrorPayload {
+export interface RouterErrorPayload {
   error?: { message?: string } | string;
 }
 
-function readRouterApiKey(): string {
+export function readRouterApiKey(): string {
   const apiKey = process.env.AI_ROUTER_API_KEY;
   if (!apiKey) throw new UpstreamError("AI router is not configured", 500);
   return apiKey;
 }
 
-function extractRouterError(payload: RouterErrorPayload | null, fallback: string): string {
+export function extractRouterError(payload: RouterErrorPayload | null, fallback: string): string {
   if (!payload?.error) return fallback;
   return typeof payload.error === "string" ? payload.error : payload.error.message ?? fallback;
 }
@@ -29,16 +29,19 @@ export function readRouterEnv(name: string): string {
 }
 
 async function requestRouterJson<T>(endpoint: string, init: RequestInit): Promise<T> {
+  const clientSignal = init.signal ?? null;
+  const timeoutSignal = AbortSignal.timeout(UPSTREAM_TIMEOUT_MS);
   let response: Response;
   try {
     response = await fetch(endpoint, {
       ...init,
       headers: { ...init.headers, Authorization: `Bearer ${readRouterApiKey()}` },
       cache: "no-store",
-      signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
+      signal: clientSignal ? AbortSignal.any([timeoutSignal, clientSignal]) : timeoutSignal,
     });
   } catch (error) {
     if (error instanceof UpstreamError) throw error;
+    if (clientSignal?.aborted) throw new UpstreamError("Request cancelled by client", 499);
     const isTimeout = error instanceof Error && error.name === "TimeoutError";
     throw new UpstreamError(isTimeout ? "AI router timed out" : "Failed to reach AI router", isTimeout ? 504 : 502);
   }
@@ -51,11 +54,17 @@ async function requestRouterJson<T>(endpoint: string, init: RequestInit): Promis
   return payload;
 }
 
-export function postRouterJson<T>(endpoint: string, body: unknown): Promise<T> {
+export function postRouterJson<T>(
+  endpoint: string,
+  body: unknown,
+  signal?: AbortSignal,
+  extraHeaders?: Record<string, string>
+): Promise<T> {
   return requestRouterJson<T>(endpoint, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...extraHeaders },
     body: JSON.stringify(body),
+    signal,
   });
 }
 

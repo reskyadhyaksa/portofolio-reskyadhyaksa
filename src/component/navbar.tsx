@@ -8,6 +8,8 @@ import WeatherBrandWidget from "./navbar/WeatherBrandWidget";
 import DesktopNav from "./navbar/DesktopNav";
 import MobileDrawer from "./navbar/MobileDrawer";
 
+const FULLSCREEN_ROUTE_PREFIX = "/chat";
+
 export default function NavigationBar() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
@@ -37,6 +39,8 @@ export default function NavigationBar() {
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
+
+  if (pathname.startsWith(FULLSCREEN_ROUTE_PREFIX)) return null;
 
   return (
     <header

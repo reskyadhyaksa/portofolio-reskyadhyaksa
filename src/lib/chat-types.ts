@@ -26,6 +26,12 @@ export interface ChatPostPayload {
   attachments: Attachment[];
 }
 
+export type ChatStreamEvent =
+  | { type: "user"; message: ChatMessage }
+  | { type: "delta"; text: string }
+  | { type: "done"; message: ChatMessage }
+  | { type: "error"; error: string };
+
 export interface ConversationSummary {
   id: string;
   title: string;
@@ -38,6 +44,19 @@ export interface GeneratedImage {
   sessionId: string;
   prompt: string;
   url: string;
+  createdAt: string;
+}
+
+export interface GeneratedVideo {
+  id: string;
+  sessionId: string;
+  prompt: string;
+  model: string;
+  url: string | null;
+  status: "pending" | "in_progress" | "completed" | "failed";
+  duration: number;
+  resolution: string;
+  aspectRatio: string;
   createdAt: string;
 }
 

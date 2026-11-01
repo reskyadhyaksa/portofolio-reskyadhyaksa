@@ -84,10 +84,10 @@ export default function ChatInput({
   return (
     <form
       onSubmit={handleFormSubmit}
-      className="rounded-2xl sm:rounded-3xl border border-white/[0.12] bg-[#1e1f20]/80 p-2 sm:p-2.5 shadow-[0_12px_40px_rgba(0,0,0,0.65),0_1px_0_rgba(255,255,255,0.1)_inset] backdrop-blur-2xl transition-all duration-200 focus-within:border-white/[0.22] focus-within:bg-[#1e1f20]/90"
+      className="rounded-xl sm:rounded-2xl md:rounded-3xl border border-white/[0.12] bg-[#1e1f20]/80 p-1.5 sm:p-2.5 shadow-[0_12px_40px_rgba(0,0,0,0.65),0_1px_0_rgba(255,255,255,0.1)_inset] backdrop-blur-2xl transition-all duration-200 focus-within:border-white/[0.22] focus-within:bg-[#1e1f20]/90"
     >
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.06] pb-2 px-1 text-xs">
-        <div className="flex items-center gap-1 rounded-xl border border-white/[0.08] bg-white/[0.04] p-0.5 backdrop-blur-md">
+      <div className="flex items-center justify-between gap-1.5 sm:gap-2 border-b border-white/[0.06] pb-1.5 sm:pb-2 px-1 text-xs">
+        <div className="hidden sm:flex items-center gap-1 rounded-xl border border-white/[0.08] bg-white/[0.04] p-0.5 backdrop-blur-md">
           <button
             type="button"
             onClick={() => isImageMode && onToggleImageMode()}
@@ -184,10 +184,10 @@ export default function ChatInput({
         onKeyDown={handleKeyDown}
         onPaste={handlePaste}
         placeholder={isImageMode ? "Describe the image to generate…" : "Ask anything…"}
-        className="custom-scrollbar block w-full resize-none bg-transparent px-3 pb-0.5 pt-2 text-base leading-5 text-[#e3e3e3] sm:text-[13px] placeholder:text-[#9aa0a6] focus:outline-none disabled:cursor-not-allowed"
+        className="custom-scrollbar block w-full resize-none bg-transparent px-2.5 sm:px-3 pb-0.5 pt-1.5 sm:pt-2 text-xs sm:text-[13px] leading-snug sm:leading-5 text-[#e3e3e3] placeholder:text-[#9aa0a6] focus:outline-none disabled:cursor-not-allowed"
       />
 
-      <div className="flex items-center justify-between gap-2 px-1 pt-1">
+      <div className="flex items-center justify-between gap-2 px-1 pt-0.5 sm:pt-1">
         <input ref={fileInputRef} type="file" multiple accept={ACCEPTED_FILE_INPUT} onChange={handleFileChange} className="hidden" tabIndex={-1} />
         <div className="flex items-center gap-1">
           <button
@@ -196,9 +196,9 @@ export default function ChatInput({
             disabled={!canAttach || isDisabled || isImageMode}
             aria-label="Attach image or document"
             title="Attach image or document"
-            className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-[#c4c7c5] transition-colors duration-200 hover:bg-white/[0.08] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8ab4f8] disabled:cursor-not-allowed disabled:opacity-40"
+            className="flex h-7 w-7 sm:h-8 sm:w-8 cursor-pointer items-center justify-center rounded-full text-[#c4c7c5] transition-colors duration-200 hover:bg-white/[0.08] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8ab4f8] disabled:cursor-not-allowed disabled:opacity-40"
           >
-            <Paperclip aria-hidden="true" className="h-4 w-4" />
+            <Paperclip aria-hidden="true" className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
           </button>
         </div>
 

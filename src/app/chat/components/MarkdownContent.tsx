@@ -19,7 +19,7 @@ function readCodeLanguage(preChildren: ReactNode): string {
 }
 
 const MARKDOWN_COMPONENTS: Components = {
-  p: ({ children }) => <p className="mb-2.5 leading-[1.6] last:mb-0">{children}</p>,
+  p: ({ children }) => <p className="mb-2 sm:mb-2.5 leading-relaxed last:mb-0">{children}</p>,
   h1: ({ children }) => <h1 className="mb-1.5 mt-3.5 text-[14px] font-semibold text-white first:mt-0">{children}</h1>,
   h2: ({ children }) => <h2 className="mb-1.5 mt-3.5 text-[13.5px] font-semibold text-white first:mt-0">{children}</h2>,
   h3: ({ children }) => <h3 className="mb-1 mt-3 text-[13px] font-semibold text-white first:mt-0">{children}</h3>,
@@ -77,7 +77,7 @@ interface MarkdownContentProps {
 
 export default function MarkdownContent({ content }: MarkdownContentProps) {
   return (
-    <div className="break-words text-[12.5px] text-[#e3e3e3]">
+    <div className="break-words text-xs sm:text-[12.5px] leading-relaxed text-[#e3e3e3]">
       <Markdown remarkPlugins={REMARK_PLUGINS} rehypePlugins={REHYPE_PLUGINS} components={MARKDOWN_COMPONENTS}>
         {content}
       </Markdown>

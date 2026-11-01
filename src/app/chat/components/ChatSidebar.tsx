@@ -2,6 +2,7 @@
 import { useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
 import {
+  ChevronDown,
   Home,
   PanelLeftClose,
   Plus,
@@ -35,6 +36,7 @@ interface ChatSidebarProps {
   onDeleteVideo?: (videoId: string) => void;
   errorMessage: string | null;
   studioMode: StudioViewMode;
+  onSelectStudioMode?: (mode: StudioViewMode) => void;
 }
 
 function SidebarSection({
@@ -78,6 +80,7 @@ export default function ChatSidebar({
   onDeleteVideo,
   errorMessage,
   studioMode,
+  onSelectStudioMode,
 }: ChatSidebarProps) {
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -160,6 +163,28 @@ export default function ChatSidebar({
           >
             <PanelLeftClose aria-hidden="true" className="h-4 w-4" />
           </button>
+        </div>
+
+        <div className="flex flex-col gap-1 md:hidden">
+          <label htmlFor="mobile-studio-mode-select" className="px-1 text-[9.5px] font-semibold uppercase tracking-wider text-slate-500">
+            Studio Mode
+          </label>
+          <div className="relative">
+            <select
+              id="mobile-studio-mode-select"
+              value={studioMode}
+              onChange={(e) => {
+                onSelectStudioMode?.(e.target.value as StudioViewMode);
+                onClose();
+              }}
+              className="w-full appearance-none rounded-xl border border-white/[0.08] bg-white/[0.04] px-2.5 py-1.5 pr-8 text-xs font-medium text-slate-200 focus:border-[#8ab4f8] focus:bg-[#1e1f20] focus:outline-none"
+            >
+              <option value="chat" className="bg-[#171819] text-slate-200">💬 Chat Mode</option>
+              <option value="image" className="bg-[#171819] text-slate-200">🖼️ Image Studio</option>
+              <option value="video" className="bg-[#171819] text-slate-200">🎬 Video Studio</option>
+            </select>
+            <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
+          </div>
         </div>
 
         <button

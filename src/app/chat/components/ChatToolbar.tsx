@@ -16,6 +16,7 @@ interface ChatToolbarProps {
   isSidebarCollapsed: boolean;
   isBusy: boolean;
   hasMessages: boolean;
+  activeTitle?: string;
 }
 
 const TOOLBAR_BUTTON_CLASS =
@@ -32,82 +33,105 @@ export default function ChatToolbar({
   isSidebarCollapsed,
   isBusy,
   hasMessages,
+  activeTitle,
 }: ChatToolbarProps) {
   return (
-    <header className={`${CHAT_COLUMN_CLASS} ${CHAT_TOOLBAR_GUTTER_CLASS} flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.06] pb-2 sm:pb-3`}>
-      <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-        <button
-          type="button"
-          onClick={onOpenSidebar}
-          aria-label="Open sidebar"
-          aria-controls={CHAT_SIDEBAR_ID}
-          title="Open sidebar"
-          className={`${TOOLBAR_BUTTON_CLASS} ${isSidebarCollapsed ? "" : "md:hidden"}`}
-        >
-          <Menu aria-hidden="true" className="h-4 w-4" />
-        </button>
-
-        <div className="flex items-center gap-1 rounded-xl bg-white/[0.04] p-0.5 border border-white/[0.08]">
+    <header className={`${CHAT_COLUMN_CLASS} ${CHAT_TOOLBAR_GUTTER_CLASS} flex items-center justify-between border-b border-white/[0.06] pb-2 sm:pb-3`}>
+      <div className="flex w-full items-center justify-between gap-2 md:hidden">
+        <div className="flex min-w-0 items-center gap-2">
           <button
             type="button"
-            onClick={() => onSelectStudioMode("chat")}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${studioMode === "chat"
-              ? "bg-[#8ab4f8]/20 text-[#8ab4f8] border border-[#8ab4f8]/40 shadow-sm"
-              : "text-slate-400 hover:text-white"
-              }`}
-          >
-            <MessageSquare className="h-3 w-3" />
-            <span>Chat</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => onSelectStudioMode("image")}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${studioMode === "image"
-              ? "bg-[#8ab4f8]/20 text-cyan-300 border border-cyan-500/40 shadow-sm"
-              : "text-slate-400 hover:text-white"
-              }`}
-          >
-            <ImageIcon className="h-3 w-3" />
-            <span>Image</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => onSelectStudioMode("video")}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${studioMode === "video"
-              ? "bg-[#8ab4f8]/20 text-purple-300 border border-purple-500/40 shadow-sm"
-              : "text-slate-400 hover:text-white"
-              }`}
-          >
-            <Film className="h-3 w-3" />
-            <span>Video</span>
-          </button>
-        </div>
-
-        {studioMode === "chat" && (
-          <ModelSelector
-            models={models}
-            selectedModel={selectedModel}
-            onSelect={onSelectModel}
-            isImageMode={false}
-            disabled={isBusy}
-          />
-        )}
-      </div>
-
-      <div className="flex items-center gap-1.5">
-        <span className="hidden text-[11px] text-[#9aa0a6] sm:inline">Auto-deletes after {MESSAGE_TTL_HOURS}h</span>
-        {studioMode === "chat" && (
-          <button
-            type="button"
-            onClick={onNewChat}
-            disabled={isBusy || !hasMessages}
-            aria-label="Start new chat"
-            title="New chat"
+            onClick={onOpenSidebar}
+            aria-label="Open sidebar"
+            aria-controls={CHAT_SIDEBAR_ID}
+            title="Open sidebar"
             className={TOOLBAR_BUTTON_CLASS}
           >
-            <SquarePen aria-hidden="true" className="h-4 w-4" />
+            <Menu aria-hidden="true" className="h-4 w-4" />
           </button>
-        )}
+          <h1 className="truncate text-xs font-semibold text-slate-200">
+            {activeTitle || "New Chat"}
+          </h1>
+        </div>
+      </div>
+
+      <div className="hidden md:flex md:w-full md:items-center md:justify-between md:gap-2">
+        <div className="flex items-center gap-2">
+          {isSidebarCollapsed && (
+            <button
+              type="button"
+              onClick={onOpenSidebar}
+              aria-label="Open sidebar"
+              aria-controls={CHAT_SIDEBAR_ID}
+              title="Open sidebar"
+              className={TOOLBAR_BUTTON_CLASS}
+            >
+              <Menu aria-hidden="true" className="h-4 w-4" />
+            </button>
+          )}
+
+          <div className="flex items-center gap-1 rounded-xl bg-white/[0.04] p-0.5 border border-white/[0.08]">
+            <button
+              type="button"
+              onClick={() => onSelectStudioMode("chat")}
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${studioMode === "chat"
+                ? "bg-[#8ab4f8]/20 text-[#8ab4f8] border border-[#8ab4f8]/40 shadow-sm"
+                : "text-slate-400 hover:text-white"
+                }`}
+            >
+              <MessageSquare className="h-3 w-3" />
+              <span>Chat</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => onSelectStudioMode("image")}
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${studioMode === "image"
+                ? "bg-[#8ab4f8]/20 text-cyan-300 border border-cyan-500/40 shadow-sm"
+                : "text-slate-400 hover:text-white"
+                }`}
+            >
+              <ImageIcon className="h-3 w-3" />
+              <span>Image</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => onSelectStudioMode("video")}
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${studioMode === "video"
+                ? "bg-[#8ab4f8]/20 text-purple-300 border border-purple-500/40 shadow-sm"
+                : "text-slate-400 hover:text-white"
+                }`}
+            >
+              <Film className="h-3 w-3" />
+              <span>Video</span>
+            </button>
+          </div>
+
+          {studioMode === "chat" && (
+            <ModelSelector
+              models={models}
+              selectedModel={selectedModel}
+              onSelect={onSelectModel}
+              isImageMode={false}
+              disabled={isBusy}
+            />
+          )}
+        </div>
+
+        <div className="flex items-center gap-1.5">
+          <span className="text-[11px] text-[#9aa0a6]">Auto-deletes after {MESSAGE_TTL_HOURS}h</span>
+          {studioMode === "chat" && (
+            <button
+              type="button"
+              onClick={onNewChat}
+              disabled={isBusy || !hasMessages}
+              aria-label="Start new chat"
+              title="New chat"
+              className={TOOLBAR_BUTTON_CLASS}
+            >
+              <SquarePen aria-hidden="true" className="h-4 w-4" />
+            </button>
+          )}
+        </div>
       </div>
     </header>
   );

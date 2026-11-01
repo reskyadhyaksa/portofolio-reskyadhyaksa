@@ -83,6 +83,14 @@ export default function ChatContainer({ initialSessionId, initialTab }: ChatCont
     setIsSidebarCollapsed(false);
   };
 
+  const activeConversation = conversationList.conversations.find((c) => c.sessionId === session.sessionId);
+  const activeTitle =
+    routeSync.studioMode === "image"
+      ? "Image Studio"
+      : routeSync.studioMode === "video"
+        ? "Video Studio"
+        : (activeConversation?.title || (chat.messages.length > 0 ? "Chat" : "New Chat"));
+
   return (
     <div className="relative flex h-full min-h-0">
       <ChatSidebar
@@ -102,9 +110,11 @@ export default function ChatContainer({ initialSessionId, initialTab }: ChatCont
         onDeleteVideo={videoGallery.removeVideo}
         errorMessage={conversationList.error ?? gallery.error ?? videoGallery.error}
         studioMode={routeSync.studioMode}
+        onSelectStudioMode={handleSelectStudioMode}
       />
       <ChatPanel
         sessionId={session.sessionId}
+        activeTitle={activeTitle}
         chat={chat}
         queue={queue}
         draft={draft}

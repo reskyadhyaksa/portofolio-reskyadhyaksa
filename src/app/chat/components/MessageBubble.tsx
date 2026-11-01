@@ -46,7 +46,7 @@ function UserMessage({ message, controls }: UserMessageProps) {
   return (
     <div className="group flex flex-col items-end animate-fade-in-soft">
       <MessageAttachments attachments={message.attachments} alignEnd />
-      <div className="max-w-[85%] whitespace-pre-wrap break-words rounded-2xl rounded-tr-md bg-[#28292a] px-3.5 py-2 text-[12.5px] leading-[1.6] text-[#e3e3e3] sm:max-w-[75%]">
+      <div className="max-w-[85%] whitespace-pre-wrap break-words rounded-xl sm:rounded-2xl rounded-tr-md bg-[#28292a] px-3 py-1.5 sm:px-3.5 sm:py-2 text-xs sm:text-[12.5px] leading-relaxed sm:leading-[1.6] text-[#e3e3e3] sm:max-w-[75%]">
         {message.content}
       </div>
       {controls && isPersisted && (

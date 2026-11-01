@@ -22,6 +22,7 @@ import VideoStudioFlow from "./VideoStudioFlow";
 
 interface ChatPanelProps {
   sessionId: string | null;
+  activeTitle?: string;
   chat: ReturnType<typeof useChatMessages>;
   queue: ReturnType<typeof useAttachmentQueue>;
   draft: string;
@@ -40,6 +41,7 @@ interface ChatPanelProps {
 
 export default function ChatPanel({
   sessionId,
+  activeTitle,
   chat,
   queue,
   draft,
@@ -91,6 +93,7 @@ export default function ChatPanel({
         isSidebarCollapsed={isSidebarCollapsed}
         isBusy={chat.isSending || isGeneratingVideo || isGeneratingStudioImage}
         hasMessages={chat.messages.length > 0}
+        activeTitle={activeTitle}
       />
 
       {studioMode === "image" ? (
@@ -109,7 +112,7 @@ export default function ChatPanel({
         />
       ) : (
         <>
-          <div className="custom-scrollbar flex min-h-0 flex-1 flex-col overflow-y-auto pb-48 sm:pb-52">
+          <div className="custom-scrollbar flex min-h-0 flex-1 flex-col overflow-y-auto pb-28 sm:pb-36 md:pb-48">
             {isInitializing ? (
               <div role="status" className="flex flex-1 items-center justify-center text-[#9aa0a6]">
                 <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin motion-reduce:animate-none" />
@@ -130,7 +133,7 @@ export default function ChatPanel({
             )}
           </div>
 
-          <div className="pointer-events-none absolute bottom-3 sm:bottom-4 md:bottom-5 inset-x-0 z-20 flex flex-col items-center px-3 sm:px-4">
+          <div className="pointer-events-none absolute bottom-2 sm:bottom-3 md:bottom-4 inset-x-0 z-20 flex flex-col items-center px-2 sm:px-4">
             <div className="pointer-events-auto w-full max-w-4xl space-y-1.5">
               {chat.error && <ChatErrorBanner message={chat.error} onDismiss={chat.dismissError} />}
               <ChatInput
@@ -153,8 +156,8 @@ export default function ChatPanel({
                 selectedModel={composer.activeModel}
                 onSelectModel={composer.selectModel}
               />
-              <p className="text-center text-[10px] text-[#9aa0a6]/70 drop-shadow">
-                AI can make mistakes. Chats, files, and images are deleted automatically after {MESSAGE_TTL_HOURS} hours.
+              <p className="text-center text-[9px] sm:text-[10px] text-[#9aa0a6]/70 drop-shadow truncate max-w-[90%] mx-auto">
+                AI can make mistakes. Chats auto-delete after {MESSAGE_TTL_HOURS}h.
               </p>
             </div>
           </div>

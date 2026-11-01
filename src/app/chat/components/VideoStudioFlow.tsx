@@ -10,11 +10,15 @@ import {
   Copy,
   Check,
   AlertCircle,
+  SlidersHorizontal,
 } from "lucide-react";
 import { VIDEO_MODELS, type VideoModelId } from "@/lib/chat-config";
 import type { GeneratedVideo } from "@/lib/chat-types";
+import { getVideoModelConfig } from "@/lib/media-model-catalog";
 import type { RequestVideoParams } from "../services/chat-api";
 import { CHAT_COLUMN_CLASS, CHAT_GUTTER_CLASS } from "./chat-layout-tokens";
+import ModelSelector from "./ModelSelector";
+import ParameterPreviewModal from "./ParameterPreviewModal";
 
 interface VideoStudioFlowProps {
   sessionId: string | null;
@@ -30,12 +34,27 @@ export default function VideoStudioFlow({
 }: VideoStudioFlowProps) {
   const [prompt, setPrompt] = useState("");
   const [selectedModel, setSelectedModel] = useState<VideoModelId>(VIDEO_MODELS[0].id);
-  const [duration, setDuration] = useState(5);
-  const [resolution, setResolution] = useState("720p");
-  const [aspectRatio, setAspectRatio] = useState("16:9");
+  const currentModelConfig = getVideoModelConfig(selectedModel);
+
+  const [duration, setDuration] = useState(currentModelConfig.defaultDuration);
+  const [resolution, setResolution] = useState(currentModelConfig.defaultResolution);
+  const [aspectRatio, setAspectRatio] = useState(currentModelConfig.defaultAspectRatio);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [isParamsModalOpen, setIsParamsModalOpen] = useState(false);
 
   const isCanvasEmpty = videos.length === 0 && !isGenerating;
+
+  const effectiveDuration = currentModelConfig.durations.includes(duration)
+    ? duration
+    : currentModelConfig.defaultDuration;
+
+  const effectiveResolution = currentModelConfig.resolutions.includes(resolution)
+    ? resolution
+    : currentModelConfig.defaultResolution;
+
+  const effectiveAspectRatio = currentModelConfig.aspectRatios.includes(aspectRatio)
+    ? aspectRatio
+    : currentModelConfig.defaultAspectRatio;
 
   const handleCopyPrompt = async (vid: GeneratedVideo) => {
     await navigator.clipboard.writeText(vid.prompt);
@@ -49,9 +68,9 @@ export default function VideoStudioFlow({
     await onGenerate({
       prompt: prompt.trim(),
       model: selectedModel,
-      duration,
-      resolution,
-      aspectRatio,
+      duration: effectiveDuration,
+      resolution: effectiveResolution,
+      aspectRatio: effectiveAspectRatio,
     });
     setPrompt("");
   };
@@ -205,26 +224,33 @@ export default function VideoStudioFlow({
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
-              <select
-                value={selectedModel}
-                onChange={(e) => setSelectedModel(e.target.value as VideoModelId)}
-                className="rounded-xl border border-white/[0.08] bg-white/[0.04] px-2.5 py-1 text-xs font-semibold text-slate-200 focus:outline-none focus:border-white/30 backdrop-blur-md cursor-pointer"
+              <ModelSelector
+                mode="video"
+                models={VIDEO_MODELS}
+                selectedModel={selectedModel}
+                onSelect={(id) => setSelectedModel(id as VideoModelId)}
+                disabled={isGenerating}
+                className="flex items-center gap-1.5 rounded-xl border border-white/[0.08] bg-white/[0.04] px-2.5 py-1 text-xs font-semibold text-slate-200 hover:bg-white/[0.08] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 disabled:cursor-not-allowed disabled:opacity-50 backdrop-blur-md cursor-pointer shrink-0"
+              />
+
+              <button
+                type="button"
+                onClick={() => setIsParamsModalOpen(true)}
+                title="Preview framing, resolution, and duration"
+                className="flex items-center gap-1.5 rounded-xl border border-white/[0.08] bg-white/[0.04] px-2.5 py-1 text-xs font-semibold text-slate-200 hover:bg-white/[0.08] hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 backdrop-blur-md cursor-pointer shrink-0"
               >
-                {VIDEO_MODELS.map((m) => (
-                  <option key={m.id} value={m.id} className="bg-[#1e1f20] text-white">
-                    {m.label}
-                  </option>
-                ))}
-              </select>
+                <SlidersHorizontal className="h-3 w-3 text-purple-400" />
+                <span className="hidden sm:inline">Framing Preview</span>
+              </button>
 
               <div className="flex items-center gap-1 rounded-xl border border-white/[0.08] bg-white/[0.04] p-0.5 backdrop-blur-md">
-                {[5, 10].map((sec) => (
+                {currentModelConfig.durations.map((sec) => (
                   <button
                     key={sec}
                     type="button"
                     onClick={() => setDuration(sec)}
                     className={`px-2 py-0.5 rounded-lg text-[11px] font-mono font-medium transition-all ${
-                      duration === sec
+                      effectiveDuration === sec
                         ? "bg-white/[0.14] text-white shadow-sm font-semibold"
                         : "text-slate-400 hover:text-white"
                     }`}
@@ -235,13 +261,13 @@ export default function VideoStudioFlow({
               </div>
 
               <div className="flex items-center gap-1 rounded-xl border border-white/[0.08] bg-white/[0.04] p-0.5 backdrop-blur-md">
-                {["720p", "1080p"].map((res) => (
+                {currentModelConfig.resolutions.map((res) => (
                   <button
                     key={res}
                     type="button"
                     onClick={() => setResolution(res)}
                     className={`px-2 py-0.5 rounded-lg text-[11px] font-mono font-medium transition-all ${
-                      resolution === res
+                      effectiveResolution === res
                         ? "bg-white/[0.14] text-white shadow-sm font-semibold"
                         : "text-slate-400 hover:text-white"
                     }`}
@@ -251,14 +277,14 @@ export default function VideoStudioFlow({
                 ))}
               </div>
 
-              <div className="flex items-center gap-1 rounded-xl border border-white/[0.08] bg-white/[0.04] p-0.5 backdrop-blur-md">
-                {["16:9", "9:16"].map((ratio) => (
+              <div className="custom-scrollbar flex max-w-full items-center gap-1 overflow-x-auto rounded-xl border border-white/[0.08] bg-white/[0.04] p-0.5 backdrop-blur-md">
+                {currentModelConfig.aspectRatios.map((ratio) => (
                   <button
                     key={ratio}
                     type="button"
                     onClick={() => setAspectRatio(ratio)}
-                    className={`px-2 py-0.5 rounded-lg text-[11px] font-mono font-medium transition-all ${
-                      aspectRatio === ratio
+                    className={`px-2 py-0.5 rounded-lg text-[11px] font-mono font-medium transition-all shrink-0 ${
+                      effectiveAspectRatio === ratio
                         ? "bg-white/[0.14] text-white shadow-sm font-semibold"
                         : "text-slate-400 hover:text-white"
                     }`}
@@ -290,6 +316,24 @@ export default function VideoStudioFlow({
           </div>
         </form>
       </div>
+
+      {isParamsModalOpen && (
+        <ParameterPreviewModal
+          isOpen={isParamsModalOpen}
+          onClose={() => setIsParamsModalOpen(false)}
+          mode="video"
+          modelName={currentModelConfig.label}
+          availableAspectRatios={currentModelConfig.aspectRatios}
+          selectedAspectRatio={effectiveAspectRatio}
+          onSelectAspectRatio={setAspectRatio}
+          availableResolutions={currentModelConfig.resolutions}
+          selectedResolution={effectiveResolution}
+          onSelectResolution={setResolution}
+          availableDurations={currentModelConfig.durations}
+          selectedDuration={effectiveDuration}
+          onSelectDuration={setDuration}
+        />
+      )}
     </div>
   );
 }

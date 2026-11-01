@@ -12,13 +12,17 @@ import {
   Wand2,
   X,
   Upload,
+  SlidersHorizontal,
 } from "lucide-react";
 import { IMAGE_MODELS, type ImageModelId } from "@/lib/chat-config";
 import type { GeneratedImage } from "@/lib/chat-types";
-import type { ImageOptions } from "@/lib/image-options";
+import type { ImageOptions, ImageSizeId } from "@/lib/image-options";
+import { getImageModelConfig } from "@/lib/media-model-catalog";
 import { uploadAttachment } from "../services/chat-api";
 import { CHAT_COLUMN_CLASS, CHAT_GUTTER_CLASS } from "./chat-layout-tokens";
 import ImagePreviewModal from "./ImagePreviewModal";
+import ModelSelector from "./ModelSelector";
+import ParameterPreviewModal from "./ParameterPreviewModal";
 
 interface ImageStudioFlowProps {
   sessionId: string | null;
@@ -32,6 +36,26 @@ interface ImageStudioFlowProps {
   ) => Promise<void>;
 }
 
+const SIZE_MAP: Record<string, ImageSizeId> = {
+  "1:1": "1024x1024",
+  "16:9": "3840x2160",
+  "9:16": "1024x1536",
+  "4:3": "1536x1024",
+  "3:4": "1024x1536",
+  "3:2": "1536x1024",
+  "2:3": "1024x1536",
+  "21:9": "3840x2160",
+  "9:21": "1024x1536",
+  "2:1": "3840x2160",
+  "1:2": "1024x1536",
+  "4:5": "1024x1536",
+  "5:4": "1536x1024",
+  "1:4": "1024x1536",
+  "4:1": "3840x2160",
+  "1:8": "1024x1536",
+  "8:1": "3840x2160",
+};
+
 export default function ImageStudioFlow({
   sessionId,
   images,
@@ -40,16 +64,37 @@ export default function ImageStudioFlow({
 }: ImageStudioFlowProps) {
   const [prompt, setPrompt] = useState("");
   const [selectedModel, setSelectedModel] = useState<ImageModelId>(IMAGE_MODELS[0].id);
-  const [aspectRatio, setAspectRatio] = useState("1:1");
-  const [resolution, setResolution] = useState("1K");
+  const currentModelConfig = getImageModelConfig(selectedModel);
+
+  const [aspectRatio, setAspectRatio] = useState(currentModelConfig.defaultAspectRatio);
+  const [resolution, setResolution] = useState(currentModelConfig.defaultResolution ?? "");
   const [isEditMode, setIsEditMode] = useState(false);
   const [referenceImageUrl, setReferenceImageUrl] = useState<string | null>(null);
   const [isUploadingRef, setIsUploadingRef] = useState(false);
   const [activePreviewImage, setActivePreviewImage] = useState<GeneratedImage | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [isParamsModalOpen, setIsParamsModalOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const isCanvasEmpty = images.length === 0 && !isGenerating;
+
+  const effectiveAspectRatio = currentModelConfig.aspectRatios.includes(aspectRatio)
+    ? aspectRatio
+    : currentModelConfig.defaultAspectRatio;
+
+  const effectiveResolution = currentModelConfig.resolutions && currentModelConfig.resolutions.length > 0
+    ? (currentModelConfig.resolutions.includes(resolution)
+        ? resolution
+        : (currentModelConfig.defaultResolution ?? currentModelConfig.resolutions[0]))
+    : "";
+
+  const effectiveIsEditMode = !currentModelConfig.canEdit
+    ? false
+    : !currentModelConfig.canGenerate
+      ? true
+      : isEditMode;
+
+  const effectiveReferenceImageUrl = effectiveIsEditMode ? referenceImageUrl : null;
 
   const handleCopyPrompt = async (e: React.MouseEvent, img: GeneratedImage) => {
     e.stopPropagation();
@@ -59,6 +104,7 @@ export default function ImageStudioFlow({
   };
 
   const handleUseAsReference = (url: string) => {
+    if (!currentModelConfig.canEdit) return;
     setReferenceImageUrl(url);
     setIsEditMode(true);
     if (!prompt) setPrompt("Enhance this image with high detail and cinematic lighting");
@@ -81,20 +127,14 @@ export default function ImageStudioFlow({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!prompt.trim() || isGenerating) return;
-    const sizeMap: Record<string, "1024x1024" | "1536x1024" | "1024x1536" | "3840x2160"> = {
-      "1:1": "1024x1024",
-      "16:9": "3840x2160",
-      "9:16": "1024x1536",
-      "4:3": "1536x1024",
-    };
     const options: ImageOptions = {
-      aspectRatio,
-      resolution,
-      size: sizeMap[aspectRatio] ?? "1024x1024",
+      aspectRatio: effectiveAspectRatio,
+      size: SIZE_MAP[effectiveAspectRatio] ?? "1024x1024",
       quality: "high",
       outputFormat: "png",
+      ...(effectiveResolution ? { resolution: effectiveResolution } : {}),
     };
-    await onGenerate(prompt.trim(), selectedModel, options, referenceImageUrl ?? undefined);
+    await onGenerate(prompt.trim(), selectedModel, options, effectiveReferenceImageUrl ?? undefined);
     setPrompt("");
   };
 
@@ -203,17 +243,19 @@ export default function ImageStudioFlow({
                       <span className="text-[10px] font-mono text-slate-400">
                         {new Date(img.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                       </span>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleUseAsReference(img.url);
-                        }}
-                        className="inline-flex items-center gap-1 rounded-md bg-cyan-600/80 hover:bg-cyan-500 px-2 py-0.5 text-[10px] font-semibold text-white transition-colors"
-                      >
-                        <Wand2 className="h-2.5 w-2.5" />
-                        <span>Edit</span>
-                      </button>
+                      {currentModelConfig.canEdit && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleUseAsReference(img.url);
+                          }}
+                          className="inline-flex items-center gap-1 rounded-md bg-cyan-600/80 hover:bg-cyan-500 px-2 py-0.5 text-[10px] font-semibold text-white transition-colors"
+                        >
+                          <Wand2 className="h-2.5 w-2.5" />
+                          <span>Edit</span>
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -230,53 +272,64 @@ export default function ImageStudioFlow({
         >
           <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
             <div className="flex items-center gap-1 rounded-xl border border-white/[0.08] bg-white/[0.04] p-0.5 backdrop-blur-md">
-              <button
-                type="button"
-                onClick={() => { setIsEditMode(false); setReferenceImageUrl(null); }}
-                className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
-                  !isEditMode
-                    ? "bg-white/[0.14] text-white shadow-sm"
-                    : "text-slate-400 hover:text-white"
-                }`}
-              >
-                <Sparkles className="h-3 w-3 text-cyan-400" />
-                <span>Text to Image</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setIsEditMode(true)}
-                className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
-                  isEditMode
-                    ? "bg-white/[0.14] text-white shadow-sm"
-                    : "text-slate-400 hover:text-white"
-                }`}
-              >
-                <Wand2 className="h-3 w-3 text-cyan-400" />
-                <span>Edit Image</span>
-              </button>
+              {currentModelConfig.canGenerate && (
+                <button
+                  type="button"
+                  onClick={() => { setIsEditMode(false); setReferenceImageUrl(null); }}
+                  className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+                    !effectiveIsEditMode
+                      ? "bg-white/[0.14] text-white shadow-sm"
+                      : "text-slate-400 hover:text-white"
+                  }`}
+                >
+                  <Sparkles className="h-3 w-3 text-cyan-400" />
+                  <span>Text to Image</span>
+                </button>
+              )}
+              {currentModelConfig.canEdit && (
+                <button
+                  type="button"
+                  onClick={() => setIsEditMode(true)}
+                  className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+                    effectiveIsEditMode
+                      ? "bg-white/[0.14] text-white shadow-sm"
+                      : "text-slate-400 hover:text-white"
+                  }`}
+                >
+                  <Wand2 className="h-3 w-3 text-cyan-400" />
+                  <span>Edit Image</span>
+                </button>
+              )}
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
-              <select
-                value={selectedModel}
-                onChange={(e) => setSelectedModel(e.target.value as ImageModelId)}
-                className="rounded-xl border border-white/[0.08] bg-white/[0.04] px-2.5 py-1 text-xs font-semibold text-slate-200 focus:outline-none focus:border-white/30 backdrop-blur-md cursor-pointer"
-              >
-                {IMAGE_MODELS.map((m) => (
-                  <option key={m.id} value={m.id} className="bg-[#1e1f20] text-white">
-                    {m.label}
-                  </option>
-                ))}
-              </select>
+              <ModelSelector
+                mode="image"
+                models={IMAGE_MODELS}
+                selectedModel={selectedModel}
+                onSelect={(id) => setSelectedModel(id as ImageModelId)}
+                disabled={isGenerating}
+                className="flex items-center gap-1.5 rounded-xl border border-white/[0.08] bg-white/[0.04] px-2.5 py-1 text-xs font-semibold text-slate-200 hover:bg-white/[0.08] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8ab4f8] disabled:cursor-not-allowed disabled:opacity-50 backdrop-blur-md cursor-pointer shrink-0"
+              />
 
-              <div className="flex items-center gap-1 rounded-xl border border-white/[0.08] bg-white/[0.04] p-0.5 backdrop-blur-md">
-                {["1:1", "16:9", "9:16", "4:3"].map((ratio) => (
+              <button
+                type="button"
+                onClick={() => setIsParamsModalOpen(true)}
+                title="Preview framing and resolution"
+                className="flex items-center gap-1.5 rounded-xl border border-white/[0.08] bg-white/[0.04] px-2.5 py-1 text-xs font-semibold text-slate-200 hover:bg-white/[0.08] hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 backdrop-blur-md cursor-pointer shrink-0"
+              >
+                <SlidersHorizontal className="h-3 w-3 text-cyan-400" />
+                <span className="hidden sm:inline">Framing Preview</span>
+              </button>
+
+              <div className="custom-scrollbar flex max-w-full items-center gap-1 overflow-x-auto rounded-xl border border-white/[0.08] bg-white/[0.04] p-0.5 backdrop-blur-md">
+                {currentModelConfig.aspectRatios.map((ratio) => (
                   <button
                     key={ratio}
                     type="button"
                     onClick={() => setAspectRatio(ratio)}
-                    className={`px-2 py-0.5 rounded-lg text-[11px] font-mono font-medium transition-all ${
-                      aspectRatio === ratio
+                    className={`px-2 py-0.5 rounded-lg text-[11px] font-mono font-medium transition-all shrink-0 ${
+                      effectiveAspectRatio === ratio
                         ? "bg-white/[0.14] text-white shadow-sm font-semibold"
                         : "text-slate-400 hover:text-white"
                     }`}
@@ -286,26 +339,28 @@ export default function ImageStudioFlow({
                 ))}
               </div>
 
-              <div className="flex items-center gap-1 rounded-xl border border-white/[0.08] bg-white/[0.04] p-0.5 backdrop-blur-md">
-                {["512", "1K", "2K"].map((res) => (
-                  <button
-                    key={res}
-                    type="button"
-                    onClick={() => setResolution(res)}
-                    className={`px-2 py-0.5 rounded-lg text-[11px] font-mono font-medium transition-all ${
-                      resolution === res
-                        ? "bg-white/[0.14] text-white shadow-sm font-semibold"
-                        : "text-slate-400 hover:text-white"
-                    }`}
-                  >
-                    {res}
-                  </button>
-                ))}
-              </div>
+              {currentModelConfig.resolutions && currentModelConfig.resolutions.length > 0 && (
+                <div className="flex items-center gap-1 rounded-xl border border-white/[0.08] bg-white/[0.04] p-0.5 backdrop-blur-md">
+                  {currentModelConfig.resolutions.map((res) => (
+                    <button
+                      key={res}
+                      type="button"
+                      onClick={() => setResolution(res)}
+                      className={`px-2 py-0.5 rounded-lg text-[11px] font-mono font-medium transition-all ${
+                        effectiveResolution === res
+                          ? "bg-white/[0.14] text-white shadow-sm font-semibold"
+                          : "text-slate-400 hover:text-white"
+                      }`}
+                    >
+                      {res}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
-          {isEditMode && (
+          {effectiveIsEditMode && currentModelConfig.canEdit && (
             <div className="flex items-center gap-2 rounded-xl border border-cyan-500/30 bg-cyan-950/20 px-3 py-1.5">
               <input
                 ref={fileInputRef}
@@ -314,9 +369,9 @@ export default function ImageStudioFlow({
                 onChange={handleFileChange}
                 className="hidden"
               />
-              {referenceImageUrl ? (
+              {effectiveReferenceImageUrl ? (
                 <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-lg border border-cyan-500/50">
-                  <Image src={referenceImageUrl} alt="Reference" fill className="object-cover" unoptimized />
+                  <Image src={effectiveReferenceImageUrl} alt="Reference" fill className="object-cover" unoptimized />
                   <button
                     type="button"
                     onClick={() => setReferenceImageUrl(null)}
@@ -337,7 +392,9 @@ export default function ImageStudioFlow({
                 </button>
               )}
               <span className="text-[11px] text-slate-300 truncate">
-                {referenceImageUrl ? "Reference loaded. Type edit instructions below." : "Pick or upload an image to edit."}
+                {effectiveReferenceImageUrl
+                  ? `Reference loaded (Max ${currentModelConfig.maxInputImages} image). Type edit instructions below.`
+                  : `Upload reference image (Max ${currentModelConfig.maxInputImages} image).`}
               </span>
             </div>
           )}
@@ -347,7 +404,7 @@ export default function ImageStudioFlow({
               type="text"
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              placeholder={isEditMode ? "Describe how to edit the image (e.g. change background to sunset beach)..." : "Describe the image you want to generate in detail..."}
+              placeholder={effectiveIsEditMode ? "Describe how to edit the image (e.g. change background to sunset beach)..." : "Describe the image you want to generate in detail..."}
               disabled={isGenerating}
               className="w-full bg-transparent px-3.5 py-2.5 text-xs sm:text-sm text-white placeholder-[#9aa0a6] focus:outline-none"
             />
@@ -357,7 +414,7 @@ export default function ImageStudioFlow({
               className="mr-1.5 inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 px-3.5 py-2 text-xs font-semibold text-white shadow-md hover:brightness-110 disabled:opacity-40 transition-all active:scale-95 shrink-0"
             >
               {isGenerating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
-              <span>{isEditMode ? "Edit" : "Generate"}</span>
+              <span>{effectiveIsEditMode ? "Edit" : "Generate"}</span>
             </button>
           </div>
         </form>
@@ -368,6 +425,22 @@ export default function ImageStudioFlow({
           image={activePreviewImage}
           onClose={() => setActivePreviewImage(null)}
           onUseAsReference={handleUseAsReference}
+        />
+      )}
+
+      {isParamsModalOpen && (
+        <ParameterPreviewModal
+          isOpen={isParamsModalOpen}
+          onClose={() => setIsParamsModalOpen(false)}
+          mode="image"
+          modelName={currentModelConfig.label}
+          availableAspectRatios={currentModelConfig.aspectRatios}
+          selectedAspectRatio={effectiveAspectRatio}
+          onSelectAspectRatio={setAspectRatio}
+          availableResolutions={currentModelConfig.resolutions}
+          selectedResolution={effectiveResolution}
+          onSelectResolution={setResolution}
+          maxInputImages={currentModelConfig.maxInputImages}
         />
       )}
     </div>

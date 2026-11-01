@@ -3,6 +3,7 @@ import { useRef, type ChangeEvent, type ClipboardEvent, type FormEvent, type Key
 import { ImageIcon, Paperclip, Sparkles } from "lucide-react";
 import { ACCEPTED_FILE_INPUT, MAX_IMAGE_PROMPT_LENGTH, MAX_MESSAGE_LENGTH, type ModelOption } from "@/lib/chat-config";
 import { IMAGE_SIZE_OPTIONS, type ImageOptions } from "@/lib/image-options";
+import { getImageModelConfig } from "@/lib/media-model-catalog";
 import type { PendingAttachment } from "../hooks/useAttachmentQueue";
 import { useAutoResizeTextarea } from "../hooks/useAutoResizeTextarea";
 import { extractClipboardImages } from "../services/clipboard-images";
@@ -127,26 +128,37 @@ export default function ChatInput({
             />
           )}
 
-          {isImageMode && (
-            <div className="flex items-center gap-1 rounded-xl border border-white/[0.08] bg-white/[0.04] p-0.5 backdrop-blur-md">
-              {IMAGE_SIZE_OPTIONS.map((opt) => (
-                <button
-                  key={opt.id}
-                  type="button"
-                  disabled={isSending || isDisabled}
-                  onClick={() => onImageOptionChange("size", opt.id)}
-                  title={`${opt.orientationLabel} (${opt.ratioLabel})`}
-                  className={`px-2 py-0.5 rounded-lg text-[11px] font-semibold transition-all ${
-                    imageOptions.size === opt.id
-                      ? "bg-cyan-500/80 text-white shadow-sm"
-                      : "text-slate-400 hover:text-white"
-                  }`}
-                >
-                  {opt.ratioLabel}
-                </button>
-              ))}
-            </div>
-          )}
+          {isImageMode && (() => {
+            const modelConfig = selectedModel ? getImageModelConfig(selectedModel) : null;
+            const availableSizes = modelConfig
+              ? IMAGE_SIZE_OPTIONS.filter((opt) => modelConfig.aspectRatios.includes(opt.ratioLabel))
+              : IMAGE_SIZE_OPTIONS;
+            const effectiveSizes = availableSizes.length > 0 ? availableSizes : IMAGE_SIZE_OPTIONS;
+            const activeSizeId = effectiveSizes.some((opt) => opt.id === imageOptions.size)
+              ? imageOptions.size
+              : effectiveSizes[0].id;
+
+            return (
+              <div className="flex items-center gap-1 rounded-xl border border-white/[0.08] bg-white/[0.04] p-0.5 backdrop-blur-md">
+                {effectiveSizes.map((opt) => (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    disabled={isSending || isDisabled}
+                    onClick={() => onImageOptionChange("size", opt.id)}
+                    title={`${opt.orientationLabel} (${opt.ratioLabel})`}
+                    className={`px-2 py-0.5 rounded-lg text-[11px] font-semibold transition-all ${
+                      activeSizeId === opt.id
+                        ? "bg-cyan-500/80 text-white shadow-sm"
+                        : "text-slate-400 hover:text-white"
+                    }`}
+                  >
+                    {opt.ratioLabel}
+                  </button>
+                ))}
+              </div>
+            );
+          })()}
         </div>
       </div>
 

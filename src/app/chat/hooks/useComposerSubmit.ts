@@ -1,6 +1,8 @@
 "use client";
 import { useCallback } from "react";
 import type { GeneratedImage } from "@/lib/chat-types";
+import { resolveImageSizeOption, type ImageOptions } from "@/lib/image-options";
+import { getImageModelConfig } from "@/lib/media-model-catalog";
 import { requestImageGeneration } from "../services/chat-api";
 import type { useAttachmentQueue } from "./useAttachmentQueue";
 import type { useChatMessages } from "./useChatMessages";
@@ -28,7 +30,16 @@ export function useComposerSubmit({ sessionId, draft, onDraftChange, chat, queue
     const model = composer.activeModel;
     onDraftChange("");
     const isSent = await chat.submitExchange({ model, content: trimmedDraft, attachments: [] }, async (activeSessionId, signal) => {
-      const result = await requestImageGeneration(activeSessionId, trimmedDraft, model, composer.imageOptions, signal);
+      const modelConfig = getImageModelConfig(model);
+      const currentOpt = resolveImageSizeOption(composer.imageOptions.size);
+      const validAspect = modelConfig.aspectRatios.includes(currentOpt.ratioLabel)
+        ? currentOpt.ratioLabel
+        : modelConfig.defaultAspectRatio;
+      const optionsWithAspect: ImageOptions = {
+        ...composer.imageOptions,
+        aspectRatio: validAspect,
+      };
+      const result = await requestImageGeneration(activeSessionId, trimmedDraft, model, optionsWithAspect, signal);
       onImageGenerated(result.image);
       return result;
     });

@@ -158,7 +158,7 @@ export default function ModelSelector({
           <ImageModelCatalog selectedModel={selectedModel} onSelect={handleSelect} />
         ) : (
           <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-            <div className="border-b border-white/[0.06] px-4 py-3 sm:px-5">
+            <div className="border-b border-white/[0.06] px-3.5 py-2.5 sm:px-5 sm:py-3">
               <ModelSearchBar
                 value={searchQuery}
                 onChange={setSearchQuery}
@@ -167,18 +167,18 @@ export default function ModelSelector({
                 placeholder={modalMeta.searchPlaceholder}
               />
             </div>
-            <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-[max(env(safe-area-inset-bottom),1rem)] pt-3 sm:px-5 sm:pt-4">
+            <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 pb-4 pt-3 sm:px-5 sm:pb-[max(env(safe-area-inset-bottom),1rem)] sm:pt-4">
               {filteredModels.length === 0 ? (
                 <ModelEmptyState onReset={() => setSearchQuery("")} />
               ) : (
                 videoGroups.map((group) => (
-                  <section key={group.provider} className="mb-6 last:mb-0">
-                    <div className="flex items-center gap-2 pb-2.5">
-                      <Film className="h-3.5 w-3.5 text-purple-400" aria-hidden="true" />
-                      <h3 className="text-xs font-bold uppercase tracking-wider text-[#c4c7c5]">
+                  <section key={group.provider} className="mb-4 sm:mb-6 last:mb-0">
+                    <div className="flex items-center gap-1.5 sm:gap-2 pb-1.5 sm:pb-2.5">
+                      <Film className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-purple-400" aria-hidden="true" />
+                      <h3 className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#c4c7c5]">
                         {group.label}
                       </h3>
-                      <span className="text-[11px] text-[#9aa0a6] font-mono">
+                      <span className="text-[10px] sm:text-[11px] text-[#9aa0a6] font-mono">
                         ({group.models.length})
                       </span>
                     </div>

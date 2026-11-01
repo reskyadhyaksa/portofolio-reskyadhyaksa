@@ -72,22 +72,15 @@ export default function ConversationItem({
             </button>
           </>
         ) : (
-          <>
-            {conversation.messageCount > 0 && (
-              <span className="font-mono text-[9px] text-slate-500 group-hover:hidden">
-                {conversation.messageCount}
-              </span>
-            )}
-            <button
-              type="button"
-              onClick={() => setIsConfirming(true)}
-              aria-label={`Delete ${conversation.title} permanently`}
-              title="Delete permanently"
-              className={`${ICON_BUTTON_CLASS} text-slate-400 opacity-100 hover:bg-white/[0.1] hover:text-rose-400 sm:opacity-0 sm:group-hover:opacity-100 sm:focus-visible:opacity-100`}
-            >
-              <Trash2 aria-hidden="true" className="h-3 w-3" />
-            </button>
-          </>
+          <button
+            type="button"
+            onClick={() => setIsConfirming(true)}
+            aria-label={`Delete ${conversation.title} permanently`}
+            title="Delete permanently"
+            className={`${ICON_BUTTON_CLASS} text-slate-400 opacity-100 hover:bg-white/[0.1] hover:text-rose-400 sm:opacity-0 sm:group-hover:opacity-100 sm:focus-visible:opacity-100`}
+          >
+            <Trash2 aria-hidden="true" className="h-3 w-3" />
+          </button>
         )}
       </div>
     </li>

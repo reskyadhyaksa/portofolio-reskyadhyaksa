@@ -1,7 +1,9 @@
 "use client";
 import { useState } from "react";
+import type { StudioViewMode } from "./ChatToolbar";
 import { useAttachmentQueue } from "../hooks/useAttachmentQueue";
 import { useChatMessages } from "../hooks/useChatMessages";
+import { useChatRouteSync } from "../hooks/useChatRouteSync";
 import { useChatSession } from "../hooks/useChatSession";
 import { useConversationList } from "../hooks/useConversationList";
 import { useGeneratedImages } from "../hooks/useGeneratedImages";
@@ -9,8 +11,18 @@ import { useGeneratedVideos } from "../hooks/useGeneratedVideos";
 import ChatPanel from "./ChatPanel";
 import ChatSidebar from "./ChatSidebar";
 
-export default function ChatContainer() {
-  const session = useChatSession();
+interface ChatContainerProps {
+  initialSessionId?: string;
+  initialTab?: StudioViewMode;
+}
+
+export default function ChatContainer({ initialSessionId, initialTab }: ChatContainerProps) {
+  const session = useChatSession(initialSessionId);
+  const routeSync = useChatRouteSync({
+    initialTab,
+    sessionId: session.sessionId,
+    onSelectSession: session.selectSession,
+  });
   const [draft, setDraft] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -29,20 +41,23 @@ export default function ChatContainer() {
   const handleNewChat = () => {
     if (chat.isSending) return;
     resetComposer();
-    session.startNewSession();
+    const nextSessionId = session.startNewSession();
+    routeSync.navigateTo(nextSessionId, routeSync.studioMode, false);
   };
 
   const handleSelectConversation = (sessionId: string) => {
     if (chat.isSending) return;
     resetComposer();
     session.selectSession(sessionId);
+    routeSync.navigateTo(sessionId, routeSync.studioMode, false);
   };
 
   const handleDeleteConversation = async (sessionId: string) => {
     const isDeleted = await conversationList.removeConversation(sessionId);
     if (!isDeleted) return;
     if (sessionId === session.sessionId) resetComposer();
-    session.forgetSession(sessionId);
+    const nextActiveId = session.forgetSession(sessionId);
+    if (nextActiveId) routeSync.navigateTo(nextActiveId, routeSync.studioMode, true);
   };
 
   const handleCollapseSidebar = () => {
@@ -86,6 +101,8 @@ export default function ChatContainer() {
         onNewChat={handleNewChat}
         onOpenSidebar={handleOpenSidebar}
         isSidebarCollapsed={isSidebarCollapsed}
+        studioMode={routeSync.studioMode}
+        onSelectStudioMode={routeSync.selectStudioMode}
       />
     </div>
   );

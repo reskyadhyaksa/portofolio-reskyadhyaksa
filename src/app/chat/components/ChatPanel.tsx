@@ -11,7 +11,6 @@ import { useComposerMode } from "../hooks/useComposerMode";
 import { useComposerSubmit } from "../hooks/useComposerSubmit";
 import { useMessageEditing } from "../hooks/useMessageEditing";
 import { requestImageGeneration, type RequestVideoParams } from "../services/chat-api";
-import { CHAT_COLUMN_CLASS, CHAT_GUTTER_CLASS } from "./chat-layout-tokens";
 import ChatErrorBanner from "./ChatErrorBanner";
 import ChatInput from "./ChatInput";
 import ChatToolbar, { type StudioViewMode } from "./ChatToolbar";
@@ -35,6 +34,8 @@ interface ChatPanelProps {
   onNewChat: () => void;
   onOpenSidebar: () => void;
   isSidebarCollapsed: boolean;
+  studioMode: StudioViewMode;
+  onSelectStudioMode: (mode: StudioViewMode) => void;
 }
 
 export default function ChatPanel({
@@ -51,8 +52,9 @@ export default function ChatPanel({
   onNewChat,
   onOpenSidebar,
   isSidebarCollapsed,
+  studioMode,
+  onSelectStudioMode,
 }: ChatPanelProps) {
-  const [studioMode, setStudioMode] = useState<StudioViewMode>("chat");
   const [isGeneratingStudioImage, setIsGeneratingStudioImage] = useState(false);
   const composer = useComposerMode();
   const { canSubmit, submit } = useComposerSubmit({ sessionId, draft, onDraftChange, chat, queue, composer, onImageGenerated });
@@ -83,7 +85,7 @@ export default function ChatPanel({
         selectedModel={composer.activeModel}
         onSelectModel={composer.selectModel}
         studioMode={studioMode}
-        onSelectStudioMode={setStudioMode}
+        onSelectStudioMode={onSelectStudioMode}
         onNewChat={onNewChat}
         onOpenSidebar={onOpenSidebar}
         isSidebarCollapsed={isSidebarCollapsed}

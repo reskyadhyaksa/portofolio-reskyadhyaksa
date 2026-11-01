@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useSyncExternalStore } from "react";
 import { MAX_TRACKED_SESSIONS, SESSION_LIST_STORAGE_KEY, SESSION_STORAGE_KEY } from "@/lib/chat-config";
 
 interface SessionStoreState {
@@ -41,8 +41,8 @@ function withSession(sessionIds: string[], sessionId: string): string[] {
   return [sessionId, ...sessionIds.filter((id) => id !== sessionId)].slice(0, MAX_TRACKED_SESSIONS);
 }
 
-function loadInitialState(): SessionStoreState {
-  const activeSessionId = readStorage(SESSION_STORAGE_KEY) ?? crypto.randomUUID();
+function loadInitialState(initialSessionId?: string): SessionStoreState {
+  const activeSessionId = initialSessionId ?? readStorage(SESSION_STORAGE_KEY) ?? crypto.randomUUID();
   const sessionIds = withSession(parseSessionIds(readStorage(SESSION_LIST_STORAGE_KEY)), activeSessionId);
   return { activeSessionId, sessionIds };
 }
@@ -58,8 +58,8 @@ function commitState(nextState: SessionStoreState): void {
   sessionListeners.forEach((listener) => listener());
 }
 
-function getSnapshot(): SessionStoreState {
-  if (!cachedState) persistState(loadInitialState());
+function getSnapshot(initialSessionId?: string): SessionStoreState {
+  if (!cachedState) persistState(loadInitialState(initialSessionId));
   return cachedState as SessionStoreState;
 }
 
@@ -72,13 +72,29 @@ function subscribe(listener: () => void): () => void {
   return () => sessionListeners.delete(listener);
 }
 
-export function useChatSession() {
-  const state = useSyncExternalStore<SessionStoreState | null>(subscribe, getSnapshot, getServerSnapshot);
+export function useChatSession(initialSessionId?: string) {
+  useEffect(() => {
+    if (!initialSessionId) return;
+    const current = getSnapshot(initialSessionId);
+    if (current.activeSessionId !== initialSessionId) {
+      commitState({
+        activeSessionId: initialSessionId,
+        sessionIds: withSession(current.sessionIds, initialSessionId),
+      });
+    }
+  }, [initialSessionId]);
+
+  const state = useSyncExternalStore<SessionStoreState | null>(
+    subscribe,
+    () => getSnapshot(initialSessionId),
+    getServerSnapshot
+  );
 
   const startNewSession = useCallback(() => {
     const current = getSnapshot();
     const nextSessionId = crypto.randomUUID();
     commitState({ activeSessionId: nextSessionId, sessionIds: withSession(current.sessionIds, nextSessionId) });
+    return nextSessionId;
   }, []);
 
   const selectSession = useCallback((sessionId: string) => {
@@ -92,18 +108,18 @@ export function useChatSession() {
     const remainingIds = current.sessionIds.filter((id) => id !== sessionId);
     if (current.activeSessionId !== sessionId) {
       commitState({ ...current, sessionIds: remainingIds });
-      return;
+      return current.activeSessionId;
     }
-    const replacementId = crypto.randomUUID();
+    const replacementId = remainingIds[0] ?? crypto.randomUUID();
     commitState({ activeSessionId: replacementId, sessionIds: withSession(remainingIds, replacementId) });
+    return replacementId;
   }, []);
 
   return {
-    sessionId: state?.activeSessionId ?? null,
+    sessionId: initialSessionId ?? state?.activeSessionId ?? null,
     sessionIds: state?.sessionIds ?? [],
     startNewSession,
     selectSession,
     forgetSession,
   };
 }
-

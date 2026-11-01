@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { useEffect, useId, useRef, useSyncExternalStore, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { useDismissibleLayer } from "@/hooks/useDismissibleLayer";
@@ -15,14 +15,14 @@ interface ModalDialogProps {
 
 const PANEL_WIDTH_CLASS = { md: "max-w-lg", lg: "max-w-5xl" } as const;
 
+const subscribe = () => () => {};
+const getSnapshot = () => true;
+const getServerSnapshot = () => false;
+
 export default function ModalDialog({ isOpen, title, subtitle, size = "md", onClose, children }: ModalDialogProps) {
   const panelRef = useRef<HTMLDivElement | null>(null);
   const titleId = useId();
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  const isMounted = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
   useDismissibleLayer({ containerRef: panelRef, isActive: isOpen, onDismiss: onClose });
 

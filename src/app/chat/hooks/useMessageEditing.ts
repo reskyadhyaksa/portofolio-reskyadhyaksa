@@ -37,9 +37,12 @@ export function useMessageEditing({ chat, activeModel, onRestoreDraft }: Message
     async (message: ChatMessage) => {
       if (isDisabled) return;
       const isReverted = await chat.revertFrom(message.id, false);
-      if (isReverted) setEditingMessageId(null);
+      if (isReverted) {
+        setEditingMessageId(null);
+        onRestoreDraft(message.content);
+      }
     },
-    [chat, isDisabled]
+    [chat, isDisabled, onRestoreDraft]
   );
 
   return {

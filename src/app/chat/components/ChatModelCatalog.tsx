@@ -4,25 +4,26 @@ import {
   EMPTY_MODEL_FILTER,
   filterModels,
   groupByProvider,
-  listAvailableCapabilities,
   listAvailableProviders,
-  listAvailableUsages,
   type ModelFilter,
 } from "@/lib/model-filter";
 import {
   CATALOG_CHAT_MODELS,
   PROVIDER_LABELS,
   USAGE_LABELS,
-  CAPABILITY_LABELS,
+  type CapabilityFilterKey,
   type ModelProvider,
   type ModelUsage,
-  type CapabilityFilterKey,
 } from "@/lib/model-catalog";
-import FilterChips from "./FilterChips";
+import { USAGE_ICONS } from "./model-usage-icons";
+import { getModelSummary } from "@/lib/model-summaries";
 import ModelCard from "./ModelCard";
 import ModelCardGrid from "./ModelCardGrid";
-import { USAGE_ICONS, CAPABILITY_ICONS } from "./model-usage-icons";
-import { getModelSummary } from "@/lib/model-summaries";
+import ModelEmptyState from "./ModelEmptyState";
+import ModelSearchBar from "./ModelSearchBar";
+import ProviderLogoIcon from "./ProviderLogoIcon";
+import ProviderTabRail from "./ProviderTabRail";
+import QuickFilterPills from "./QuickFilterPills";
 
 interface ChatModelCatalogProps {
   selectedModel: string;
@@ -33,71 +34,110 @@ export default function ChatModelCatalog({ selectedModel, onSelect }: ChatModelC
   const [filter, setFilter] = useState<ModelFilter>(EMPTY_MODEL_FILTER);
 
   const providers = useMemo(() => listAvailableProviders(CATALOG_CHAT_MODELS), []);
-  const usages = useMemo(() => listAvailableUsages(CATALOG_CHAT_MODELS), []);
-  const capabilities = useMemo(() => listAvailableCapabilities(), []);
-  const groups = useMemo(() => groupByProvider(filterModels(CATALOG_CHAT_MODELS, filter)), [filter]);
+  const filteredModels = useMemo(() => filterModels(CATALOG_CHAT_MODELS, filter), [filter]);
+  const groups = useMemo(() => groupByProvider(filteredModels), [filteredModels]);
 
-  const updateProvider = (provider: ModelProvider | null) => setFilter((current) => ({ ...current, provider }));
-  const updateUsage = (usage: ModelUsage | null) => setFilter((current) => ({ ...current, usage }));
-  const updateCapability = (capability: CapabilityFilterKey | null) => setFilter((current) => ({ ...current, capability }));
+  const counts = useMemo(() => {
+    const tally: Record<string, number> = { all: CATALOG_CHAT_MODELS.length };
+    for (const model of CATALOG_CHAT_MODELS) {
+      tally[model.provider] = (tally[model.provider] ?? 0) + 1;
+    }
+    return tally;
+  }, []);
+
+  const hasActiveFilter = useMemo(
+    () =>
+      filter.provider !== null ||
+      filter.usage !== null ||
+      filter.capability !== null ||
+      Boolean(filter.search?.trim()),
+    [filter]
+  );
+
+  const updateSearch = (search: string) => {
+    setFilter((current) => ({ ...current, search }));
+  };
+
+  const updateProvider = (provider: ModelProvider | null) => {
+    setFilter((current) => ({ ...current, provider }));
+  };
+
+  const toggleCapability = (capability: CapabilityFilterKey) => {
+    setFilter((current) => ({
+      ...current,
+      capability: current.capability === capability ? null : capability,
+    }));
+  };
+
+  const toggleUsage = (usage: ModelUsage) => {
+    setFilter((current) => ({
+      ...current,
+      usage: current.usage === usage ? null : usage,
+    }));
+  };
+
+  const resetFilters = () => {
+    setFilter(EMPTY_MODEL_FILTER);
+  };
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="flex shrink-0 flex-col gap-2 border-b border-white/[0.06] px-4 py-2.5 sm:gap-2.5 sm:px-5">
-        <FilterChips
-          title="Provider"
-          allLabel="All providers"
-          options={providers}
-          labels={PROVIDER_LABELS}
-          value={filter.provider}
-          onChange={updateProvider}
-          className="min-w-0"
+      <div className="flex shrink-0 flex-col gap-2.5 border-b border-white/[0.08] bg-[#161718]/60 p-3 sm:px-5 sm:py-3.5 backdrop-blur-md">
+        <ModelSearchBar
+          value={filter.search ?? ""}
+          onChange={updateSearch}
+          resultCount={filteredModels.length}
+          totalCount={CATALOG_CHAT_MODELS.length}
         />
-        <FilterChips
-          title="Capability"
-          allLabel="All capabilities"
-          options={capabilities}
-          labels={CAPABILITY_LABELS}
-          icons={CAPABILITY_ICONS}
-          value={filter.capability}
-          onChange={updateCapability}
-          className="min-w-0"
+        <ProviderTabRail
+          providers={providers}
+          activeProvider={filter.provider}
+          onSelectProvider={updateProvider}
+          counts={counts}
         />
-        <FilterChips
-          title="Best for"
-          allLabel="Any use"
-          options={usages}
-          labels={USAGE_LABELS}
-          icons={USAGE_ICONS}
-          value={filter.usage}
-          onChange={updateUsage}
-          className="min-w-0"
+        <QuickFilterPills
+          activeCapability={filter.capability}
+          activeUsage={filter.usage}
+          onToggleCapability={toggleCapability}
+          onToggleUsage={toggleUsage}
+          hasActiveFilter={hasActiveFilter}
+          onResetFilters={resetFilters}
         />
       </div>
 
-      <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-[max(env(safe-area-inset-bottom),1rem)] pt-3 sm:px-5 sm:pt-4">
-        {groups.length === 0 && <p className="py-10 text-center text-[12px] text-[#9aa0a6]">No models match this filter.</p>}
-        {groups.map((group) => (
-          <section key={group.provider} aria-label={PROVIDER_LABELS[group.provider]} className="mb-5 last:mb-0">
-            <h3 className="pb-2 text-[11px] font-semibold uppercase tracking-wider text-[#9aa0a6]">
-              {PROVIDER_LABELS[group.provider]}
-            </h3>
-            <ModelCardGrid label={`${PROVIDER_LABELS[group.provider]} models`}>
-              {group.models.map((model) => (
-                <ModelCard
-                  key={model.id}
-                  model={model}
-                  summary={getModelSummary(model.id)}
-                  tagLabel={USAGE_LABELS[model.usage]}
-                  TagIcon={USAGE_ICONS[model.usage]}
-                  capabilities={model.capabilities}
-                  isSelected={model.id === selectedModel}
-                  onSelect={onSelect}
-                />
-              ))}
-            </ModelCardGrid>
-          </section>
-        ))}
+      <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-[max(env(safe-area-inset-bottom),1.25rem)] pt-4 sm:px-5">
+        {groups.length === 0 ? (
+          <ModelEmptyState onReset={resetFilters} />
+        ) : (
+          groups.map((group) => (
+            <section key={group.provider} aria-label={PROVIDER_LABELS[group.provider]} className="mb-6 last:mb-0">
+              <div className="flex items-center gap-2 pb-2.5">
+                <ProviderLogoIcon provider={group.provider} className="h-4 w-4" />
+                <h3 className="text-xs font-bold uppercase tracking-wider text-[#c4c7c5]">
+                  {PROVIDER_LABELS[group.provider]}
+                </h3>
+                <span className="text-[11px] text-[#9aa0a6] font-mono">
+                  ({group.models.length})
+                </span>
+              </div>
+              <ModelCardGrid label={`${PROVIDER_LABELS[group.provider]} models`}>
+                {group.models.map((model) => (
+                  <ModelCard
+                    key={model.id}
+                    model={model}
+                    summary={getModelSummary(model.id)}
+                    tagLabel={USAGE_LABELS[model.usage]}
+                    TagIcon={USAGE_ICONS[model.usage]}
+                    capabilities={model.capabilities}
+                    isSelected={model.id === selectedModel}
+                    onSelect={onSelect}
+                    provider={model.provider}
+                  />
+                ))}
+              </ModelCardGrid>
+            </section>
+          ))
+        )}
       </div>
     </div>
   );

@@ -64,7 +64,7 @@ export default function ModelSelector({
         isOpen={isOpen}
         size="lg"
         title={isImageMode ? "Select image model" : "Select AI model"}
-        subtitle={isImageMode ? "Pick the model used to generate images." : "Filter by provider or usage, then pick a card."}
+        subtitle={isImageMode ? "Pick the model used to generate images." : "Browse, search, and select from available AI models."}
         onClose={closeModal}
       >
         {isImageMode ? (

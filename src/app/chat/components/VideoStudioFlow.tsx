@@ -14,6 +14,7 @@ import {
 import { VIDEO_MODELS, type VideoModelId } from "@/lib/chat-config";
 import type { GeneratedVideo } from "@/lib/chat-types";
 import type { RequestVideoParams } from "../services/chat-api";
+import { CHAT_COLUMN_CLASS, CHAT_GUTTER_CLASS } from "./chat-layout-tokens";
 
 interface VideoStudioFlowProps {
   sessionId: string | null;
@@ -33,6 +34,8 @@ export default function VideoStudioFlow({
   const [resolution, setResolution] = useState("720p");
   const [aspectRatio, setAspectRatio] = useState("16:9");
   const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  const isCanvasEmpty = videos.length === 0 && !isGenerating;
 
   const handleCopyPrompt = async (vid: GeneratedVideo) => {
     await navigator.clipboard.writeText(vid.prompt);
@@ -55,7 +58,11 @@ export default function VideoStudioFlow({
 
   return (
     <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-[#131314]">
-      <div className="custom-scrollbar flex-1 overflow-y-auto px-4 py-4 sm:px-6 md:px-8">
+      <div
+        className={`custom-scrollbar flex-1 overflow-y-auto py-4 ${
+          isCanvasEmpty ? `${CHAT_COLUMN_CLASS} ${CHAT_GUTTER_CLASS}` : "px-4 sm:px-6 md:px-8"
+        }`}
+      >
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-purple-500/10 text-purple-400 border border-purple-500/20">
@@ -68,13 +75,13 @@ export default function VideoStudioFlow({
           </div>
         </div>
 
-        {videos.length === 0 && !isGenerating ? (
-          <div className="flex min-h-[320px] flex-col items-center justify-center rounded-3xl border border-dashed border-white/[0.08] bg-[#1e1f20]/30 p-8 text-center">
+        {isCanvasEmpty ? (
+          <div className="flex min-h-[320px] flex-col items-center justify-center rounded-3xl border border-dashed border-white/[0.08] bg-[#1e1f20]/30 p-8 text-center animate-fade-in-up">
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-purple-500/30 bg-purple-950/40 text-purple-400 shadow-lg">
               <VideoIcon className="h-6 w-6" />
             </div>
             <h3 className="mt-4 text-base font-semibold text-white">Google Flow Video Canvas</h3>
-            <p className="mt-1 max-w-md text-xs text-slate-400">
+            <p className="mt-1 max-w-md text-xs text-slate-400 leading-relaxed">
               Create cinematic videos with Google Veo 3.1, Seedance, Wan, and Kling. Set camera motion, duration, and aspect ratio.
             </p>
             <div className="mt-5 flex flex-wrap justify-center gap-2">
@@ -154,14 +161,14 @@ export default function VideoStudioFlow({
 
                   <div className="mt-3 flex items-center justify-between border-t border-white/[0.06] pt-2">
                     <span className="text-[10px] font-mono text-slate-500">
-                      {new Date(vid.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      {new Date(vid.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                     </span>
                     <div className="flex items-center gap-1">
                       <button
                         type="button"
                         onClick={() => handleCopyPrompt(vid)}
                         title="Copy prompt"
-                        className="flex h-6 w-6 items-center justify-center rounded-md bg-white/[0.04] text-slate-300 hover:text-white"
+                        className="flex h-6 w-6 items-center justify-center rounded-md text-slate-400 hover:text-white hover:bg-white/[0.08]"
                       >
                         {copiedId === vid.id ? <Check className="h-3 w-3 text-emerald-400" /> : <Copy className="h-3 w-3" />}
                       </button>
@@ -169,8 +176,6 @@ export default function VideoStudioFlow({
                         <a
                           href={vid.url}
                           download={`video-${vid.id}.mp4`}
-                          target="_blank"
-                          rel="noopener noreferrer"
                           title="Download video"
                           className="flex h-6 w-6 items-center justify-center rounded-md bg-purple-600/80 text-white hover:bg-purple-500"
                         >
@@ -193,7 +198,13 @@ export default function VideoStudioFlow({
         >
           <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
             <div className="flex items-center gap-2">
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-purple-400">Model:</span>
+              <span className="flex items-center gap-1 text-xs font-semibold text-purple-300">
+                <Sparkles className="h-3.5 w-3.5" />
+                <span>Text to Video</span>
+              </span>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
               <select
                 value={selectedModel}
                 onChange={(e) => setSelectedModel(e.target.value as VideoModelId)}
@@ -205,11 +216,9 @@ export default function VideoStudioFlow({
                   </option>
                 ))}
               </select>
-            </div>
 
-            <div className="flex flex-wrap items-center gap-2">
               <div className="flex items-center gap-1 rounded-xl border border-white/[0.08] bg-white/[0.04] p-0.5 backdrop-blur-md">
-                {[4, 5, 8].map((sec) => (
+                {[5, 10].map((sec) => (
                   <button
                     key={sec}
                     type="button"
@@ -243,7 +252,7 @@ export default function VideoStudioFlow({
               </div>
 
               <div className="flex items-center gap-1 rounded-xl border border-white/[0.08] bg-white/[0.04] p-0.5 backdrop-blur-md">
-                {["16:9", "9:16", "1:1"].map((ratio) => (
+                {["16:9", "9:16"].map((ratio) => (
                   <button
                     key={ratio}
                     type="button"
@@ -266,7 +275,7 @@ export default function VideoStudioFlow({
               type="text"
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              placeholder="Describe your video scene, camera motion, and action (e.g. drone shot over waves)..."
+              placeholder="Describe the video you want to generate (e.g. drone camera orbiting a mountain castle)..."
               disabled={isGenerating}
               className="w-full bg-transparent px-3.5 py-2.5 text-xs sm:text-sm text-white placeholder-[#9aa0a6] focus:outline-none"
             />

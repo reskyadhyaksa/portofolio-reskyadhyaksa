@@ -17,6 +17,8 @@ import { IMAGE_MODELS, type ImageModelId } from "@/lib/chat-config";
 import type { GeneratedImage } from "@/lib/chat-types";
 import type { ImageOptions } from "@/lib/image-options";
 import { uploadAttachment } from "../services/chat-api";
+import { CHAT_COLUMN_CLASS, CHAT_GUTTER_CLASS } from "./chat-layout-tokens";
+import ImagePreviewModal from "./ImagePreviewModal";
 
 interface ImageStudioFlowProps {
   sessionId: string | null;
@@ -47,7 +49,10 @@ export default function ImageStudioFlow({
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleCopyPrompt = async (img: GeneratedImage) => {
+  const isCanvasEmpty = images.length === 0 && !isGenerating;
+
+  const handleCopyPrompt = async (e: React.MouseEvent, img: GeneratedImage) => {
+    e.stopPropagation();
     await navigator.clipboard.writeText(img.prompt);
     setCopiedId(img.id);
     setTimeout(() => setCopiedId(null), 2000);
@@ -95,7 +100,11 @@ export default function ImageStudioFlow({
 
   return (
     <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-[#131314]">
-      <div className="custom-scrollbar flex-1 overflow-y-auto px-4 py-4 sm:px-6 md:px-8">
+      <div
+        className={`custom-scrollbar flex-1 overflow-y-auto py-4 ${
+          isCanvasEmpty ? `${CHAT_COLUMN_CLASS} ${CHAT_GUTTER_CLASS}` : "px-4 sm:px-6 md:px-8"
+        }`}
+      >
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
@@ -108,13 +117,13 @@ export default function ImageStudioFlow({
           </div>
         </div>
 
-        {images.length === 0 && !isGenerating ? (
-          <div className="flex min-h-[320px] flex-col items-center justify-center rounded-3xl border border-dashed border-white/[0.08] bg-[#1e1f20]/30 p-8 text-center">
+        {isCanvasEmpty ? (
+          <div className="flex min-h-[320px] flex-col items-center justify-center rounded-3xl border border-dashed border-white/[0.08] bg-[#1e1f20]/30 p-8 text-center animate-fade-in-up">
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-cyan-500/30 bg-cyan-950/40 text-cyan-400 shadow-lg">
               <Sparkles className="h-6 w-6" />
             </div>
             <h3 className="mt-4 text-base font-semibold text-white">Google Flow Image Canvas</h3>
-            <p className="mt-1 max-w-md text-xs text-slate-400">
+            <p className="mt-1 max-w-md text-xs text-slate-400 leading-relaxed">
               Generate images from text or upload a reference image to edit and transform with state-of-the-art vision models.
             </p>
             <div className="mt-5 flex flex-wrap justify-center gap-2">
@@ -146,7 +155,8 @@ export default function ImageStudioFlow({
             {images.map((img) => (
               <div
                 key={img.id}
-                className="group relative aspect-square overflow-hidden rounded-2xl border border-white/[0.08] bg-[#1e1f20] shadow-md hover:border-cyan-500/50 hover:shadow-cyan-950/30 transition-all"
+                onClick={() => setActivePreviewImage(img)}
+                className="group relative aspect-square overflow-hidden rounded-2xl border border-white/[0.08] bg-[#1e1f20] shadow-md hover:border-cyan-500/50 hover:shadow-cyan-950/30 transition-all cursor-pointer"
               >
                 <Image
                   src={img.url}
@@ -160,7 +170,7 @@ export default function ImageStudioFlow({
                   <div className="flex justify-end gap-1.5">
                     <button
                       type="button"
-                      onClick={() => handleCopyPrompt(img)}
+                      onClick={(e) => handleCopyPrompt(e, img)}
                       title="Copy prompt"
                       className="flex h-7 w-7 items-center justify-center rounded-lg bg-black/60 text-slate-200 hover:text-white backdrop-blur-md transition-colors"
                     >
@@ -168,7 +178,10 @@ export default function ImageStudioFlow({
                     </button>
                     <button
                       type="button"
-                      onClick={() => setActivePreviewImage(img)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActivePreviewImage(img);
+                      }}
                       title="View full size"
                       className="flex h-7 w-7 items-center justify-center rounded-lg bg-black/60 text-slate-200 hover:text-white backdrop-blur-md transition-colors"
                     >
@@ -177,6 +190,7 @@ export default function ImageStudioFlow({
                     <a
                       href={img.url}
                       download={`image-${img.id}.png`}
+                      onClick={(e) => e.stopPropagation()}
                       title="Download image"
                       className="flex h-7 w-7 items-center justify-center rounded-lg bg-black/60 text-slate-200 hover:text-white backdrop-blur-md transition-colors"
                     >
@@ -186,10 +200,15 @@ export default function ImageStudioFlow({
                   <div>
                     <p className="text-xs text-white font-medium line-clamp-2 leading-snug">{img.prompt}</p>
                     <div className="mt-2 flex items-center justify-between">
-                      <span className="text-[10px] font-mono text-slate-400">{new Date(img.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                      <span className="text-[10px] font-mono text-slate-400">
+                        {new Date(img.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                      </span>
                       <button
                         type="button"
-                        onClick={() => handleUseAsReference(img.url)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleUseAsReference(img.url);
+                        }}
                         className="inline-flex items-center gap-1 rounded-md bg-cyan-600/80 hover:bg-cyan-500 px-2 py-0.5 text-[10px] font-semibold text-white transition-colors"
                       >
                         <Wand2 className="h-2.5 w-2.5" />
@@ -345,58 +364,11 @@ export default function ImageStudioFlow({
       </div>
 
       {activePreviewImage && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 backdrop-blur-md"
-          onClick={() => setActivePreviewImage(null)}
-        >
-          <div
-            className="relative max-h-[90vh] max-w-4xl overflow-hidden rounded-3xl border border-white/[0.1] bg-[#1e1f20] p-3 shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              type="button"
-              onClick={() => setActivePreviewImage(null)}
-              className="absolute top-4 right-4 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/90"
-            >
-              <X className="h-4 w-4" />
-            </button>
-            <div className="relative aspect-square max-h-[70vh] w-full min-w-[300px]">
-              <Image
-                src={activePreviewImage.url}
-                alt={activePreviewImage.prompt}
-                fill
-                className="object-contain"
-                unoptimized
-              />
-            </div>
-            <div className="p-3">
-              <p className="text-xs text-white">{activePreviewImage.prompt}</p>
-              <div className="mt-3 flex items-center justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    handleUseAsReference(activePreviewImage.url);
-                    setActivePreviewImage(null);
-                  }}
-                  className="inline-flex items-center gap-1 rounded-xl bg-cyan-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-cyan-500"
-                >
-                  <Wand2 className="h-3 w-3" />
-                  <span>Edit this Image</span>
-                </button>
-                <a
-                  href={activePreviewImage.url}
-                  download={`image-${activePreviewImage.id}.png`}
-                  className="inline-flex items-center gap-1 rounded-xl bg-white/[0.1] px-3 py-1.5 text-xs font-semibold text-white hover:bg-white/[0.2]"
-                >
-                  <Download className="h-3 w-3" />
-                  <span>Download</span>
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
+        <ImagePreviewModal
+          image={activePreviewImage}
+          onClose={() => setActivePreviewImage(null)}
+          onUseAsReference={handleUseAsReference}
+        />
       )}
     </div>
   );

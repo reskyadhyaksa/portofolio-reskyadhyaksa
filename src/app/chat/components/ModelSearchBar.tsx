@@ -6,6 +6,7 @@ interface ModelSearchBarProps {
   onChange: (value: string) => void;
   resultCount: number;
   totalCount: number;
+  placeholder?: string;
 }
 
 export default function ModelSearchBar({
@@ -13,6 +14,7 @@ export default function ModelSearchBar({
   onChange,
   resultCount,
   totalCount,
+  placeholder = "Search models by name, provider, or capability...",
 }: ModelSearchBarProps) {
   const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Escape") {
@@ -31,7 +33,7 @@ export default function ModelSearchBar({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder="Search models by name, provider, or capability..."
+        placeholder={placeholder}
         aria-label="Search models"
         className="h-10 w-full rounded-xl border border-white/[0.08] bg-white/[0.04] pl-9 pr-24 text-[13px] text-white placeholder-[#9aa0a6] backdrop-blur-md transition-all duration-200 hover:border-white/[0.14] focus:border-[#8ab4f8] focus:bg-white/[0.06] focus:outline-none focus:ring-1 focus:ring-[#8ab4f8]"
       />

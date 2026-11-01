@@ -23,12 +23,27 @@ const PROVIDER_NAMES: Record<ModelProvider, string> = {
 };
 
 function inferProvider(id: string): ModelProvider {
-  if (id.includes("gemini")) return "gemini";
-  if (id.includes("claude")) return "claude";
-  if (id.includes("gpt")) return "gpt";
+  if (id.includes("gemini") || id.includes("veo") || id.startsWith("google/")) return "gemini";
+  if (id.includes("claude") || id.startsWith("anthropic/")) return "claude";
+  if (id.includes("gpt") || id.startsWith("openai/")) return "gpt";
   if (id.includes("deepseek")) return "deepseek";
   if (id.includes(":free") || id.includes("free-models") || id.includes("free-trial")) return "free";
-  return "gpt";
+  return "free";
+}
+
+function resolveProviderName(id: string, defaultName: string): string {
+  if (id.startsWith("google/") || id.includes("veo") || id.includes("gemini")) return "Google";
+  if (id.startsWith("openai/")) return "OpenAI";
+  if (id.startsWith("anthropic/")) return "Anthropic";
+  if (id.startsWith("deepseek/")) return "DeepSeek";
+  if (id.startsWith("bytedance")) return "ByteDance";
+  if (id.startsWith("recraft/")) return "Recraft";
+  if (id.startsWith("black-forest-labs/")) return "Black Forest";
+  if (id.startsWith("qwen/") || id.startsWith("alibaba/")) return "Alibaba";
+  if (id.startsWith("kwaivgi/")) return "Kuaishou";
+  if (id.startsWith("runway/")) return "Runway";
+  if (id.startsWith("minimax/")) return "MiniMax";
+  return defaultName;
 }
 
 export default function ModelCard({
@@ -42,7 +57,7 @@ export default function ModelCard({
   provider,
 }: ModelCardProps) {
   const activeProvider = provider ?? inferProvider(model.id);
-  const providerLabel = PROVIDER_NAMES[activeProvider] ?? "AI";
+  const providerLabel = resolveProviderName(model.id, PROVIDER_NAMES[activeProvider] ?? "AI");
 
   return (
     <li className="flex">

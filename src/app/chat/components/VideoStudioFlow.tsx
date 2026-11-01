@@ -11,6 +11,7 @@ import {
   Check,
   AlertCircle,
   SlidersHorizontal,
+  ChevronDown,
 } from "lucide-react";
 import { VIDEO_MODELS, type VideoModelId } from "@/lib/chat-config";
 import type { GeneratedVideo } from "@/lib/chat-types";
@@ -236,63 +237,18 @@ export default function VideoStudioFlow({
               <button
                 type="button"
                 onClick={() => setIsParamsModalOpen(true)}
-                title="Preview framing, resolution, and duration"
+                title="Configure duration, resolution, and aspect ratio options"
                 className="flex items-center gap-1.5 rounded-xl border border-white/[0.08] bg-white/[0.04] px-2.5 py-1 text-xs font-semibold text-slate-200 hover:bg-white/[0.08] hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 backdrop-blur-md cursor-pointer shrink-0"
               >
                 <SlidersHorizontal className="h-3 w-3 text-purple-400" />
-                <span className="hidden sm:inline">Framing Preview</span>
+                <span className="font-mono text-[11px] text-purple-300">{effectiveAspectRatio}</span>
+                <span className="text-slate-500">·</span>
+                <span className="font-mono text-[11px] text-slate-300">{effectiveResolution}</span>
+                <span className="text-slate-500">·</span>
+                <span className="font-mono text-[11px] text-slate-300">{effectiveDuration}s</span>
+                <span className="text-slate-400 text-[11px] font-normal">Options</span>
+                <ChevronDown className="h-3 w-3 text-slate-400" />
               </button>
-
-              <div className="flex items-center gap-1 rounded-xl border border-white/[0.08] bg-white/[0.04] p-0.5 backdrop-blur-md">
-                {currentModelConfig.durations.map((sec) => (
-                  <button
-                    key={sec}
-                    type="button"
-                    onClick={() => setDuration(sec)}
-                    className={`px-2 py-0.5 rounded-lg text-[11px] font-mono font-medium transition-all ${
-                      effectiveDuration === sec
-                        ? "bg-white/[0.14] text-white shadow-sm font-semibold"
-                        : "text-slate-400 hover:text-white"
-                    }`}
-                  >
-                    {sec}s
-                  </button>
-                ))}
-              </div>
-
-              <div className="flex items-center gap-1 rounded-xl border border-white/[0.08] bg-white/[0.04] p-0.5 backdrop-blur-md">
-                {currentModelConfig.resolutions.map((res) => (
-                  <button
-                    key={res}
-                    type="button"
-                    onClick={() => setResolution(res)}
-                    className={`px-2 py-0.5 rounded-lg text-[11px] font-mono font-medium transition-all ${
-                      effectiveResolution === res
-                        ? "bg-white/[0.14] text-white shadow-sm font-semibold"
-                        : "text-slate-400 hover:text-white"
-                    }`}
-                  >
-                    {res}
-                  </button>
-                ))}
-              </div>
-
-              <div className="custom-scrollbar flex max-w-full items-center gap-1 overflow-x-auto rounded-xl border border-white/[0.08] bg-white/[0.04] p-0.5 backdrop-blur-md">
-                {currentModelConfig.aspectRatios.map((ratio) => (
-                  <button
-                    key={ratio}
-                    type="button"
-                    onClick={() => setAspectRatio(ratio)}
-                    className={`px-2 py-0.5 rounded-lg text-[11px] font-mono font-medium transition-all shrink-0 ${
-                      effectiveAspectRatio === ratio
-                        ? "bg-white/[0.14] text-white shadow-sm font-semibold"
-                        : "text-slate-400 hover:text-white"
-                    }`}
-                  >
-                    {ratio}
-                  </button>
-                ))}
-              </div>
             </div>
           </div>
 

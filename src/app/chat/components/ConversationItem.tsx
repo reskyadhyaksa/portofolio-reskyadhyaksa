@@ -12,15 +12,23 @@ interface ConversationItemProps {
 }
 
 const ICON_BUTTON_CLASS =
-  "flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-full transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8ab4f8]";
+  "flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-lg transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8ab4f8]";
 
-export default function ConversationItem({ conversation, isActive, isDeleting, onSelect, onDelete }: ConversationItemProps) {
+export default function ConversationItem({
+  conversation,
+  isActive,
+  isDeleting,
+  onSelect,
+  onDelete,
+}: ConversationItemProps) {
   const [isConfirming, setIsConfirming] = useState(false);
 
   return (
     <li
-      className={`group flex items-center gap-1 rounded-full pr-1 transition-colors duration-150 ${
-        isActive ? "bg-[#8ab4f8]/15 text-white" : "text-[#c4c7c5] hover:bg-white/[0.06]"
+      className={`group relative flex items-center justify-between rounded-xl border px-2 py-1.5 transition-all ${
+        isActive
+          ? "border-[#8ab4f8]/35 bg-[#8ab4f8]/[0.12] text-white shadow-sm shadow-[#8ab4f8]/10"
+          : "border-transparent text-slate-300 hover:border-white/[0.08] hover:bg-white/[0.04] hover:text-white"
       }`}
     >
       <button
@@ -28,44 +36,60 @@ export default function ConversationItem({ conversation, isActive, isDeleting, o
         onClick={() => onSelect(conversation.id)}
         aria-current={isActive ? "page" : undefined}
         title={conversation.title}
-        className="flex min-w-0 flex-1 cursor-pointer items-center gap-2 rounded-full py-1.5 pl-3 text-left text-[12px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8ab4f8]"
+        className="flex min-w-0 flex-1 cursor-pointer items-center gap-2 text-left text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8ab4f8] rounded-md"
       >
-        <MessageSquare aria-hidden="true" className="h-3 w-3 shrink-0 opacity-70" />
-        <span className="truncate">{isConfirming ? "Delete permanently?" : conversation.title}</span>
+        <MessageSquare
+          aria-hidden="true"
+          className={`h-3.5 w-3.5 shrink-0 ${isActive ? "text-[#8ab4f8]" : "text-slate-500 group-hover:text-slate-400"}`}
+        />
+        <span className="truncate max-w-[145px] sm:max-w-[160px] font-medium leading-tight">
+          {isConfirming ? "Delete permanently?" : conversation.title}
+        </span>
       </button>
 
-      {isDeleting ? (
-        <Loader2 aria-label="Deleting chat" className="mx-1.5 h-3.5 w-3.5 animate-spin motion-reduce:animate-none" />
-      ) : isConfirming ? (
-        <>
-          <button
-            type="button"
-            onClick={() => onDelete(conversation.id)}
-            aria-label={`Confirm delete ${conversation.title}`}
-            className={`${ICON_BUTTON_CLASS} text-[#f28b82] hover:bg-[#f28b82]/15`}
-          >
-            <Check aria-hidden="true" className="h-3.5 w-3.5" />
-          </button>
-          <button
-            type="button"
-            onClick={() => setIsConfirming(false)}
-            aria-label="Cancel delete"
-            className={`${ICON_BUTTON_CLASS} hover:bg-white/[0.1]`}
-          >
-            <X aria-hidden="true" className="h-3.5 w-3.5" />
-          </button>
-        </>
-      ) : (
-        <button
-          type="button"
-          onClick={() => setIsConfirming(true)}
-          aria-label={`Delete ${conversation.title} permanently`}
-          title="Delete permanently"
-          className={`${ICON_BUTTON_CLASS} text-[#9aa0a6] opacity-100 hover:bg-white/[0.1] hover:text-[#f28b82] sm:opacity-0 sm:group-hover:opacity-100 sm:focus-visible:opacity-100`}
-        >
-          <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />
-        </button>
-      )}
+      <div className="flex shrink-0 items-center gap-1 pl-1">
+        {isDeleting ? (
+          <Loader2 aria-label="Deleting chat" className="h-3.5 w-3.5 animate-spin text-slate-400" />
+        ) : isConfirming ? (
+          <>
+            <button
+              type="button"
+              onClick={() => onDelete(conversation.id)}
+              aria-label={`Confirm delete ${conversation.title}`}
+              title="Confirm delete"
+              className={`${ICON_BUTTON_CLASS} text-rose-400 hover:bg-rose-500/20`}
+            >
+              <Check aria-hidden="true" className="h-3.5 w-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsConfirming(false)}
+              aria-label="Cancel delete"
+              title="Cancel"
+              className={`${ICON_BUTTON_CLASS} text-slate-400 hover:bg-white/[0.1] hover:text-white`}
+            >
+              <X aria-hidden="true" className="h-3.5 w-3.5" />
+            </button>
+          </>
+        ) : (
+          <>
+            {conversation.messageCount > 0 && (
+              <span className="font-mono text-[10px] text-slate-500 group-hover:hidden">
+                {conversation.messageCount}
+              </span>
+            )}
+            <button
+              type="button"
+              onClick={() => setIsConfirming(true)}
+              aria-label={`Delete ${conversation.title} permanently`}
+              title="Delete permanently"
+              className={`${ICON_BUTTON_CLASS} text-slate-400 opacity-100 hover:bg-white/[0.1] hover:text-rose-400 sm:opacity-0 sm:group-hover:opacity-100 sm:focus-visible:opacity-100`}
+            >
+              <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />
+            </button>
+          </>
+        )}
+      </div>
     </li>
   );
 }

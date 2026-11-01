@@ -4,6 +4,7 @@ import { ChevronDown, Film, ImageIcon, Sparkles } from "lucide-react";
 import type { ModelOption } from "@/lib/chat-config";
 import { getModelSummary } from "@/lib/model-summaries";
 import ChatModelCatalog from "./ChatModelCatalog";
+import ImageModelCatalog from "./ImageModelCatalog";
 import ModalDialog from "./ModalDialog";
 import ModelCard from "./ModelCard";
 import ModelCardGrid from "./ModelCardGrid";
@@ -87,6 +88,33 @@ export default function ModelSelector({
     );
   }, [models, searchQuery]);
 
+  const videoGroups = useMemo(() => {
+    if (resolvedMode !== "video") return [];
+    const grouped: Record<string, ModelOption[]> = {};
+    for (const model of filteredModels) {
+      const prov = model.id.startsWith("google/")
+        ? "Google"
+        : model.id.startsWith("bytedance/")
+          ? "ByteDance"
+          : model.id.startsWith("alibaba/")
+            ? "Alibaba"
+            : model.id.startsWith("kwaivgi/")
+              ? "Kuaishou"
+              : model.id.startsWith("runway/")
+                ? "Runway"
+                : model.id.startsWith("minimax/")
+                  ? "MiniMax"
+                  : "AI";
+      if (!grouped[prov]) grouped[prov] = [];
+      grouped[prov].push(model);
+    }
+    return Object.entries(grouped).map(([label, groupModels]) => ({
+      provider: label.toLowerCase(),
+      label,
+      models: groupModels,
+    }));
+  }, [filteredModels, resolvedMode]);
+
   const closeModal = useCallback(() => {
     setIsOpen(false);
     setSearchQuery("");
@@ -126,6 +154,8 @@ export default function ModelSelector({
       >
         {resolvedMode === "chat" ? (
           <ChatModelCatalog selectedModel={selectedModel} onSelect={handleSelect} />
+        ) : resolvedMode === "image" ? (
+          <ImageModelCatalog selectedModel={selectedModel} onSelect={handleSelect} />
         ) : (
           <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
             <div className="border-b border-white/[0.06] px-4 py-3 sm:px-5">
@@ -141,19 +171,32 @@ export default function ModelSelector({
               {filteredModels.length === 0 ? (
                 <ModelEmptyState onReset={() => setSearchQuery("")} />
               ) : (
-                <ModelCardGrid label={`${modalMeta.tagLabel} models`}>
-                  {filteredModels.map((model) => (
-                    <ModelCard
-                      key={model.id}
-                      model={model}
-                      summary={getModelSummary(model.id)}
-                      tagLabel={modalMeta.tagLabel}
-                      TagIcon={TriggerIcon}
-                      isSelected={model.id === selectedModel}
-                      onSelect={handleSelect}
-                    />
-                  ))}
-                </ModelCardGrid>
+                videoGroups.map((group) => (
+                  <section key={group.provider} className="mb-6 last:mb-0">
+                    <div className="flex items-center gap-2 pb-2.5">
+                      <Film className="h-3.5 w-3.5 text-purple-400" aria-hidden="true" />
+                      <h3 className="text-xs font-bold uppercase tracking-wider text-[#c4c7c5]">
+                        {group.label}
+                      </h3>
+                      <span className="text-[11px] text-[#9aa0a6] font-mono">
+                        ({group.models.length})
+                      </span>
+                    </div>
+                    <ModelCardGrid label={`${group.label} models`}>
+                      {group.models.map((model) => (
+                        <ModelCard
+                          key={model.id}
+                          model={model}
+                          summary={getModelSummary(model.id)}
+                          tagLabel={modalMeta.tagLabel}
+                          TagIcon={TriggerIcon}
+                          isSelected={model.id === selectedModel}
+                          onSelect={handleSelect}
+                        />
+                      ))}
+                    </ModelCardGrid>
+                  </section>
+                ))
               )}
             </div>
           </div>

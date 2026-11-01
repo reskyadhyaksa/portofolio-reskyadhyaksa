@@ -34,7 +34,7 @@ export const CHAT_MODEL_SUMMARIES: Record<ChatModelId, string> = {
   "recursive/flint-v1.0:free": "Flint (free) (reasoning, free).",
 };
 
-export const IMAGE_MODEL_SUMMARIES: Record<ImageModelId, string> = {
+export const IMAGE_MODEL_SUMMARIES: Partial<Record<ImageModelId, string>> = {
   "bytedance-seed/seedream-4.5": "Seedream 4.5 for high-quality text-to-image and image editing.",
   "bytedance-seed/seedream-5-0-pro": "Seedream 5.0 Pro for high-quality text-to-image and image editing.",
   "recraft/recraft-v4-pro": "Recraft V4 Pro for high-quality text-to-image and image editing.",

@@ -43,6 +43,11 @@ function resolveProviderName(id: string, defaultName: string): string {
   if (id.startsWith("kwaivgi/")) return "Kuaishou";
   if (id.startsWith("runway/")) return "Runway";
   if (id.startsWith("minimax/")) return "MiniMax";
+  if (id.startsWith("x-ai/")) return "xAI";
+  if (id.startsWith("krea/")) return "Krea";
+  if (id.startsWith("sourceful/")) return "Sourceful";
+  if (id.startsWith("microsoft/")) return "Microsoft";
+  if (id.startsWith("tencent/")) return "Tencent";
   return defaultName;
 }
 

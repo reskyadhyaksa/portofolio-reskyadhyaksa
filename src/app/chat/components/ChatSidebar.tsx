@@ -146,7 +146,7 @@ export default function ChatSidebar({
             <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-gradient-to-tr from-blue-600 to-cyan-500 text-white shadow-sm">
               <Home aria-hidden="true" className="h-3.5 w-3.5" />
             </div>
-            <span className="tracking-wide">Euphy Studio</span>
+            <span className="tracking-wide">Home</span>
           </Link>
 
           <button

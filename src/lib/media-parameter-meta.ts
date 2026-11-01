@@ -23,6 +23,13 @@ const DEFAULT_ASPECT_META: AspectRatioMeta = {
 };
 
 const ASPECT_RATIO_PREVIEWS: Record<string, AspectRatioMeta> = {
+  "auto": {
+    ratio: "auto",
+    title: "Auto Framing",
+    category: "square",
+    useCase: "Model detects best composition automatically",
+    numericRatio: 1,
+  },
   "1:1": {
     ratio: "1:1",
     title: "Square",
@@ -142,6 +149,48 @@ const ASPECT_RATIO_PREVIEWS: Record<string, AspectRatioMeta> = {
     useCase: "Horizontal panorama header",
     numericRatio: 8 / 1,
   },
+  "9:19.5": {
+    ratio: "9:19.5",
+    title: "Modern Smartphone",
+    category: "portrait",
+    useCase: "Bezel-less iPhone and Android vertical display",
+    numericRatio: 9 / 19.5,
+  },
+  "19.5:9": {
+    ratio: "19.5:9",
+    title: "Smartphone Landscape",
+    category: "ultrawide",
+    useCase: "Full screen mobile panoramic presentation",
+    numericRatio: 19.5 / 9,
+  },
+  "9:20": {
+    ratio: "9:20",
+    title: "Ultra Tall Screen",
+    category: "portrait",
+    useCase: "Tall ratio smartphone scrolling feeds",
+    numericRatio: 9 / 20,
+  },
+  "20:9": {
+    ratio: "20:9",
+    title: "Cinematic Mobile",
+    category: "ultrawide",
+    useCase: "Mobile widescreen cinematic view",
+    numericRatio: 20 / 9,
+  },
+  "7:5": {
+    ratio: "7:5",
+    title: "Photo Print",
+    category: "landscape",
+    useCase: "7x5 photo frame, print album",
+    numericRatio: 7 / 5,
+  },
+  "5:7": {
+    ratio: "5:7",
+    title: "Portrait Print",
+    category: "portrait",
+    useCase: "5x7 vertical invitation, greeting card",
+    numericRatio: 5 / 7,
+  },
 };
 
 const DEFAULT_RES_META: ResolutionMeta = {
@@ -153,6 +202,20 @@ const DEFAULT_RES_META: ResolutionMeta = {
 };
 
 const RESOLUTION_PREVIEWS: Record<string, ResolutionMeta> = {
+  "512": {
+    id: "512",
+    title: "Draft 512px",
+    badge: "512px",
+    dimensionEstimate: "~512 × 512",
+    detail: "Fast generation speed, ideal for rapid prototyping.",
+  },
+  "768": {
+    id: "768",
+    title: "Compact 768px",
+    badge: "768px",
+    dimensionEstimate: "~768 × 768",
+    detail: "Optimized resolution for quick iterations.",
+  },
   "720p": {
     id: "720p",
     title: "High Definition",
@@ -173,6 +236,13 @@ const RESOLUTION_PREVIEWS: Record<string, ResolutionMeta> = {
     badge: "1K",
     dimensionEstimate: "~1024 × 1024",
     detail: "Balanced detail and quick rendering speed for image assets.",
+  },
+  "1.5K": {
+    id: "1.5K",
+    title: "Enhanced 1.5K",
+    badge: "1.5K",
+    dimensionEstimate: "~1536 × 1536",
+    detail: "High detail with fast rendering speed.",
   },
   "2K": {
     id: "2K",

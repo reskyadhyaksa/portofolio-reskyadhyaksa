@@ -155,6 +155,12 @@ export async function fetchGeneratedVideos(currentSessionId: string, sessionIds:
   return data.videos;
 }
 
+export async function deleteGeneratedVideo(currentSessionId: string, videoId: string, sessionIds: string[]): Promise<void> {
+  await requestJson<{ deleted: string }>(`/api/videos/${encodeURIComponent(videoId)}?${toIdsQuery(sessionIds)}`, currentSessionId, {
+    method: "DELETE",
+  });
+}
+
 export interface RequestVideoParams {
   prompt: string;
   model: string;

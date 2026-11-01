@@ -1,9 +1,19 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { GeneratedVideo } from "@/lib/chat-types";
-import { fetchGeneratedVideos, pollVideoStatus, requestVideoGeneration, type RequestVideoParams } from "../services/chat-api";
+import {
+  deleteGeneratedVideo,
+  fetchGeneratedVideos,
+  pollVideoStatus,
+  requestVideoGeneration,
+  type RequestVideoParams,
+} from "../services/chat-api";
 
-export function useGeneratedVideos(activeSessionId: string | null, sessionIds: string[]) {
+export function useGeneratedVideos(
+  activeSessionId: string | null,
+  sessionIds: string[],
+  enabled: boolean = true
+) {
   const [videos, setVideos] = useState<GeneratedVideo[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -13,7 +23,7 @@ export function useGeneratedVideos(activeSessionId: string | null, sessionIds: s
   activeSessionIdRef.current = activeSessionId;
 
   const loadVideos = useCallback(async () => {
-    if (!activeSessionId || sessionIds.length === 0) return;
+    if (!enabled || !activeSessionId || sessionIds.length === 0) return;
     setIsLoading(true);
     try {
       const list = await fetchGeneratedVideos(activeSessionId, sessionIds);
@@ -24,13 +34,15 @@ export function useGeneratedVideos(activeSessionId: string | null, sessionIds: s
     } finally {
       setIsLoading(false);
     }
-  }, [activeSessionId, sessionIds]);
+  }, [enabled, activeSessionId, sessionIds]);
 
   useEffect(() => {
+    if (!enabled) return;
     void loadVideos();
-  }, [loadVideos]);
+  }, [enabled, loadVideos]);
 
   const pollActiveJobs = useCallback(async () => {
+    if (!enabled) return;
     const currentSession = activeSessionIdRef.current;
     if (!currentSession) return;
 
@@ -49,14 +61,15 @@ export function useGeneratedVideos(activeSessionId: string | null, sessionIds: s
 
       return current;
     });
-  }, []);
+  }, [enabled]);
 
   useEffect(() => {
+    if (!enabled) return;
     const interval = setInterval(() => {
       void pollActiveJobs();
     }, 10000);
     return () => clearInterval(interval);
-  }, [pollActiveJobs]);
+  }, [enabled, pollActiveJobs]);
 
   const generate = useCallback(
     async (params: RequestVideoParams) => {
@@ -78,12 +91,27 @@ export function useGeneratedVideos(activeSessionId: string | null, sessionIds: s
     [activeSessionId]
   );
 
+  const removeVideo = useCallback(
+    async (videoId: string) => {
+      if (!activeSessionId) return;
+      setError(null);
+      try {
+        await deleteGeneratedVideo(activeSessionId, videoId, sessionIds);
+        setVideos((current) => current.filter((video) => video.id !== videoId));
+      } catch (deleteError) {
+        setError(deleteError instanceof Error ? deleteError.message : "Failed to delete video");
+      }
+    },
+    [activeSessionId, sessionIds]
+  );
+
   return {
     videos,
     isLoading,
     isGenerating,
     error,
     generate,
+    removeVideo,
     reload: loadVideos,
   };
 }

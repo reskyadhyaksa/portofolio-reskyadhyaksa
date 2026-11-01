@@ -39,9 +39,10 @@ export function useChatRouteSync({
   );
 
   const selectStudioMode = useCallback(
-    (mode: StudioViewMode) => {
+    (mode: StudioViewMode, nextSessionId?: string | null) => {
       setStudioMode(mode);
-      navigateTo(sessionId, mode, true);
+      const targetSessionId = nextSessionId !== undefined ? nextSessionId : sessionId;
+      navigateTo(targetSessionId, mode, false);
     },
     [navigateTo, sessionId]
   );

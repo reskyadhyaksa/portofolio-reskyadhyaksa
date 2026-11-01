@@ -3,14 +3,19 @@ import { useCallback, useEffect, useState } from "react";
 import type { ConversationSummary } from "@/lib/chat-types";
 import { deleteConversation, fetchConversations } from "../services/chat-api";
 
-export function useConversationList(activeSessionId: string | null, sessionIds: string[], refreshKey: number) {
+export function useConversationList(
+  activeSessionId: string | null,
+  sessionIds: string[],
+  refreshKey: number,
+  enabled: boolean = true
+) {
   const [conversations, setConversations] = useState<ConversationSummary[]>([]);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const sessionIdsKey = sessionIds.join(",");
 
   useEffect(() => {
-    if (!activeSessionId) return;
+    if (!enabled || !activeSessionId) return;
     let isCancelled = false;
 
     fetchConversations(activeSessionId, sessionIdsKey ? sessionIdsKey.split(",") : [])
@@ -24,7 +29,7 @@ export function useConversationList(activeSessionId: string | null, sessionIds: 
     return () => {
       isCancelled = true;
     };
-  }, [activeSessionId, sessionIdsKey, refreshKey]);
+  }, [enabled, activeSessionId, sessionIdsKey, refreshKey]);
 
   const removeConversation = useCallback(async (sessionId: string): Promise<boolean> => {
     setDeletingId(sessionId);

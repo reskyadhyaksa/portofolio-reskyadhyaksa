@@ -3,13 +3,17 @@ import { useCallback, useEffect, useState } from "react";
 import type { GeneratedImage } from "@/lib/chat-types";
 import { deleteGeneratedImage, fetchGeneratedImages } from "../services/chat-api";
 
-export function useGeneratedImages(activeSessionId: string | null, sessionIds: string[]) {
+export function useGeneratedImages(
+  activeSessionId: string | null,
+  sessionIds: string[],
+  enabled: boolean = true
+) {
   const [images, setImages] = useState<GeneratedImage[]>([]);
   const [error, setError] = useState<string | null>(null);
   const sessionIdsKey = sessionIds.join(",");
 
   useEffect(() => {
-    if (!activeSessionId) return;
+    if (!enabled || !activeSessionId) return;
     let isCancelled = false;
 
     fetchGeneratedImages(activeSessionId, sessionIdsKey ? sessionIdsKey.split(",") : [])
@@ -25,7 +29,7 @@ export function useGeneratedImages(activeSessionId: string | null, sessionIds: s
     return () => {
       isCancelled = true;
     };
-  }, [activeSessionId, sessionIdsKey]);
+  }, [enabled, activeSessionId, sessionIdsKey]);
 
   const addImage = useCallback((image: GeneratedImage) => {
     setImages((current) => [image, ...current.filter((existing) => existing.id !== image.id)]);

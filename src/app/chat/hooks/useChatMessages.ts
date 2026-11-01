@@ -24,7 +24,7 @@ function createOptimisticMessage(sessionId: string, payload: ChatPostPayload): C
   };
 }
 
-export function useChatMessages(sessionId: string | null) {
+export function useChatMessages(sessionId: string | null, enabled: boolean = true) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(true);
   const [isSending, setIsSending] = useState(false);
@@ -36,7 +36,10 @@ export function useChatMessages(sessionId: string | null) {
   useEffect(() => () => exchangeControllerRef.current?.abort(), []);
 
   useEffect(() => {
-    if (!sessionId) return;
+    if (!enabled || !sessionId) {
+      if (!enabled) setIsLoadingHistory(false);
+      return;
+    }
     let isCancelled = false;
     setMessages([]);
     setError(null);
@@ -56,7 +59,7 @@ export function useChatMessages(sessionId: string | null) {
     return () => {
       isCancelled = true;
     };
-  }, [sessionId]);
+  }, [enabled, sessionId]);
 
   const submitExchange = useCallback(
     async (payload: ChatPostPayload, executeExchange: ExchangeExecutor): Promise<boolean> => {

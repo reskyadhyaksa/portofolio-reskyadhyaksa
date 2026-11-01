@@ -26,11 +26,16 @@ export default function ChatContainer({ initialSessionId, initialTab }: ChatCont
   const [draft, setDraft] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const chat = useChatMessages(session.sessionId);
+
+  const isChatMode = routeSync.studioMode === "chat";
+  const isImageMode = routeSync.studioMode === "image";
+  const isVideoMode = routeSync.studioMode === "video";
+
+  const chat = useChatMessages(session.sessionId, isChatMode);
   const queue = useAttachmentQueue(session.sessionId);
-  const conversationList = useConversationList(session.sessionId, session.sessionIds, chat.messages.length);
-  const gallery = useGeneratedImages(session.sessionId, session.sessionIds);
-  const videoGallery = useGeneratedVideos(session.sessionId, session.sessionIds);
+  const conversationList = useConversationList(session.sessionId, session.sessionIds, chat.messages.length, isChatMode);
+  const gallery = useGeneratedImages(session.sessionId, session.sessionIds, isImageMode);
+  const videoGallery = useGeneratedVideos(session.sessionId, session.sessionIds, isVideoMode);
 
   const resetComposer = () => {
     queue.clearItems();
@@ -38,8 +43,8 @@ export default function ChatContainer({ initialSessionId, initialTab }: ChatCont
     setIsSidebarOpen(false);
   };
 
-  const handleNewChat = () => {
-    if (chat.isSending) return;
+  const handleNewSession = () => {
+    if (chat.isSending || videoGallery.isGenerating) return;
     resetComposer();
     const nextSessionId = session.startNewSession();
     routeSync.navigateTo(nextSessionId, routeSync.studioMode, false);
@@ -58,6 +63,14 @@ export default function ChatContainer({ initialSessionId, initialTab }: ChatCont
     if (sessionId === session.sessionId) resetComposer();
     const nextActiveId = session.forgetSession(sessionId);
     if (nextActiveId) routeSync.navigateTo(nextActiveId, routeSync.studioMode, true);
+  };
+
+  const handleSelectStudioMode = (nextMode: StudioViewMode) => {
+    if (chat.isSending || videoGallery.isGenerating) return;
+    if (nextMode === routeSync.studioMode) return;
+    resetComposer();
+    const nextSessionId = session.startNewSession();
+    routeSync.selectStudioMode(nextMode, nextSessionId);
   };
 
   const handleCollapseSidebar = () => {
@@ -80,12 +93,15 @@ export default function ChatContainer({ initialSessionId, initialTab }: ChatCont
         activeSessionId={session.sessionId}
         conversations={conversationList.conversations}
         deletingId={conversationList.deletingId}
-        onNewChat={handleNewChat}
+        onNewChat={handleNewSession}
         onSelectConversation={handleSelectConversation}
         onDeleteConversation={handleDeleteConversation}
         images={gallery.images}
         onDeleteImage={gallery.removeImage}
+        videos={videoGallery.videos}
+        onDeleteVideo={videoGallery.removeVideo}
         errorMessage={conversationList.error ?? gallery.error ?? videoGallery.error}
+        studioMode={routeSync.studioMode}
       />
       <ChatPanel
         sessionId={session.sessionId}
@@ -98,11 +114,11 @@ export default function ChatContainer({ initialSessionId, initialTab }: ChatCont
         onImageGenerated={gallery.addImage}
         onGenerateVideo={videoGallery.generate}
         isGeneratingVideo={videoGallery.isGenerating}
-        onNewChat={handleNewChat}
+        onNewChat={handleNewSession}
         onOpenSidebar={handleOpenSidebar}
         isSidebarCollapsed={isSidebarCollapsed}
         studioMode={routeSync.studioMode}
-        onSelectStudioMode={routeSync.selectStudioMode}
+        onSelectStudioMode={handleSelectStudioMode}
       />
     </div>
   );

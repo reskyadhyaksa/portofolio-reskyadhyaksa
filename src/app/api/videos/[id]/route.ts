@@ -1,7 +1,8 @@
-import { describeError, jsonFailure, jsonSuccess, readSessionId } from "@/lib/api-response";
+import { describeError, jsonFailure, jsonSuccess, readSessionId, readSessionIdList } from "@/lib/api-response";
 import { UPLOAD_PUBLIC_PREFIX } from "@/lib/chat-config";
 import { downloadVideoBuffer, getVideoJobStatus, storeGeneratedVideo } from "@/lib/video-client";
-import { findGeneratedVideo, updateVideoJobStatus } from "@/lib/video-repository";
+import { deleteGeneratedVideo, findGeneratedVideo, updateVideoJobStatus } from "@/lib/video-repository";
+import { deleteUploadedFiles } from "@/lib/upload-storage";
 import { UpstreamError } from "@/lib/router-http";
 
 export const runtime = "nodejs";
@@ -49,5 +50,23 @@ export async function GET(request: Request, context: RouteParams) {
   } catch (error) {
     const status = error instanceof UpstreamError ? error.status : 500;
     return jsonFailure(describeError(error, "Failed to check video status"), status);
+  }
+}
+
+export async function DELETE(request: Request, context: RouteParams) {
+  const { id } = await context.params;
+  if (!id) return jsonFailure("Missing video id", 400);
+
+  const ownedSessionIds = readSessionIdList(request);
+  if (!ownedSessionIds || ownedSessionIds.length === 0) return jsonFailure("Invalid session id list", 400);
+
+  try {
+    const video = findGeneratedVideo(id);
+    if (!video || !ownedSessionIds.includes(video.sessionId)) return jsonFailure("Video not found", 404);
+    deleteGeneratedVideo(id);
+    if (video.url) await deleteUploadedFiles([video.url]);
+    return jsonSuccess({ deleted: id });
+  } catch (error) {
+    return jsonFailure(describeError(error, "Failed to delete video"), 500);
   }
 }

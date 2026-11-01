@@ -116,7 +116,7 @@ export function useChatSession(initialSessionId?: string) {
   }, []);
 
   return {
-    sessionId: initialSessionId ?? state?.activeSessionId ?? null,
+    sessionId: state?.activeSessionId ?? initialSessionId ?? null,
     sessionIds: state?.sessionIds ?? [],
     startNewSession,
     selectSession,

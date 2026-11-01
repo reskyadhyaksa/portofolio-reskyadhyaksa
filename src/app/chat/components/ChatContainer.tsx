@@ -83,7 +83,7 @@ export default function ChatContainer({ initialSessionId, initialTab }: ChatCont
     setIsSidebarCollapsed(false);
   };
 
-  const activeConversation = conversationList.conversations.find((c) => c.sessionId === session.sessionId);
+  const activeConversation = conversationList.conversations.find((c) => c.id === session.sessionId);
   const activeTitle =
     routeSync.studioMode === "image"
       ? "Image Studio"

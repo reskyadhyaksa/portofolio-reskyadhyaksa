@@ -21,12 +21,12 @@ export default function ImageQuickFilterPills({
   const isEditOnly = activeCapability === "edit_only";
 
   return (
-    <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+    <div className="custom-scrollbar flex items-center gap-1.5 overflow-x-auto no-scrollbar flex-nowrap py-0.5">
       <button
         type="button"
         aria-pressed={is4K}
         onClick={() => onToggleCapability("4k")}
-        className={`flex items-center gap-1 rounded-lg px-2.5 py-1 text-[11px] font-medium transition-all ${
+        className={`flex shrink-0 items-center gap-1 rounded-md sm:rounded-lg px-2 py-0.5 sm:px-2.5 sm:py-1 text-[10.5px] sm:text-[11px] font-medium transition-all ${
           is4K
             ? "border border-amber-500/40 bg-amber-500/20 text-amber-300 shadow-sm"
             : "border border-white/[0.06] bg-white/[0.03] text-slate-300 hover:border-amber-500/20 hover:text-amber-300"
@@ -40,7 +40,7 @@ export default function ImageQuickFilterPills({
         type="button"
         aria-pressed={isVector}
         onClick={() => onToggleCapability("vector")}
-        className={`flex items-center gap-1 rounded-lg px-2.5 py-1 text-[11px] font-medium transition-all ${
+        className={`flex shrink-0 items-center gap-1 rounded-md sm:rounded-lg px-2 py-0.5 sm:px-2.5 sm:py-1 text-[10.5px] sm:text-[11px] font-medium transition-all ${
           isVector
             ? "border border-cyan-500/40 bg-cyan-500/20 text-cyan-300 shadow-sm"
             : "border border-white/[0.06] bg-white/[0.03] text-slate-300 hover:border-cyan-500/20 hover:text-cyan-300"
@@ -54,7 +54,7 @@ export default function ImageQuickFilterPills({
         type="button"
         aria-pressed={isMulti}
         onClick={() => onToggleCapability("multi_image")}
-        className={`flex items-center gap-1 rounded-lg px-2.5 py-1 text-[11px] font-medium transition-all ${
+        className={`flex shrink-0 items-center gap-1 rounded-md sm:rounded-lg px-2 py-0.5 sm:px-2.5 sm:py-1 text-[10.5px] sm:text-[11px] font-medium transition-all ${
           isMulti
             ? "border border-purple-500/40 bg-purple-500/20 text-purple-300 shadow-sm"
             : "border border-white/[0.06] bg-white/[0.03] text-slate-300 hover:border-purple-500/20 hover:text-purple-300"
@@ -68,7 +68,7 @@ export default function ImageQuickFilterPills({
         type="button"
         aria-pressed={isEditOnly}
         onClick={() => onToggleCapability("edit_only")}
-        className={`flex items-center gap-1 rounded-lg px-2.5 py-1 text-[11px] font-medium transition-all ${
+        className={`flex shrink-0 items-center gap-1 rounded-md sm:rounded-lg px-2 py-0.5 sm:px-2.5 sm:py-1 text-[10.5px] sm:text-[11px] font-medium transition-all ${
           isEditOnly
             ? "border border-rose-500/40 bg-rose-500/20 text-rose-300 shadow-sm"
             : "border border-white/[0.06] bg-white/[0.03] text-slate-300 hover:border-rose-500/20 hover:text-rose-300"
@@ -82,7 +82,7 @@ export default function ImageQuickFilterPills({
         <button
           type="button"
           onClick={onResetFilters}
-          className="ml-auto flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-medium text-[#9aa0a6] hover:bg-white/[0.06] hover:text-white transition-colors"
+          className="ml-auto flex shrink-0 items-center gap-1 rounded-md sm:rounded-lg px-2 py-0.5 sm:py-1 text-[10.5px] sm:text-[11px] font-medium text-[#9aa0a6] hover:bg-white/[0.06] hover:text-white transition-colors"
         >
           <RotateCcw className="h-3 w-3" aria-hidden="true" />
           <span>Reset</span>

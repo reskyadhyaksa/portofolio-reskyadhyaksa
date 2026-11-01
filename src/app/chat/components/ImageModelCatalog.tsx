@@ -60,7 +60,7 @@ export default function ImageModelCatalog({ selectedModel, onSelect }: ImageMode
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="flex shrink-0 flex-col gap-2.5 border-b border-white/[0.08] bg-[#161718]/60 p-3 sm:px-5 sm:py-3.5 backdrop-blur-md">
+      <div className="flex shrink-0 flex-col gap-1.5 sm:gap-2.5 border-b border-white/[0.08] bg-[#161718]/60 p-2.5 sm:px-5 sm:py-3.5 backdrop-blur-md">
         <ModelSearchBar
           value={filter.search}
           onChange={updateSearch}
@@ -82,22 +82,22 @@ export default function ImageModelCatalog({ selectedModel, onSelect }: ImageMode
         />
       </div>
 
-      <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-[max(env(safe-area-inset-bottom),1.25rem)] pt-4 sm:px-5">
+      <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 pb-4 pt-3 sm:px-5 sm:pb-[max(env(safe-area-inset-bottom),1.25rem)] sm:pt-4">
         {groups.length === 0 ? (
           <ModelEmptyState onReset={resetFilters} />
         ) : (
           groups.map((group) => {
             const Icon = CATEGORY_ICONS[group.category] ?? Sparkles;
             return (
-              <section key={group.category} aria-label={group.label} className="mb-6 last:mb-0">
-                <div className="flex items-center gap-2 pb-2.5">
-                  <div className="flex h-5 w-5 items-center justify-center rounded-md bg-white/[0.06] border border-white/[0.08]">
-                    <Icon className="h-3 w-3 text-[#8ab4f8]" aria-hidden="true" />
+              <section key={group.category} aria-label={group.label} className="mb-4 sm:mb-6 last:mb-0">
+                <div className="flex items-center gap-1.5 sm:gap-2 pb-1.5 sm:pb-2.5">
+                  <div className="flex h-4.5 w-4.5 sm:h-5 sm:w-5 items-center justify-center rounded-md bg-white/[0.06] border border-white/[0.08]">
+                    <Icon className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-[#8ab4f8]" aria-hidden="true" />
                   </div>
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-[#c4c7c5]">
+                  <h3 className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#c4c7c5]">
                     {group.label}
                   </h3>
-                  <span className="text-[11px] text-[#9aa0a6] font-mono">
+                  <span className="text-[10px] sm:text-[11px] text-[#9aa0a6] font-mono">
                     ({group.models.length})
                   </span>
                 </div>

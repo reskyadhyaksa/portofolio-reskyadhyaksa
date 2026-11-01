@@ -82,7 +82,7 @@ export default function ChatModelCatalog({ selectedModel, onSelect }: ChatModelC
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="flex shrink-0 flex-col gap-2.5 border-b border-white/[0.08] bg-[#161718]/60 p-3 sm:px-5 sm:py-3.5 backdrop-blur-md">
+      <div className="flex shrink-0 flex-col gap-1.5 sm:gap-2.5 border-b border-white/[0.08] bg-[#161718]/60 p-2.5 sm:px-5 sm:py-3.5 backdrop-blur-md">
         <ModelSearchBar
           value={filter.search ?? ""}
           onChange={updateSearch}
@@ -105,18 +105,18 @@ export default function ChatModelCatalog({ selectedModel, onSelect }: ChatModelC
         />
       </div>
 
-      <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-[max(env(safe-area-inset-bottom),1.25rem)] pt-4 sm:px-5">
+      <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 pb-4 pt-3 sm:px-5 sm:pb-[max(env(safe-area-inset-bottom),1.25rem)] sm:pt-4">
         {groups.length === 0 ? (
           <ModelEmptyState onReset={resetFilters} />
         ) : (
           groups.map((group) => (
-            <section key={group.provider} aria-label={PROVIDER_LABELS[group.provider]} className="mb-6 last:mb-0">
-              <div className="flex items-center gap-2 pb-2.5">
-                <ProviderLogoIcon provider={group.provider} className="h-4 w-4" />
-                <h3 className="text-xs font-bold uppercase tracking-wider text-[#c4c7c5]">
+            <section key={group.provider} aria-label={PROVIDER_LABELS[group.provider]} className="mb-4 sm:mb-6 last:mb-0">
+              <div className="flex items-center gap-1.5 sm:gap-2 pb-1.5 sm:pb-2.5">
+                <ProviderLogoIcon provider={group.provider} className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                <h3 className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#c4c7c5]">
                   {PROVIDER_LABELS[group.provider]}
                 </h3>
-                <span className="text-[11px] text-[#9aa0a6] font-mono">
+                <span className="text-[10px] sm:text-[11px] text-[#9aa0a6] font-mono">
                   ({group.models.length})
                 </span>
               </div>

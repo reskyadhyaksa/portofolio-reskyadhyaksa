@@ -17,6 +17,7 @@ import { VIDEO_MODELS, isSupportedVideoModel, type VideoModelId } from "@/lib/ch
 import type { GeneratedVideo } from "@/lib/chat-types";
 import { getVideoModelConfig } from "@/lib/media-model-catalog";
 import type { RequestVideoParams } from "../services/chat-api";
+import { useAutoResizeTextarea } from "../hooks/useAutoResizeTextarea";
 import { CHAT_COLUMN_CLASS, CHAT_GUTTER_CLASS } from "./chat-layout-tokens";
 import ModelSelector from "./ModelSelector";
 import ParameterPreviewModal from "./ParameterPreviewModal";
@@ -58,6 +59,7 @@ export default function VideoStudioFlow({
   const [aspectRatio, setAspectRatio] = useState(currentModelConfig.defaultAspectRatio);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [isParamsModalOpen, setIsParamsModalOpen] = useState(false);
+  const textareaRef = useAutoResizeTextarea(prompt, 140);
 
   const isCanvasEmpty = videos.length === 0 && !isGenerating;
 
@@ -79,8 +81,8 @@ export default function VideoStudioFlow({
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e?: React.FormEvent) => {
+    e?.preventDefault();
     if (!prompt.trim() || isGenerating) return;
     await onGenerate({
       prompt: prompt.trim(),
@@ -90,6 +92,16 @@ export default function VideoStudioFlow({
       aspectRatio: effectiveAspectRatio,
     });
     setPrompt("");
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter") {
+      if (e.shiftKey || e.nativeEvent.isComposing) return;
+      e.preventDefault();
+      if (prompt.trim() && !isGenerating) {
+        handleSubmit();
+      }
+    }
   };
 
   return (
@@ -268,19 +280,21 @@ export default function VideoStudioFlow({
             </div>
           </div>
 
-          <div className="relative flex items-center rounded-xl sm:rounded-2xl border border-white/[0.08] bg-white/[0.03] shadow-inner transition-all focus-within:border-white/[0.2] focus-within:bg-white/[0.06]">
-            <input
-              type="text"
+          <div className="relative flex items-end rounded-xl sm:rounded-2xl border border-white/[0.08] bg-white/[0.03] p-1 shadow-inner transition-all focus-within:border-white/[0.2] focus-within:bg-white/[0.06]">
+            <textarea
+              ref={textareaRef}
+              rows={1}
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
+              onKeyDown={handleKeyDown}
               placeholder="Describe the video you want to generate (e.g. drone camera orbiting a mountain castle)..."
               disabled={isGenerating}
-              className="w-full bg-transparent px-3.5 py-2.5 text-base sm:text-sm text-white placeholder-[#9aa0a6] focus:outline-none"
+              className="custom-scrollbar block w-full resize-none bg-transparent px-3 py-2 text-base sm:text-sm text-white placeholder-[#9aa0a6] focus:outline-none"
             />
             <button
               type="submit"
               disabled={!prompt.trim() || isGenerating}
-              className="mr-1.5 inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 px-3.5 py-2 text-xs font-semibold text-white shadow-md hover:brightness-110 disabled:opacity-40 transition-all active:scale-95 shrink-0"
+              className="mb-1 mr-1 inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 px-3.5 py-2 text-xs font-semibold text-white shadow-md hover:brightness-110 disabled:opacity-40 transition-all active:scale-95 shrink-0"
             >
               {isGenerating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
               <span>Generate Video</span>

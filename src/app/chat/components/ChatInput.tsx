@@ -58,9 +58,11 @@ export default function ChatInput({
   const textareaRef = useAutoResizeTextarea(value, TEXTAREA_MAX_HEIGHT);
 
   const handleKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (event.key !== "Enter" || event.shiftKey || event.nativeEvent.isComposing) return;
-    event.preventDefault();
-    if (canSubmit) onSubmit();
+    if (event.key === "Enter") {
+      if (event.shiftKey || event.nativeEvent.isComposing) return;
+      event.preventDefault();
+      if (canSubmit) onSubmit();
+    }
   };
 
   const handleFormSubmit = (event: FormEvent<HTMLFormElement>) => {

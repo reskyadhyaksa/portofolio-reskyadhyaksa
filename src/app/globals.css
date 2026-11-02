@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "katex/dist/katex.min.css";
 
 @theme {
   --breakpoint-3xl: 120rem;

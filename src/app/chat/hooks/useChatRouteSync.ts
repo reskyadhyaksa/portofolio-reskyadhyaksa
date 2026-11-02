@@ -5,12 +5,14 @@ import { buildChatUrl, extractChatRouteState } from "../services/chat-routing";
 
 interface ChatRouteSyncProps {
   initialTab?: StudioViewMode;
+  initialModel?: string | null;
   sessionId: string | null;
   onSelectSession: (id: string) => void;
 }
 
 export function useChatRouteSync({
   initialTab,
+  initialModel,
   sessionId,
   onSelectSession,
 }: ChatRouteSyncProps) {
@@ -22,10 +24,24 @@ export function useChatRouteSync({
     return initialTab ?? "chat";
   });
 
+  const [selectedModel, setSelectedModel] = useState<string | null>(() => {
+    if (typeof window !== "undefined") {
+      const fromUrl = extractChatRouteState(window.location.pathname, window.location.search).model;
+      if (fromUrl) return fromUrl;
+    }
+    return initialModel ?? null;
+  });
+
   const navigateTo = useCallback(
-    (nextSessionId: string | null, nextTab: StudioViewMode, replace = false) => {
+    (
+      nextSessionId: string | null,
+      nextTab: StudioViewMode,
+      nextModel?: string | null,
+      replace = false
+    ) => {
       if (typeof window === "undefined") return;
-      const targetUrl = buildChatUrl(nextSessionId, nextTab);
+      const modelToUse = nextModel !== undefined ? nextModel : selectedModel;
+      const targetUrl = buildChatUrl(nextSessionId, nextTab, modelToUse);
       const currentUrl = `${window.location.pathname}${window.location.search}`;
       if (targetUrl === currentUrl) return;
 
@@ -35,33 +51,43 @@ export function useChatRouteSync({
         window.history.pushState(null, "", targetUrl);
       }
     },
-    []
+    [selectedModel]
   );
 
   const selectStudioMode = useCallback(
     (mode: StudioViewMode, nextSessionId?: string | null) => {
       setStudioMode(mode);
+      setSelectedModel(null);
       const targetSessionId = nextSessionId !== undefined ? nextSessionId : sessionId;
-      navigateTo(targetSessionId, mode, false);
+      navigateTo(targetSessionId, mode, null, false);
     },
     [navigateTo, sessionId]
+  );
+
+  const selectModel = useCallback(
+    (modelId: string) => {
+      setSelectedModel(modelId);
+      navigateTo(sessionId, studioMode, modelId, false);
+    },
+    [navigateTo, sessionId, studioMode]
   );
 
   useEffect(() => {
     if (!sessionId) return;
     const current = extractChatRouteState(window.location.pathname, window.location.search);
     if (current.sessionId !== sessionId) {
-      navigateTo(sessionId, studioMode, true);
+      navigateTo(sessionId, studioMode, selectedModel, true);
     }
-  }, [sessionId, studioMode, navigateTo]);
+  }, [sessionId, studioMode, selectedModel, navigateTo]);
 
   useEffect(() => {
     const handlePopState = () => {
-      const { sessionId: routeSessionId, tab: routeTab } = extractChatRouteState(
+      const { sessionId: routeSessionId, tab: routeTab, model: routeModel } = extractChatRouteState(
         window.location.pathname,
         window.location.search
       );
       setStudioMode(routeTab);
+      setSelectedModel(routeModel);
       if (routeSessionId && routeSessionId !== sessionId) {
         onSelectSession(routeSessionId);
       }
@@ -73,7 +99,9 @@ export function useChatRouteSync({
 
   return {
     studioMode,
+    selectedModel,
     selectStudioMode,
+    selectModel,
     navigateTo,
   };
 }

@@ -15,7 +15,7 @@ import {
   SlidersHorizontal,
   ChevronDown,
 } from "lucide-react";
-import { IMAGE_MODELS, type ImageModelId } from "@/lib/chat-config";
+import { IMAGE_MODELS, isSupportedImageModel, type ImageModelId } from "@/lib/chat-config";
 import type { GeneratedImage } from "@/lib/chat-types";
 import type { ImageOptions, ImageSizeId } from "@/lib/image-options";
 import { getImageModelConfig } from "@/lib/media-model-catalog";
@@ -35,6 +35,8 @@ interface ImageStudioFlowProps {
     options: ImageOptions,
     referenceImageUrl?: string
   ) => Promise<void>;
+  selectedModel?: string | null;
+  onSelectModel?: (modelId: string) => void;
 }
 
 const SIZE_MAP: Record<string, ImageSizeId> = {
@@ -69,9 +71,23 @@ export default function ImageStudioFlow({
   images,
   isGenerating,
   onGenerate,
+  selectedModel: externalModel,
+  onSelectModel,
 }: ImageStudioFlowProps) {
   const [prompt, setPrompt] = useState("");
-  const [selectedModel, setSelectedModel] = useState<ImageModelId>(IMAGE_MODELS[0].id);
+  const [internalModel, setInternalModel] = useState<ImageModelId>(() => {
+    if (externalModel && isSupportedImageModel(externalModel)) {
+      return externalModel;
+    }
+    return IMAGE_MODELS[0].id;
+  });
+
+  const selectedModel = (externalModel && isSupportedImageModel(externalModel) ? externalModel : internalModel) as ImageModelId;
+
+  const handleSelectModel = (id: string) => {
+    setInternalModel(id as ImageModelId);
+    onSelectModel?.(id);
+  };
   const currentModelConfig = getImageModelConfig(selectedModel);
 
   const [aspectRatio, setAspectRatio] = useState(currentModelConfig.defaultAspectRatio);
@@ -315,7 +331,7 @@ export default function ImageStudioFlow({
                 mode="image"
                 models={IMAGE_MODELS}
                 selectedModel={selectedModel}
-                onSelect={(id) => setSelectedModel(id as ImageModelId)}
+                onSelect={handleSelectModel}
                 disabled={isGenerating}
                 className="flex items-center gap-1.5 rounded-xl border border-white/[0.08] bg-white/[0.04] px-2.5 py-1 text-xs font-semibold text-slate-200 hover:bg-white/[0.08] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8ab4f8] disabled:cursor-not-allowed disabled:opacity-50 backdrop-blur-md cursor-pointer shrink-0"
               />

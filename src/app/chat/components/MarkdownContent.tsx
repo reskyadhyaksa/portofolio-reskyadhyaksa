@@ -1,7 +1,9 @@
 import { isValidElement, type ReactNode } from "react";
 import Markdown, { type Components } from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
+import rehypeKatex from "rehype-katex";
 import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
 import CodeBlock from "./CodeBlock";
 
 const LANGUAGE_CLASS_PATTERN = /language-([\w+#-]+)/;
@@ -68,8 +70,11 @@ const MARKDOWN_COMPONENTS: Components = {
   hr: () => <hr className="my-4 border-white/[0.08]" />,
 };
 
-const REMARK_PLUGINS = [remarkGfm];
-const REHYPE_PLUGINS = [[rehypeHighlight, { detect: true, ignoreMissing: true }]] as Parameters<typeof Markdown>[0]["rehypePlugins"];
+const REMARK_PLUGINS = [remarkGfm, remarkMath];
+const REHYPE_PLUGINS = [
+  [rehypeHighlight, { detect: true, ignoreMissing: true }],
+  [rehypeKatex, { strict: false, throwOnError: false }],
+] as Parameters<typeof Markdown>[0]["rehypePlugins"];
 
 interface MarkdownContentProps {
   content: string;

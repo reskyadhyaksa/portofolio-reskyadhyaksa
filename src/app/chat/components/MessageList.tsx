@@ -30,7 +30,7 @@ export default function MessageList({
 }: MessageListProps) {
   const hasStreamedText = Boolean(streamingReply);
   const scrollTrigger = `${messages.length}-${isSending}-${countLines(streamingReply)}`;
-  const bottomAnchorRef = useAutoScroll<HTMLDivElement>(scrollTrigger);
+  const bottomAnchorRef = useAutoScroll<HTMLDivElement>(scrollTrigger, isSending);
 
   return (
     <section aria-label="Conversation" aria-live="polite" className={`${CHAT_COLUMN_CLASS} ${CHAT_GUTTER_CLASS} flex flex-col gap-4 pb-3 pt-4`}>
@@ -45,4 +45,3 @@ export default function MessageList({
     </section>
   );
 }
-

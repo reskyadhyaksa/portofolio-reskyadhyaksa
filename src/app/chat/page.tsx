@@ -8,16 +8,17 @@ export const metadata: Metadata = {
 };
 
 interface ChatPageProps {
-  searchParams?: Promise<{ tab?: string }>;
+  searchParams?: Promise<{ tab?: string; model?: string }>;
 }
 
 export default async function ChatPage({ searchParams }: ChatPageProps) {
   const resolvedParams = searchParams ? await searchParams : {};
   const initialTab = resolveStudioTab(resolvedParams.tab);
+  const initialModel = resolvedParams.model ?? null;
 
   return (
     <main aria-label="AI chat" className="h-dvh w-full overflow-hidden bg-[#131314] text-[#e3e3e3]">
-      <ChatContainer initialTab={initialTab} />
+      <ChatContainer initialTab={initialTab} initialModel={initialModel} />
     </main>
   );
 }

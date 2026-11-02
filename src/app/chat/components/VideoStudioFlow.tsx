@@ -13,7 +13,7 @@ import {
   SlidersHorizontal,
   ChevronDown,
 } from "lucide-react";
-import { VIDEO_MODELS, type VideoModelId } from "@/lib/chat-config";
+import { VIDEO_MODELS, isSupportedVideoModel, type VideoModelId } from "@/lib/chat-config";
 import type { GeneratedVideo } from "@/lib/chat-types";
 import { getVideoModelConfig } from "@/lib/media-model-catalog";
 import type { RequestVideoParams } from "../services/chat-api";
@@ -26,15 +26,31 @@ interface VideoStudioFlowProps {
   videos: GeneratedVideo[];
   isGenerating: boolean;
   onGenerate: (params: RequestVideoParams) => Promise<void>;
+  selectedModel?: string | null;
+  onSelectModel?: (modelId: string) => void;
 }
 
 export default function VideoStudioFlow({
   videos,
   isGenerating,
   onGenerate,
+  selectedModel: externalModel,
+  onSelectModel,
 }: VideoStudioFlowProps) {
   const [prompt, setPrompt] = useState("");
-  const [selectedModel, setSelectedModel] = useState<VideoModelId>(VIDEO_MODELS[0].id);
+  const [internalModel, setInternalModel] = useState<VideoModelId>(() => {
+    if (externalModel && isSupportedVideoModel(externalModel)) {
+      return externalModel;
+    }
+    return VIDEO_MODELS[0].id;
+  });
+
+  const selectedModel = (externalModel && isSupportedVideoModel(externalModel) ? externalModel : internalModel) as VideoModelId;
+
+  const handleSelectModel = (id: string) => {
+    setInternalModel(id as VideoModelId);
+    onSelectModel?.(id);
+  };
   const currentModelConfig = getVideoModelConfig(selectedModel);
 
   const [duration, setDuration] = useState(currentModelConfig.defaultDuration);
@@ -229,7 +245,7 @@ export default function VideoStudioFlow({
                 mode="video"
                 models={VIDEO_MODELS}
                 selectedModel={selectedModel}
-                onSelect={(id) => setSelectedModel(id as VideoModelId)}
+                onSelect={handleSelectModel}
                 disabled={isGenerating}
                 className="flex items-center gap-1.5 rounded-xl border border-white/[0.08] bg-white/[0.04] px-2.5 py-1 text-xs font-semibold text-slate-200 hover:bg-white/[0.08] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 disabled:cursor-not-allowed disabled:opacity-50 backdrop-blur-md cursor-pointer shrink-0"
               />

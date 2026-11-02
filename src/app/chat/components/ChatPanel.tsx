@@ -37,6 +37,8 @@ interface ChatPanelProps {
   isSidebarCollapsed: boolean;
   studioMode: StudioViewMode;
   onSelectStudioMode: (mode: StudioViewMode) => void;
+  selectedModel?: string | null;
+  onSelectModel?: (modelId: string) => void;
 }
 
 export default function ChatPanel({
@@ -56,9 +58,11 @@ export default function ChatPanel({
   isSidebarCollapsed,
   studioMode,
   onSelectStudioMode,
+  selectedModel,
+  onSelectModel,
 }: ChatPanelProps) {
   const [isGeneratingStudioImage, setIsGeneratingStudioImage] = useState(false);
-  const composer = useComposerMode();
+  const composer = useComposerMode(selectedModel, onSelectModel);
   const { canSubmit, submit } = useComposerSubmit({ sessionId, draft, onDraftChange, chat, queue, composer, onImageGenerated });
   const messageControls = useMessageEditing({ chat, activeModel: composer.activeModel, onRestoreDraft: onDraftChange });
   const isInitializing = !sessionId || chat.isLoadingHistory;
@@ -102,6 +106,8 @@ export default function ChatPanel({
           images={images}
           isGenerating={isGeneratingStudioImage}
           onGenerate={handleStudioImageGenerate}
+          selectedModel={selectedModel}
+          onSelectModel={onSelectModel}
         />
       ) : studioMode === "video" ? (
         <VideoStudioFlow
@@ -109,6 +115,8 @@ export default function ChatPanel({
           videos={videos}
           isGenerating={isGeneratingVideo}
           onGenerate={onGenerateVideo as (params: RequestVideoParams) => Promise<void>}
+          selectedModel={selectedModel}
+          onSelectModel={onSelectModel}
         />
       ) : (
         <>

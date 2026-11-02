@@ -25,9 +25,24 @@ async function produceReply(
   const upstreamMessages = await buildConversationContext(userMessage.sessionId, model, listActiveMessages(userMessage.sessionId));
 
   let replyText = "";
-  for await (const text of streamChatCompletion(model, upstreamMessages, signal)) {
-    replyText += text;
-    emit({ type: "delta", text });
+  try {
+    for await (const text of streamChatCompletion(model, upstreamMessages, signal)) {
+      replyText += text;
+      emit({ type: "delta", text });
+    }
+  } catch (error) {
+    const partial = replyText.trim();
+    if (partial) {
+      const assistantMessage = insertMessage({
+        sessionId: userMessage.sessionId,
+        role: "assistant",
+        content: partial,
+        model,
+      });
+      emit({ type: "done", message: assistantMessage });
+      return;
+    }
+    throw error;
   }
 
   const completion = replyText.trim();

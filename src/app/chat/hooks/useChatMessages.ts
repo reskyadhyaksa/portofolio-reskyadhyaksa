@@ -32,6 +32,7 @@ export function useChatMessages(sessionId: string | null, enabled: boolean = tru
   const [error, setError] = useState<string | null>(null);
   const [streamingReply, setStreamingReply] = useState<string | null>(null);
   const exchangeControllerRef = useRef<AbortController | null>(null);
+  const streamedReplyRef = useRef<string>("");
 
   useEffect(() => () => exchangeControllerRef.current?.abort(), []);
 
@@ -81,9 +82,66 @@ export function useChatMessages(sessionId: string | null, enabled: boolean = tru
         ]);
         return true;
       } catch (sendError) {
-        setMessages((current) => current.filter((message) => message.id !== optimisticMessage.id));
-        if (!controller.signal.aborted) {
-          setError(sendError instanceof Error ? sendError.message : "Failed to send message");
+        if (controller.signal.aborted) {
+          const partialText = streamedReplyRef.current.trim();
+          if (partialText) {
+            const partialAssistant: ChatMessage = {
+              id: `partial-${crypto.randomUUID()}`,
+              sessionId,
+              role: "assistant",
+              content: partialText,
+              model: payload.model,
+              attachments: [],
+              createdAt: new Date().toISOString(),
+            };
+            setMessages((current) => [
+              ...current.filter((message) => message.id !== optimisticMessage.id),
+              optimisticMessage,
+              partialAssistant,
+            ]);
+          } else {
+            setMessages((current) => current.filter((message) => message.id !== optimisticMessage.id));
+          }
+          return false;
+        }
+
+        const partialText = streamedReplyRef.current.trim();
+        let recoveredFromServer = false;
+        try {
+          const serverHistory = await fetchChatHistory(sessionId);
+          if (serverHistory.length > 0) {
+            const lastMsg = serverHistory[serverHistory.length - 1];
+            if (lastMsg.role === "assistant") {
+              setMessages(serverHistory);
+              recoveredFromServer = true;
+            }
+          }
+        } catch {
+        }
+
+        if (recoveredFromServer) {
+          return true;
+        }
+
+        if (partialText) {
+          const partialAssistant: ChatMessage = {
+            id: `partial-${crypto.randomUUID()}`,
+            sessionId,
+            role: "assistant",
+            content: partialText,
+            model: payload.model,
+            attachments: [],
+            createdAt: new Date().toISOString(),
+          };
+          setMessages((current) => [
+            ...current.filter((message) => message.id !== optimisticMessage.id),
+            optimisticMessage,
+            partialAssistant,
+          ]);
+          setError("Koneksi terputus saat streaming (Network Error). Sebagian teks balasan telah disimpan.");
+        } else {
+          setMessages((current) => current.filter((message) => message.id !== optimisticMessage.id));
+          setError(sendError instanceof Error ? sendError.message : "Gagal terhubung ke server chat (Network Error).");
         }
         return false;
       } finally {
@@ -97,16 +155,21 @@ export function useChatMessages(sessionId: string | null, enabled: boolean = tru
   const stopExchange = useCallback(() => exchangeControllerRef.current?.abort(), []);
 
   const sendMessage = useCallback(
-    (payload: ChatPostPayload) =>
-      submitExchange(payload, async (activeSessionId, signal) => {
+    (payload: ChatPostPayload) => {
+      streamedReplyRef.current = "";
+      return submitExchange(payload, async (activeSessionId, signal) => {
         setStreamingReply("");
         try {
-          const onDelta = (text: string) => setStreamingReply((current) => (current ?? "") + text);
+          const onDelta = (text: string) => {
+            streamedReplyRef.current += text;
+            setStreamingReply((current) => (current ?? "") + text);
+          };
           return await streamChatMessage(activeSessionId, payload, { onDelta }, signal);
         } finally {
           setStreamingReply(null);
         }
-      }),
+      });
+    },
     [submitExchange]
   );
 

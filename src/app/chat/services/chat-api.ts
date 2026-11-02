@@ -22,7 +22,7 @@ async function requestJson<T>(input: string, sessionId: string, init: RequestIni
     });
   } catch (error) {
     if (init.signal?.aborted) throw error;
-    throw new Error("Network error. Check your connection and try again.");
+    throw new Error("Gagal terhubung ke server (Network Error). Periksa koneksi internet Anda atau coba sesaat lagi.");
   }
 
   const body = (await response.json().catch(() => null)) as ApiResponse<T> | null;
@@ -51,7 +51,7 @@ async function openChatStream(sessionId: string, payload: ChatPostPayload, signa
     });
   } catch (error) {
     if (signal.aborted) throw error;
-    throw new Error("Network error. Check your connection and try again.");
+    throw new Error("Gagal terhubung ke server chat (Network Error). Periksa koneksi internet atau server lokal.");
   }
 }
 
@@ -88,7 +88,7 @@ export async function streamChatMessage(
   }
 
   if (signal.aborted) throw new DOMException("Aborted", "AbortError");
-  throw new Error("Connection to the AI was interrupted. Please try again.");
+  throw new Error("Koneksi streaming ke AI terputus (Network Interrupted).");
 }
 
 export async function deleteConversation(sessionId: string): Promise<void> {

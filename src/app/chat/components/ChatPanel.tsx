@@ -85,7 +85,7 @@ export default function ChatPanel({
   };
 
   return (
-    <FileDropZone isEnabled={canAcceptDrop} onDropFiles={queue.addFiles} className="relative flex min-w-0 flex-1 flex-col pt-1.5 sm:pt-2">
+    <div className="relative flex min-w-0 flex-1 flex-col pt-1.5 sm:pt-2">
       <ChatToolbar
         models={composer.activeModels}
         selectedModel={composer.activeModel}
@@ -119,7 +119,7 @@ export default function ChatPanel({
           onSelectModel={onSelectModel}
         />
       ) : (
-        <>
+        <FileDropZone isEnabled={canAcceptDrop} onDropFiles={queue.addFiles} className="relative flex min-h-0 flex-1 flex-col">
           <div className="custom-scrollbar flex min-h-0 flex-1 flex-col overflow-y-auto pb-28 sm:pb-36 md:pb-48">
             {isInitializing ? (
               <div role="status" className="flex flex-1 items-center justify-center text-[#9aa0a6]">
@@ -169,8 +169,8 @@ export default function ChatPanel({
               </p>
             </div>
           </div>
-        </>
+        </FileDropZone>
       )}
-    </FileDropZone>
+    </div>
   );
 }

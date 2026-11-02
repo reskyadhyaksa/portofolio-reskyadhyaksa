@@ -70,6 +70,11 @@ const SIZE_MAP: Record<string, ImageSizeId> = {
   "5:7": "1024x1536",
 };
 
+function isImageFile(file: File): boolean {
+  if (file.type && file.type.startsWith("image/")) return true;
+  return /\.(png|jpe?g|webp|gif|bmp|svg|avif)$/i.test(file.name);
+}
+
 export default function ImageStudioFlow({
   sessionId,
   images,

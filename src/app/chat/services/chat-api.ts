@@ -80,6 +80,7 @@ export async function streamChatMessage(
   for await (const line of readTextLines(response.body)) {
     const event = parseStreamEvent(line);
     if (!event) continue;
+    if (event.type === "ping") continue;
     if (event.type === "error") throw new Error(event.error);
     if (event.type === "delta") handlers.onDelta(event.text);
     if (event.type === "user") userMessage = event.message;

@@ -30,7 +30,8 @@ export type ChatStreamEvent =
   | { type: "user"; message: ChatMessage }
   | { type: "delta"; text: string }
   | { type: "done"; message: ChatMessage }
-  | { type: "error"; error: string };
+  | { type: "error"; error: string }
+  | { type: "ping" };
 
 export interface ConversationSummary {
   id: string;

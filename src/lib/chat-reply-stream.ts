@@ -1,5 +1,6 @@
 import type { ChatMessage, ChatStreamEvent } from "./chat-types";
 import { describeError } from "./api-response";
+import { STREAM_HEARTBEAT_INTERVAL_MS } from "./chat-config";
 import { buildConversationContext } from "./conversation-context";
 import { streamChatCompletion } from "./llm-stream";
 import { deleteMessageById, insertMessage, listActiveMessages } from "./message-repository";
@@ -39,6 +40,7 @@ async function produceReply(
 export function createChatReplyStream(options: ChatReplyStreamOptions): Response {
   const encoder = new TextEncoder();
   let isClosed = false;
+  let heartbeatTimer: NodeJS.Timeout | null = null;
 
   const body = new ReadableStream<Uint8Array>({
     async start(controller) {
@@ -47,17 +49,23 @@ export function createChatReplyStream(options: ChatReplyStreamOptions): Response
         controller.enqueue(encoder.encode(`${JSON.stringify(event)}\n`));
       };
 
+      heartbeatTimer = setInterval(() => {
+        emit({ type: "ping" });
+      }, STREAM_HEARTBEAT_INTERVAL_MS);
+
       try {
         await produceReply(options, emit);
       } catch (error) {
         deleteMessageById(options.userMessage.id);
         emit({ type: "error", error: describeError(error, "Failed to process chat message") });
       } finally {
+        if (heartbeatTimer) clearInterval(heartbeatTimer);
         if (!isClosed) controller.close();
         isClosed = true;
       }
     },
     cancel() {
+      if (heartbeatTimer) clearInterval(heartbeatTimer);
       isClosed = true;
     },
   });

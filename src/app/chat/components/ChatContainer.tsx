@@ -14,12 +14,14 @@ import ChatSidebar from "./ChatSidebar";
 interface ChatContainerProps {
   initialSessionId?: string;
   initialTab?: StudioViewMode;
+  initialModel?: string | null;
 }
 
-export default function ChatContainer({ initialSessionId, initialTab }: ChatContainerProps) {
+export default function ChatContainer({ initialSessionId, initialTab, initialModel }: ChatContainerProps) {
   const session = useChatSession(initialSessionId);
   const routeSync = useChatRouteSync({
     initialTab,
+    initialModel,
     sessionId: session.sessionId,
     onSelectSession: session.selectSession,
   });
@@ -47,14 +49,14 @@ export default function ChatContainer({ initialSessionId, initialTab }: ChatCont
     if (chat.isSending || videoGallery.isGenerating) return;
     resetComposer();
     const nextSessionId = session.startNewSession();
-    routeSync.navigateTo(nextSessionId, routeSync.studioMode, false);
+    routeSync.navigateTo(nextSessionId, routeSync.studioMode, routeSync.selectedModel, false);
   };
 
   const handleSelectConversation = (sessionId: string) => {
     if (chat.isSending) return;
     resetComposer();
     session.selectSession(sessionId);
-    routeSync.navigateTo(sessionId, routeSync.studioMode, false);
+    routeSync.navigateTo(sessionId, routeSync.studioMode, routeSync.selectedModel, false);
   };
 
   const handleDeleteConversation = async (sessionId: string) => {
@@ -62,7 +64,7 @@ export default function ChatContainer({ initialSessionId, initialTab }: ChatCont
     if (!isDeleted) return;
     if (sessionId === session.sessionId) resetComposer();
     const nextActiveId = session.forgetSession(sessionId);
-    if (nextActiveId) routeSync.navigateTo(nextActiveId, routeSync.studioMode, true);
+    if (nextActiveId) routeSync.navigateTo(nextActiveId, routeSync.studioMode, routeSync.selectedModel, true);
   };
 
   const handleSelectStudioMode = (nextMode: StudioViewMode) => {
@@ -129,6 +131,8 @@ export default function ChatContainer({ initialSessionId, initialTab }: ChatCont
         isSidebarCollapsed={isSidebarCollapsed}
         studioMode={routeSync.studioMode}
         onSelectStudioMode={handleSelectStudioMode}
+        selectedModel={routeSync.selectedModel}
+        onSelectModel={routeSync.selectModel}
       />
     </div>
   );

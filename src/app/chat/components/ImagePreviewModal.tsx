@@ -88,7 +88,7 @@ export default function ImagePreviewModal({
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative flex max-h-[92vh] max-w-[94vw] flex-col items-center justify-center focus:outline-none"
+        className="relative mx-auto my-auto flex max-h-[92vh] max-w-[94vw] flex-col items-center justify-center focus:outline-none"
       >
         <div className="mb-2 flex w-full items-center justify-between gap-2 px-1">
           {dimensions ? (

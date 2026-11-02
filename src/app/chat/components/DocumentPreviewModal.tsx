@@ -133,7 +133,7 @@ export default function DocumentPreviewModal({ document: doc, onClose }: Documen
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative flex h-[88vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-white/[0.12] bg-[#18191b] shadow-[0_24px_80px_rgba(0,0,0,0.85)]"
+        className="relative mx-auto my-auto flex h-[88vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-white/[0.12] bg-[#18191b] shadow-[0_24px_80px_rgba(0,0,0,0.85)]"
       >
         <header className="flex shrink-0 items-center justify-between border-b border-white/[0.08] bg-[#1e1f20] px-3.5 py-2.5 sm:px-4 sm:py-3">
           <div className="flex min-w-0 items-center gap-2.5">

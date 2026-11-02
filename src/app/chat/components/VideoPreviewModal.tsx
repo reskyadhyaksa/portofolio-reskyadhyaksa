@@ -46,7 +46,7 @@ export default function VideoPreviewModal({ video, onClose }: VideoPreviewModalP
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative flex max-h-[92vh] max-w-[94vw] flex-col items-center justify-center focus:outline-none"
+        className="relative mx-auto my-auto flex max-h-[92vh] max-w-[94vw] flex-col items-center justify-center focus:outline-none"
       >
         <div className="mb-2 flex w-full items-center justify-between gap-2 px-1">
           <div className="flex items-center gap-1.5 rounded-full border border-white/10 bg-black/60 px-3 py-1 font-mono text-[11px] font-semibold text-slate-200 backdrop-blur-md">

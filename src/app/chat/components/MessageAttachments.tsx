@@ -3,6 +3,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { FileText } from "lucide-react";
 import type { Attachment } from "@/lib/chat-types";
+import DocumentPreviewModal from "./DocumentPreviewModal";
 import ImagePreviewModal from "./ImagePreviewModal";
 
 type AttachmentDisplaySize = "thumbnail" | "preview";
@@ -19,7 +20,8 @@ const IMAGE_DIMENSIONS: Record<AttachmentDisplaySize, { width: number; className
 };
 
 export default function MessageAttachments({ attachments, alignEnd, size = "thumbnail" }: MessageAttachmentsProps) {
-  const [activePreview, setActivePreview] = useState<{ url: string; prompt: string } | null>(null);
+  const [activeImagePreview, setActiveImagePreview] = useState<{ url: string; prompt: string } | null>(null);
+  const [activeDocPreview, setActiveDocPreview] = useState<Attachment | null>(null);
   if (attachments.length === 0) return null;
   const imageDimensions = IMAGE_DIMENSIONS[size];
 
@@ -31,7 +33,7 @@ export default function MessageAttachments({ attachments, alignEnd, size = "thum
             {attachment.type === "image" ? (
               <button
                 type="button"
-                onClick={() => setActivePreview({ url: attachment.url, prompt: attachment.name })}
+                onClick={() => setActiveImagePreview({ url: attachment.url, prompt: attachment.name })}
                 aria-label={`Preview ${attachment.name}`}
                 title="Preview image"
                 className="block cursor-pointer rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8ab4f8]"
@@ -46,27 +48,34 @@ export default function MessageAttachments({ attachments, alignEnd, size = "thum
                 />
               </button>
             ) : (
-              <a
-                href={attachment.url}
-                download={attachment.name}
-                aria-label={`Download ${attachment.name}`}
-                title="Download file"
-                className="flex max-w-56 items-center gap-2 rounded-xl border border-white/[0.08] bg-[#1e1f20] px-2.5 py-1.5 transition-colors duration-200 hover:bg-[#28292a]"
+              <button
+                type="button"
+                onClick={() => setActiveDocPreview(attachment)}
+                aria-label={`Preview ${attachment.name}`}
+                title="Preview document"
+                className="flex max-w-56 cursor-pointer items-center gap-2 rounded-xl border border-white/[0.08] bg-[#1e1f20] px-2.5 py-1.5 transition-colors duration-200 hover:bg-[#28292a] hover:border-[#8ab4f8]/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8ab4f8]"
               >
                 <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#8ab4f8]/15">
                   <FileText aria-hidden="true" className="h-3.5 w-3.5 text-[#8ab4f8]" />
                 </span>
                 <span className="truncate text-[12px] text-[#e3e3e3]">{attachment.name}</span>
-              </a>
+              </button>
             )}
           </li>
         ))}
       </ul>
 
-      {activePreview && (
+      {activeImagePreview && (
         <ImagePreviewModal
-          image={{ url: activePreview.url, prompt: activePreview.prompt }}
-          onClose={() => setActivePreview(null)}
+          image={{ url: activeImagePreview.url, prompt: activeImagePreview.prompt }}
+          onClose={() => setActiveImagePreview(null)}
+        />
+      )}
+
+      {activeDocPreview && (
+        <DocumentPreviewModal
+          document={activeDocPreview}
+          onClose={() => setActiveDocPreview(null)}
         />
       )}
     </>

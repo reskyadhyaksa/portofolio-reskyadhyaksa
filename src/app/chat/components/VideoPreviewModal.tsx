@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { Check, Copy, Download, Film, X } from "lucide-react";
 import type { GeneratedVideo } from "@/lib/chat-types";
 
@@ -9,14 +10,23 @@ interface VideoPreviewModalProps {
 }
 
 export default function VideoPreviewModal({ video, onClose }: VideoPreviewModalProps) {
+  const [mounted, setMounted] = useState(false);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
     };
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
   }, [onClose]);
 
   const handleCopyPrompt = async () => {
@@ -25,12 +35,14 @@ export default function VideoPreviewModal({ video, onClose }: VideoPreviewModalP
     setTimeout(() => setCopied(false), 2000);
   };
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <div
       role="dialog"
       aria-modal="true"
       onClick={onClose}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-3 backdrop-blur-sm sm:p-6 animate-fade-in-soft"
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/85 p-3 backdrop-blur-md sm:p-6 animate-fade-in-soft"
     >
       <div
         onClick={(e) => e.stopPropagation()}
@@ -101,6 +113,7 @@ export default function VideoPreviewModal({ video, onClose }: VideoPreviewModalP
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

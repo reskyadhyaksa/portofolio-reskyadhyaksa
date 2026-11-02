@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState, type SyntheticEvent } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 import { Check, Copy, Download, Wand2, X } from "lucide-react";
 
@@ -38,15 +39,24 @@ export default function ImagePreviewModal({
   onClose,
   onUseAsReference,
 }: ImagePreviewModalProps) {
+  const [mounted, setMounted] = useState(false);
   const [copied, setCopied] = useState(false);
   const [dimensions, setDimensions] = useState<DetectedDimensions | null>(null);
 
   useEffect(() => {
+    setMounted(true);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
     };
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
   }, [onClose]);
 
   const handleCopyPrompt = async () => {
@@ -67,12 +77,14 @@ export default function ImagePreviewModal({
     });
   };
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <div
       role="dialog"
       aria-modal="true"
       onClick={onClose}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-3 backdrop-blur-sm sm:p-6 animate-fade-in-soft"
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/85 p-3 backdrop-blur-md sm:p-6 animate-fade-in-soft"
     >
       <div
         onClick={(e) => e.stopPropagation()}
@@ -153,6 +165,7 @@ export default function ImagePreviewModal({
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

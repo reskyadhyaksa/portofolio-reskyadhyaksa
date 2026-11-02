@@ -123,7 +123,7 @@ export const MAX_TRACKED_SESSIONS = 50;
 export const MESSAGE_TTL_HOURS = 2;
 export const MESSAGE_TTL_MS = MESSAGE_TTL_HOURS * 60 * 60 * 1000;
 
-export const MAX_MESSAGE_LENGTH = 8000;
+export const MAX_MESSAGE_LENGTH = 25000;
 export const MAX_HISTORY_MESSAGES = 30;
 export const RECENT_CONTEXT_MESSAGES = 6;
 export const SUMMARY_TRIGGER_MESSAGES = 10;

@@ -4,14 +4,13 @@ import Image from "next/image";
 import {
   Download,
   Image as ImageIcon,
+  ImagePlus,
   Sparkles,
   Loader2,
   Copy,
   Check,
   Eye,
   Wand2,
-  X,
-  Upload,
   SlidersHorizontal,
   ChevronDown,
 } from "lucide-react";
@@ -21,8 +20,12 @@ import type { ImageOptions, ImageSizeId } from "@/lib/image-options";
 import { getImageModelConfig } from "@/lib/media-model-catalog";
 import { uploadAttachment } from "../services/chat-api";
 import { useAutoResizeTextarea } from "../hooks/useAutoResizeTextarea";
+import { useFileDropZone } from "../hooks/useFileDropZone";
 import { CHAT_COLUMN_CLASS, CHAT_GUTTER_CLASS } from "./chat-layout-tokens";
+import ChatErrorBanner from "./ChatErrorBanner";
 import ImagePreviewModal from "./ImagePreviewModal";
+import ImageReferenceTray from "./ImageReferenceTray";
+import ImageStudioDropOverlay from "./ImageStudioDropOverlay";
 import ModelSelector from "./ModelSelector";
 import ParameterPreviewModal from "./ParameterPreviewModal";
 
@@ -34,7 +37,7 @@ interface ImageStudioFlowProps {
     prompt: string,
     model: ImageModelId,
     options: ImageOptions,
-    referenceImageUrl?: string
+    referenceImageUrl?: string | string[]
   ) => Promise<void>;
   selectedModel?: string | null;
   onSelectModel?: (modelId: string) => void;
@@ -84,20 +87,28 @@ export default function ImageStudioFlow({
   });
 
   const selectedModel = (externalModel && isSupportedImageModel(externalModel) ? externalModel : internalModel) as ImageModelId;
+  const currentModelConfig = getImageModelConfig(selectedModel);
+  const maxInputImages = currentModelConfig.maxInputImages ?? 0;
 
   const handleSelectModel = (id: string) => {
+    const nextConfig = getImageModelConfig(id);
+    const limit = nextConfig.maxInputImages ?? 0;
+    if (limit === 0) {
+      setReferenceImages([]);
+    } else if (referenceImages.length > limit) {
+      setReferenceImages((prev) => prev.slice(0, limit));
+    }
     setInternalModel(id as ImageModelId);
     onSelectModel?.(id);
   };
-  const currentModelConfig = getImageModelConfig(selectedModel);
 
   const [aspectRatio, setAspectRatio] = useState(currentModelConfig.defaultAspectRatio);
   const [resolution, setResolution] = useState(currentModelConfig.defaultResolution ?? "");
-  const [isEditMode, setIsEditMode] = useState(false);
-  const [referenceImageUrl, setReferenceImageUrl] = useState<string | null>(null);
+  const [referenceImages, setReferenceImages] = useState<string[]>([]);
   const [isUploadingRef, setIsUploadingRef] = useState(false);
   const [activePreviewImage, setActivePreviewImage] = useState<GeneratedImage | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [isParamsModalOpen, setIsParamsModalOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useAutoResizeTextarea(prompt, 140);
@@ -114,14 +125,6 @@ export default function ImageStudioFlow({
         : (currentModelConfig.defaultResolution ?? currentModelConfig.resolutions[0]))
     : "";
 
-  const effectiveIsEditMode = !currentModelConfig.canEdit
-    ? false
-    : !currentModelConfig.canGenerate
-      ? true
-      : isEditMode;
-
-  const effectiveReferenceImageUrl = effectiveIsEditMode ? referenceImageUrl : null;
-
   const handleCopyPrompt = async (e: React.MouseEvent, img: GeneratedImage) => {
     e.stopPropagation();
     await navigator.clipboard.writeText(img.prompt);
@@ -130,19 +133,30 @@ export default function ImageStudioFlow({
   };
 
   const handleUseAsReference = (url: string) => {
-    if (!currentModelConfig.canEdit) return;
-    setReferenceImageUrl(url);
-    setIsEditMode(true);
+    if (maxInputImages <= 0) return;
+    if (!referenceImages.includes(url)) {
+      if (referenceImages.length >= maxInputImages) {
+        setReferenceImages((prev) => [...prev.slice(1), url]);
+      } else {
+        setReferenceImages((prev) => [...prev, url]);
+      }
+    }
     if (!prompt) setPrompt("Enhance this image with high detail and cinematic lighting");
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !sessionId) return;
+    const files = Array.from(e.target.files ?? []);
+    if (files.length === 0 || !sessionId || maxInputImages <= 0) return;
+    const remainingSlots = Math.max(0, maxInputImages - referenceImages.length);
+    if (remainingSlots <= 0) return;
+    const filesToUpload = files.slice(0, remainingSlots);
+
     setIsUploadingRef(true);
     try {
-      const uploaded = await uploadAttachment(sessionId, file);
-      setReferenceImageUrl(uploaded.url);
+      const uploadPromises = filesToUpload.map((file) => uploadAttachment(sessionId, file));
+      const uploadedAttachments = await Promise.all(uploadPromises);
+      const newUrls = uploadedAttachments.map((a) => a.url);
+      setReferenceImages((prev) => [...prev, ...newUrls].slice(0, maxInputImages));
     } catch {
     } finally {
       setIsUploadingRef(false);
@@ -150,9 +164,35 @@ export default function ImageStudioFlow({
     }
   };
 
+  const handleDropFiles = async (files: File[]) => {
+    if (!sessionId || isGenerating || maxInputImages <= 0) return;
+    const imageFiles = files.filter((f) => f.type.startsWith("image/"));
+    if (imageFiles.length === 0) return;
+    const remainingSlots = Math.max(0, maxInputImages - referenceImages.length);
+    if (remainingSlots <= 0) return;
+    const filesToUpload = imageFiles.slice(0, remainingSlots);
+
+    setIsUploadingRef(true);
+    try {
+      const uploadPromises = filesToUpload.map((file) => uploadAttachment(sessionId, file));
+      const uploadedAttachments = await Promise.all(uploadPromises);
+      const newUrls = uploadedAttachments.map((a) => a.url);
+      setReferenceImages((prev) => [...prev, ...newUrls].slice(0, maxInputImages));
+    } catch {
+    } finally {
+      setIsUploadingRef(false);
+    }
+  };
+
+  const { isDragging, dropHandlers } = useFileDropZone({
+    isEnabled: Boolean(sessionId) && !isGenerating,
+    onDropFiles: handleDropFiles,
+  });
+
   const handleSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
     if (!prompt.trim() || isGenerating) return;
+    setError(null);
     const options: ImageOptions = {
       aspectRatio: effectiveAspectRatio,
       size: SIZE_MAP[effectiveAspectRatio] ?? "1024x1024",
@@ -160,8 +200,22 @@ export default function ImageStudioFlow({
       outputFormat: "png",
       ...(effectiveResolution ? { resolution: effectiveResolution } : {}),
     };
-    await onGenerate(prompt.trim(), selectedModel, options, effectiveReferenceImageUrl ?? undefined);
+    const refUrls = [...referenceImages];
+    const promptToSend = prompt.trim();
     setPrompt("");
+    setReferenceImages([]);
+    try {
+      await onGenerate(
+        promptToSend,
+        selectedModel,
+        options,
+        refUrls.length === 1 ? refUrls[0] : refUrls.length > 1 ? refUrls : undefined
+      );
+    } catch (genError) {
+      setPrompt(promptToSend);
+      setReferenceImages(refUrls);
+      setError(genError instanceof Error ? genError.message : "Gagal membuat gambar.");
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -174,8 +228,28 @@ export default function ImageStudioFlow({
     }
   };
 
+  const handlePreviewReference = (url: string) => {
+    setActivePreviewImage({
+      id: "ref-preview",
+      sessionId: sessionId ?? "",
+      prompt: "Reference Image",
+      url,
+      createdAt: new Date().toISOString(),
+    });
+  };
+
   return (
-    <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-[#131314]">
+    <div
+      {...dropHandlers}
+      className="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-[#131314]"
+    >
+      <ImageStudioDropOverlay
+        isVisible={isDragging}
+        maxInputImages={maxInputImages}
+        currentCount={referenceImages.length}
+        modelLabel={currentModelConfig.label}
+      />
+
       <div
         className={`custom-scrollbar flex-1 overflow-y-auto py-4 ${
           isCanvasEmpty ? `${CHAT_COLUMN_CLASS} ${CHAT_GUTTER_CLASS}` : "px-4 sm:px-6 md:px-8"
@@ -200,7 +274,7 @@ export default function ImageStudioFlow({
             </div>
             <h3 className="mt-4 text-base font-semibold text-white">Google Flow Image Canvas</h3>
             <p className="mt-1 max-w-md text-xs text-slate-400 leading-relaxed">
-              Generate images from text or upload a reference image to edit and transform with state-of-the-art vision models.
+              Generate images from text or attach reference images via upload and drag-and-drop to transform with state-of-the-art vision models.
             </p>
             <div className="mt-5 flex flex-wrap justify-center gap-2">
               {[
@@ -279,7 +353,7 @@ export default function ImageStudioFlow({
                       <span className="text-[10px] font-mono text-slate-400">
                         {new Date(img.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                       </span>
-                      {currentModelConfig.canEdit && (
+                      {maxInputImages > 0 && (
                         <button
                           type="button"
                           onClick={(e) => {
@@ -289,7 +363,7 @@ export default function ImageStudioFlow({
                           className="inline-flex items-center gap-1 rounded-md bg-cyan-600/80 hover:bg-cyan-500 px-2 py-0.5 text-[10px] font-semibold text-white transition-colors"
                         >
                           <Wand2 className="h-2.5 w-2.5" />
-                          <span>Edit</span>
+                          <span>Use as Ref</span>
                         </button>
                       )}
                     </div>
@@ -306,38 +380,9 @@ export default function ImageStudioFlow({
           onSubmit={handleSubmit}
           className="pointer-events-auto w-full max-w-4xl space-y-2 rounded-2xl sm:rounded-3xl border border-white/[0.12] bg-[#1e1f20]/80 p-2 sm:p-2.5 shadow-[0_12px_40px_rgba(0,0,0,0.65),0_1px_0_rgba(255,255,255,0.1)_inset] backdrop-blur-2xl transition-all"
         >
-          <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
-            <div className="flex items-center gap-1 rounded-xl border border-white/[0.08] bg-white/[0.04] p-0.5 backdrop-blur-md">
-              {currentModelConfig.canGenerate && (
-                <button
-                  type="button"
-                  onClick={() => { setIsEditMode(false); setReferenceImageUrl(null); }}
-                  className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
-                    !effectiveIsEditMode
-                      ? "bg-white/[0.14] text-white shadow-sm"
-                      : "text-slate-400 hover:text-white"
-                  }`}
-                >
-                  <Sparkles className="h-3 w-3 text-cyan-400" />
-                  <span>Text to Image</span>
-                </button>
-              )}
-              {currentModelConfig.canEdit && (
-                <button
-                  type="button"
-                  onClick={() => setIsEditMode(true)}
-                  className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
-                    effectiveIsEditMode
-                      ? "bg-white/[0.14] text-white shadow-sm"
-                      : "text-slate-400 hover:text-white"
-                  }`}
-                >
-                  <Wand2 className="h-3 w-3 text-cyan-400" />
-                  <span>Edit Image</span>
-                </button>
-              )}
-            </div>
+          {error && <ChatErrorBanner message={error} onDismiss={() => setError(null)} />}
 
+          <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
             <div className="flex flex-wrap items-center gap-2">
               <ModelSelector
                 mode="image"
@@ -366,46 +411,64 @@ export default function ImageStudioFlow({
                 <ChevronDown className="h-3 w-3 text-slate-400" />
               </button>
             </div>
-          </div>
 
-          {effectiveIsEditMode && currentModelConfig.canEdit && (
-            <div className="flex items-center gap-2 rounded-xl border border-cyan-500/30 bg-cyan-950/20 px-3 py-1.5">
+            <div className="flex items-center gap-2">
               <input
                 ref={fileInputRef}
                 type="file"
                 accept="image/*"
+                multiple={maxInputImages > 1}
                 onChange={handleFileChange}
                 className="hidden"
               />
-              {effectiveReferenceImageUrl ? (
-                <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-lg border border-cyan-500/50">
-                  <Image src={effectiveReferenceImageUrl} alt="Reference" fill className="object-cover" unoptimized />
-                  <button
-                    type="button"
-                    onClick={() => setReferenceImageUrl(null)}
-                    className="absolute top-0 right-0 rounded-bl bg-black/80 p-0.5 text-white hover:text-rose-400"
-                  >
-                    <X className="h-2.5 w-2.5" />
-                  </button>
-                </div>
-              ) : (
+
+              {maxInputImages > 0 ? (
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  disabled={isUploadingRef}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-cyan-500/50 bg-cyan-900/30 px-2.5 py-1 text-xs font-semibold text-cyan-200 hover:bg-cyan-900/50 transition-colors"
+                  disabled={isGenerating || isUploadingRef || referenceImages.length >= maxInputImages}
+                  title={
+                    referenceImages.length >= maxInputImages
+                      ? `Maksimal ${maxInputImages} gambar referensi tercapai`
+                      : `Tambah gambar referensi (${referenceImages.length}/${maxInputImages}) atau Drag & Drop`
+                  }
+                  className={`flex items-center gap-1.5 rounded-xl border px-2.5 py-1 text-xs font-semibold backdrop-blur-md transition-all cursor-pointer ${
+                    referenceImages.length > 0
+                      ? "border-cyan-500/40 bg-cyan-950/40 text-cyan-200 shadow-sm"
+                      : "border-white/[0.08] bg-white/[0.04] text-slate-300 hover:bg-white/[0.08] hover:text-white"
+                  } disabled:cursor-not-allowed disabled:opacity-40`}
                 >
-                  {isUploadingRef ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Upload className="h-3.5 w-3.5" />}
-                  <span>Upload Reference</span>
+                  {isUploadingRef ? (
+                    <Loader2 className="h-3 w-3 animate-spin text-cyan-400" />
+                  ) : (
+                    <ImagePlus className="h-3 w-3 text-cyan-400" />
+                  )}
+                  <span>Reference</span>
+                  <span className="font-mono text-[10px] text-cyan-300/80">
+                    ({referenceImages.length}/{maxInputImages})
+                  </span>
                 </button>
+              ) : (
+                <span
+                  title="Model ini tidak mendukung gambar referensi"
+                  className="flex items-center gap-1 rounded-xl border border-white/[0.06] bg-white/[0.02] px-2.5 py-1 text-[11px] font-medium text-slate-500"
+                >
+                  <span>Text-only (Max 0 Ref)</span>
+                </span>
               )}
-              <span className="text-[11px] text-slate-300 truncate">
-                {effectiveReferenceImageUrl
-                  ? `Reference loaded (Max ${currentModelConfig.maxInputImages} image). Type edit instructions below.`
-                  : `Upload reference image (Max ${currentModelConfig.maxInputImages} image).`}
-              </span>
             </div>
-          )}
+          </div>
+
+          <ImageReferenceTray
+            referenceImages={referenceImages}
+            maxInputImages={maxInputImages}
+            isUploading={isUploadingRef}
+            onRemoveImage={(idx) => setReferenceImages((prev) => prev.filter((_, i) => i !== idx))}
+            onClearAll={() => setReferenceImages([])}
+            onAddClick={() => fileInputRef.current?.click()}
+            onPreviewImage={handlePreviewReference}
+            disabled={isGenerating}
+          />
 
           <div className="relative flex items-end rounded-xl sm:rounded-2xl border border-white/[0.08] bg-white/[0.03] p-1 shadow-inner transition-all focus-within:border-white/[0.2] focus-within:bg-white/[0.06]">
             <textarea
@@ -414,8 +477,13 @@ export default function ImageStudioFlow({
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder={effectiveIsEditMode ? "Describe how to edit the image (e.g. change background to sunset beach)..." : "Describe the image you want to generate in detail..."}
-              disabled={isGenerating}
+              placeholder={
+                referenceImages.length > 0
+                  ? "Describe what to generate or how to transform the reference image(s)..."
+                  : maxInputImages > 0
+                    ? "Describe the image you want to generate in detail (or drag & drop reference images)..."
+                    : "Describe the image you want to generate in detail..."
+              }
               className="custom-scrollbar block w-full resize-none bg-transparent px-3 py-2 text-base sm:text-sm text-white placeholder-[#9aa0a6] focus:outline-none"
             />
             <button
@@ -423,8 +491,14 @@ export default function ImageStudioFlow({
               disabled={!prompt.trim() || isGenerating}
               className="mb-1 mr-1 inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 px-3.5 py-2 text-xs font-semibold text-white shadow-md hover:brightness-110 disabled:opacity-40 transition-all active:scale-95 shrink-0"
             >
-              {isGenerating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
-              <span>{effectiveIsEditMode ? "Edit" : "Generate"}</span>
+              {isGenerating ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : referenceImages.length > 0 ? (
+                <Wand2 className="h-3.5 w-3.5" />
+              ) : (
+                <Sparkles className="h-3.5 w-3.5" />
+              )}
+              <span>{referenceImages.length > 0 ? "Generate with Ref" : "Generate"}</span>
             </button>
           </div>
         </form>

@@ -6,6 +6,7 @@ export interface ImageGenerationPayload {
   model: ImageModelId;
   options: ImageOptions;
   referenceImageUrl?: string;
+  referenceImageUrls?: string[];
 }
 
 export type ImagePayloadValidationResult =
@@ -14,7 +15,7 @@ export type ImagePayloadValidationResult =
 
 export function validateImagePayload(body: unknown): ImagePayloadValidationResult {
   if (!body || typeof body !== "object") return { valid: false, reason: "Invalid JSON body" };
-  const { prompt, model, options, referenceImageUrl } = body as Record<string, unknown>;
+  const { prompt, model, options, referenceImageUrl, referenceImageUrls } = body as Record<string, unknown>;
 
   const trimmedPrompt = typeof prompt === "string" ? prompt.trim() : "";
   if (!trimmedPrompt || trimmedPrompt.length > MAX_IMAGE_PROMPT_LENGTH) {
@@ -31,13 +32,25 @@ export function validateImagePayload(body: unknown): ImagePayloadValidationResul
     ? referenceImageUrl.trim()
     : undefined;
 
+  const resolvedRefUrls = Array.isArray(referenceImageUrls)
+    ? referenceImageUrls.filter((item): item is string => typeof item === "string" && item.trim().length > 0)
+    : undefined;
+
+  const finalRefUrls = resolvedRefUrls && resolvedRefUrls.length > 0
+    ? resolvedRefUrls
+    : resolvedRefUrl
+      ? [resolvedRefUrl]
+      : undefined;
+
   return {
     valid: true,
     payload: {
       prompt: trimmedPrompt,
       model: resolvedModel,
       options: resolvedOptions,
-      ...(resolvedRefUrl ? { referenceImageUrl: resolvedRefUrl } : {}),
+      ...(finalRefUrls && finalRefUrls.length > 0
+        ? { referenceImageUrl: finalRefUrls[0], referenceImageUrls: finalRefUrls }
+        : {}),
     },
   };
 }

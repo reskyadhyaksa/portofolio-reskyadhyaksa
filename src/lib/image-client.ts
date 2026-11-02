@@ -1,9 +1,10 @@
 import fs from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 import { UPLOAD_PUBLIC_PREFIX } from "./chat-config";
+import { extractExtension } from "./file-validation";
 import type { ImageOptions } from "./image-options";
 import { postRouterJson, readRouterEnv, UpstreamError } from "./router-http";
-import { ensureUploadDirectory, resolveUploadPath } from "./upload-storage";
+import { ensureUploadDirectory, fileNameFromPublicUrl, resolveUploadPath } from "./upload-storage";
 
 interface ImageGenerationResponse {
   data?: Array<{ b64_json?: string; url?: string; media_type?: string }>;
@@ -49,11 +50,49 @@ async function storeGeneratedImage(buffer: Buffer, extension: string): Promise<s
   return `${UPLOAD_PUBLIC_PREFIX}${storedFileName}`;
 }
 
+async function resolveReferenceImageUrl(rawUrl: string): Promise<string> {
+  if (rawUrl.startsWith("data:")) return rawUrl;
+
+  let pathname = rawUrl;
+  if (rawUrl.startsWith("http://") || rawUrl.startsWith("https://")) {
+    try {
+      const parsed = new URL(rawUrl);
+      if (
+        parsed.hostname === "localhost" ||
+        parsed.hostname === "127.0.0.1" ||
+        parsed.hostname.startsWith("192.168.") ||
+        parsed.hostname.startsWith("10.")
+      ) {
+        pathname = parsed.pathname;
+      } else {
+        return rawUrl;
+      }
+    } catch {
+      return rawUrl;
+    }
+  }
+
+  const fileName = fileNameFromPublicUrl(pathname);
+  const filePath = fileName ? resolveUploadPath(fileName) : null;
+  if (filePath) {
+    try {
+      const buffer = await fs.readFile(filePath);
+      const ext = extractExtension(filePath) || "png";
+      const mimeType = ext === "jpg" || ext === "jpeg" ? "image/jpeg" : ext === "webp" ? "image/webp" : "image/png";
+      return `data:${mimeType};base64,${buffer.toString("base64")}`;
+    } catch {
+      return rawUrl;
+    }
+  }
+
+  return rawUrl;
+}
+
 export async function generateImage(
   prompt: string,
   model: string,
   options: ImageOptions,
-  referenceImageUrl?: string | null,
+  referenceImageUrls?: string[] | string | null,
   signal?: AbortSignal
 ): Promise<string> {
   const endpoint = readRouterEnv("AI_IMAGE_BASE_URL");
@@ -71,13 +110,18 @@ export async function generateImage(
     requestBody.resolution = options.resolution;
   }
 
-  if (referenceImageUrl) {
-    requestBody.input_references = [
-      {
-        type: "image_url",
-        image_url: { url: referenceImageUrl },
-      },
-    ];
+  const urls = Array.isArray(referenceImageUrls)
+    ? referenceImageUrls.filter((item): item is string => typeof item === "string" && item.trim().length > 0)
+    : typeof referenceImageUrls === "string" && referenceImageUrls.trim().length > 0
+      ? [referenceImageUrls.trim()]
+      : [];
+
+  if (urls.length > 0) {
+    const resolvedUrls = await Promise.all(urls.map(resolveReferenceImageUrl));
+    requestBody.input_references = resolvedUrls.map((url) => ({
+      type: "image_url",
+      image_url: { url },
+    }));
   }
 
   const payload = await postRouterJson<ImageGenerationResponse>(endpoint, requestBody, signal);

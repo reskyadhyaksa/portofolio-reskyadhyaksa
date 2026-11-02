@@ -131,15 +131,24 @@ export function requestImageGeneration(
   prompt: string,
   model: string,
   options: ImageOptions,
-  referenceImageUrlOrSignal?: string | AbortSignal | null,
+  referenceImageOrSignal?: string | string[] | AbortSignal | null,
   optionalSignal?: AbortSignal
 ): Promise<ImageGenerationResult> {
-  const referenceImageUrl = typeof referenceImageUrlOrSignal === "string" ? referenceImageUrlOrSignal : undefined;
-  const signal = referenceImageUrlOrSignal instanceof AbortSignal ? referenceImageUrlOrSignal : optionalSignal;
+  const isSignal = referenceImageOrSignal instanceof AbortSignal;
+  const signal = isSignal ? referenceImageOrSignal : optionalSignal;
+  const referenceImageUrl = typeof referenceImageOrSignal === "string" ? referenceImageOrSignal : undefined;
+  const referenceImageUrls = Array.isArray(referenceImageOrSignal) ? referenceImageOrSignal : undefined;
+
   return requestJson<ImageGenerationResult>("/api/images", sessionId, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ prompt, model, options, referenceImageUrl }),
+    body: JSON.stringify({
+      prompt,
+      model,
+      options,
+      ...(referenceImageUrl ? { referenceImageUrl } : {}),
+      ...(referenceImageUrls && referenceImageUrls.length > 0 ? { referenceImageUrls } : {}),
+    }),
     signal,
   });
 }

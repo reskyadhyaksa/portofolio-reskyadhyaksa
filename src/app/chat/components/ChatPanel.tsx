@@ -72,7 +72,7 @@ export default function ChatPanel({
     prompt: string,
     model: ImageModelId,
     options: ImageOptions,
-    referenceImageUrl?: string
+    referenceImageUrl?: string | string[]
   ) => {
     if (!sessionId) return;
     setIsGeneratingStudioImage(true);

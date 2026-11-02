@@ -17,14 +17,22 @@ export async function generateImageInChat(
   payload: ImageGenerationPayload,
   signal?: AbortSignal
 ): Promise<ImageChatResult> {
+  const urls = payload.referenceImageUrls && payload.referenceImageUrls.length > 0
+    ? payload.referenceImageUrls
+    : payload.referenceImageUrl
+      ? [payload.referenceImageUrl]
+      : [];
+
   const userMessage = insertMessage({
     sessionId,
     role: "user",
     content: payload.prompt,
     model: payload.model,
-    attachments: payload.referenceImageUrl
-      ? [{ url: payload.referenceImageUrl, type: "image", name: "Reference Image" }]
-      : [],
+    attachments: urls.map((url, index) => ({
+      url,
+      type: "image",
+      name: urls.length > 1 ? `Reference Image ${index + 1}` : "Reference Image",
+    })),
   });
   let storedUrl: string | null = null;
 
@@ -33,7 +41,7 @@ export async function generateImageInChat(
       payload.prompt,
       payload.model,
       payload.options,
-      payload.referenceImageUrl,
+      urls,
       signal
     );
     const image = insertGeneratedImage(sessionId, payload.prompt, storedUrl);

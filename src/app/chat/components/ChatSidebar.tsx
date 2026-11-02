@@ -210,7 +210,7 @@ export default function ChatSidebar({
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={searchPlaceholder}
             aria-label={searchPlaceholder}
-            className="h-7.5 w-full rounded-lg border border-white/[0.08] bg-white/[0.03] pl-8 pr-7 text-[11px] text-white placeholder-slate-500 focus:border-[#8ab4f8] focus:bg-white/[0.06] focus:outline-none"
+            className="h-7.5 w-full rounded-lg border border-white/[0.08] bg-white/[0.03] pl-8 pr-7 text-base sm:text-[11px] text-white placeholder-slate-500 focus:border-[#8ab4f8] focus:bg-white/[0.06] focus:outline-none"
           />
           {searchQuery.length > 0 && (
             <button

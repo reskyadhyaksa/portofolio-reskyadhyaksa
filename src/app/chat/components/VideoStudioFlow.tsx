@@ -275,7 +275,7 @@ export default function VideoStudioFlow({
               onChange={(e) => setPrompt(e.target.value)}
               placeholder="Describe the video you want to generate (e.g. drone camera orbiting a mountain castle)..."
               disabled={isGenerating}
-              className="w-full bg-transparent px-3.5 py-2.5 text-xs sm:text-sm text-white placeholder-[#9aa0a6] focus:outline-none"
+              className="w-full bg-transparent px-3.5 py-2.5 text-base sm:text-sm text-white placeholder-[#9aa0a6] focus:outline-none"
             />
             <button
               type="submit"

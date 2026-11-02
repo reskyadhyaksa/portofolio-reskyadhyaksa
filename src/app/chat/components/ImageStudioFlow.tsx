@@ -402,7 +402,7 @@ export default function ImageStudioFlow({
               onChange={(e) => setPrompt(e.target.value)}
               placeholder={effectiveIsEditMode ? "Describe how to edit the image (e.g. change background to sunset beach)..." : "Describe the image you want to generate in detail..."}
               disabled={isGenerating}
-              className="w-full bg-transparent px-3.5 py-2.5 text-xs sm:text-sm text-white placeholder-[#9aa0a6] focus:outline-none"
+              className="w-full bg-transparent px-3.5 py-2.5 text-base sm:text-sm text-white placeholder-[#9aa0a6] focus:outline-none"
             />
             <button
               type="submit"

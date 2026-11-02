@@ -184,7 +184,7 @@ export default function ChatInput({
         onKeyDown={handleKeyDown}
         onPaste={handlePaste}
         placeholder={isImageMode ? "Describe the image to generate…" : "Ask anything…"}
-        className="custom-scrollbar block w-full resize-none bg-transparent px-2.5 sm:px-3 pb-0.5 pt-1.5 sm:pt-2 text-xs sm:text-[13px] leading-snug sm:leading-5 text-[#e3e3e3] placeholder:text-[#9aa0a6] focus:outline-none disabled:cursor-not-allowed"
+        className="custom-scrollbar block w-full resize-none bg-transparent px-2.5 sm:px-3 pb-0.5 pt-1.5 sm:pt-2 text-base sm:text-[13px] leading-snug sm:leading-5 text-[#e3e3e3] placeholder:text-[#9aa0a6] focus:outline-none disabled:cursor-not-allowed"
       />
 
       <div className="flex items-center justify-between gap-2 px-1 pt-0.5 sm:pt-1">

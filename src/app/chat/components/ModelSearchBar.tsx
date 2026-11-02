@@ -35,7 +35,7 @@ export default function ModelSearchBar({
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
         aria-label="Search models"
-        className="h-8.5 sm:h-10 w-full rounded-xl border border-white/[0.08] bg-white/[0.04] pl-8 sm:pl-9 pr-20 sm:pr-24 text-xs sm:text-[13px] text-white placeholder-[#9aa0a6] backdrop-blur-md transition-all duration-200 hover:border-white/[0.14] focus:border-[#8ab4f8] focus:bg-white/[0.06] focus:outline-none focus:ring-1 focus:ring-[#8ab4f8]"
+        className="h-8.5 sm:h-10 w-full rounded-xl border border-white/[0.08] bg-white/[0.04] pl-8 sm:pl-9 pr-20 sm:pr-24 text-base sm:text-[13px] text-white placeholder-[#9aa0a6] backdrop-blur-md transition-all duration-200 hover:border-white/[0.14] focus:border-[#8ab4f8] focus:bg-white/[0.06] focus:outline-none focus:ring-1 focus:ring-[#8ab4f8]"
       />
       <div className="absolute right-2 flex items-center gap-1.5">
         {value.length > 0 && (

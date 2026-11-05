@@ -9,6 +9,12 @@ export function isCodeExtension(extension: string): boolean {
   return CODE_EXTENSION_SET.has(extension);
 }
 
+export function isImageFile(file: { name: string; type?: string }): boolean {
+  if (file.type && file.type.startsWith("image/")) return true;
+  const extension = extractExtension(file.name);
+  return IMAGE_EXTENSION_SET.has(extension);
+}
+
 const DOCUMENT_MIME_TYPES = new Set([
   "application/pdf",
   "application/msword",
@@ -42,7 +48,10 @@ export function validateUploadFile(file: File): FileValidationResult {
 
   const extension = extractExtension(file.name);
 
-  if (IMAGE_EXTENSION_SET.has(extension) && file.type.startsWith("image/")) {
+  if (
+    IMAGE_EXTENSION_SET.has(extension) &&
+    (file.type.startsWith("image/") || !file.type || file.type === "application/octet-stream")
+  ) {
     return { valid: true, kind: "image", extension };
   }
 

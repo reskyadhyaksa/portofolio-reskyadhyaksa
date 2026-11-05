@@ -50,7 +50,7 @@ async function storeGeneratedImage(buffer: Buffer, extension: string): Promise<s
   return `${UPLOAD_PUBLIC_PREFIX}${storedFileName}`;
 }
 
-async function resolveReferenceImageUrl(rawUrl: string): Promise<string> {
+export async function resolveReferenceImageUrl(rawUrl: string): Promise<string> {
   if (rawUrl.startsWith("data:")) return rawUrl;
 
   let pathname = rawUrl;

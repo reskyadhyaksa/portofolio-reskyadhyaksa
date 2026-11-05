@@ -8,9 +8,19 @@ interface FileDropZoneOptions {
 }
 
 function hasFiles(event: DragEvent<HTMLElement>): boolean {
-  if (!event.dataTransfer?.types) return false;
-  const types = Array.from(event.dataTransfer.types);
-  return types.some((t) => t.toLowerCase() === "files" || t === "text/uri-list" || t === "text/plain");
+  const dt = event.dataTransfer;
+  if (!dt) return false;
+  if (dt.files && dt.files.length > 0) return true;
+  if (!dt.types) return false;
+  const types = Array.from(dt.types).map((t) => t.toLowerCase());
+  return types.some(
+    (t) =>
+      t === "files" ||
+      t === "text/uri-list" ||
+      t === "text/plain" ||
+      t === "text/html" ||
+      t.includes("file")
+  );
 }
 
 export function useFileDropZone({ isEnabled, onDropFiles, onDropUrl }: FileDropZoneOptions) {
@@ -35,41 +45,55 @@ export function useFileDropZone({ isEnabled, onDropFiles, onDropUrl }: FileDropZ
 
   const onDragOver = useCallback(
     (event: DragEvent<HTMLElement>) => {
-      if (!hasFiles(event)) return;
       event.preventDefault();
       event.stopPropagation();
-      event.dataTransfer.dropEffect = isEnabled ? "copy" : "none";
+      if (event.dataTransfer) {
+        event.dataTransfer.dropEffect = isEnabled ? "copy" : "none";
+      }
     },
     [isEnabled]
   );
 
-  const onDragLeave = useCallback(
-    (event: DragEvent<HTMLElement>) => {
-      if (!hasFiles(event)) return;
-      event.preventDefault();
-      event.stopPropagation();
-      dragDepthRef.current = Math.max(dragDepthRef.current - 1, 0);
-      if (dragDepthRef.current === 0) setIsDragging(false);
-    },
-    []
-  );
+  const onDragLeave = useCallback((event: DragEvent<HTMLElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    dragDepthRef.current = Math.max(dragDepthRef.current - 1, 0);
+    if (dragDepthRef.current === 0) setIsDragging(false);
+  }, []);
 
   const onDrop = useCallback(
     (event: DragEvent<HTMLElement>) => {
-      if (!hasFiles(event)) return;
       event.preventDefault();
       event.stopPropagation();
       resetDrag();
       if (!isEnabled) return;
 
-      const files = Array.from(event.dataTransfer.files);
+      const files = event.dataTransfer?.files ? Array.from(event.dataTransfer.files) : [];
       if (files.length > 0) {
         onDropFiles(files);
         return;
       }
 
-      const uri = event.dataTransfer.getData("text/uri-list") || event.dataTransfer.getData("URL") || event.dataTransfer.getData("text/plain");
-      if (uri && (uri.startsWith("http://") || uri.startsWith("https://") || uri.startsWith("/uploads/"))) {
+      let uri =
+        event.dataTransfer.getData("text/uri-list") ||
+        event.dataTransfer.getData("URL") ||
+        event.dataTransfer.getData("text/plain");
+
+      if (!uri) {
+        const html = event.dataTransfer.getData("text/html");
+        if (html) {
+          const match = html.match(/src=["']([^"']+)["']/i);
+          if (match) uri = match[1];
+        }
+      }
+
+      if (
+        uri &&
+        (uri.startsWith("http://") ||
+          uri.startsWith("https://") ||
+          uri.startsWith("/uploads/") ||
+          uri.startsWith("data:image/"))
+      ) {
         onDropUrl?.(uri.trim());
       }
     },

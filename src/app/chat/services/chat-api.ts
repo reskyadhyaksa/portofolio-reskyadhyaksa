@@ -177,6 +177,7 @@ export interface RequestVideoParams {
   duration?: number;
   resolution?: string;
   aspectRatio?: string;
+  referenceImageUrls?: string[];
 }
 
 export function requestVideoGeneration(

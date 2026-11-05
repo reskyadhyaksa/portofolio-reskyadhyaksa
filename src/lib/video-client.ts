@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 import { UPLOAD_PUBLIC_PREFIX } from "./chat-config";
+import { resolveReferenceImageUrl } from "./image-client";
 import { postRouterJson, getRouterJson, readRouterApiKey, UpstreamError } from "./router-http";
 import { ensureUploadDirectory, resolveUploadPath } from "./upload-storage";
 
@@ -23,17 +24,28 @@ export interface CreateVideoParams {
   duration?: number;
   resolution?: string;
   aspectRatio?: string;
+  referenceImageUrls?: string[];
 }
 
 export async function createVideoJob(params: CreateVideoParams, signal?: AbortSignal): Promise<VideoJobCreationResponse> {
   const endpoint = process.env.AI_VIDEO_BASE_URL || "https://gateway.yupi.ai.id/v1/videos";
-  const body = {
+  const body: Record<string, unknown> = {
     model: params.model,
     prompt: params.prompt,
     duration: params.duration ?? 5,
     resolution: params.resolution ?? "720p",
     aspect_ratio: params.aspectRatio ?? "16:9",
   };
+
+  if (params.referenceImageUrls && params.referenceImageUrls.length > 0) {
+    const resolvedUrls = await Promise.all(params.referenceImageUrls.map(resolveReferenceImageUrl));
+    body.input_references = resolvedUrls.map((url) => ({
+      type: "image_url",
+      image_url: { url },
+    }));
+    body.image_url = resolvedUrls[0];
+  }
+
   const idempotencyKey = `video-${Date.now()}-${randomUUID().slice(0, 8)}`;
 
   return postRouterJson<VideoJobCreationResponse>(endpoint, body, signal, {

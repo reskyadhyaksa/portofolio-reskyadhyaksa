@@ -39,9 +39,15 @@ export async function POST(request: Request) {
   const resolution = typeof body.resolution === "string" ? body.resolution : "720p";
   const aspectRatio = typeof body.aspectRatio === "string" ? body.aspectRatio : "16:9";
 
+  const referenceImageUrls = Array.isArray(body.referenceImageUrls)
+    ? (body.referenceImageUrls.filter((item): item is string => typeof item === "string" && item.trim().length > 0) as string[])
+    : typeof body.referenceImageUrl === "string" && body.referenceImageUrl.trim().length > 0
+      ? [body.referenceImageUrl.trim()]
+      : undefined;
+
   try {
     const job = await createVideoJob(
-      { prompt, model, duration, resolution, aspectRatio },
+      { prompt, model, duration, resolution, aspectRatio, referenceImageUrls },
       request.signal
     );
 

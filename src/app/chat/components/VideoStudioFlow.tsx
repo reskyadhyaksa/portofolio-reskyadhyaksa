@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   Download,
   Video as VideoIcon,
@@ -12,13 +12,20 @@ import {
   AlertCircle,
   SlidersHorizontal,
   ChevronDown,
+  ImagePlus,
 } from "lucide-react";
 import { VIDEO_MODELS, isSupportedVideoModel, type VideoModelId } from "@/lib/chat-config";
 import type { GeneratedVideo } from "@/lib/chat-types";
+import { isImageFile } from "@/lib/file-validation";
 import { getVideoModelConfig } from "@/lib/media-model-catalog";
-import type { RequestVideoParams } from "../services/chat-api";
+import { uploadAttachment, type RequestVideoParams } from "../services/chat-api";
 import { useAutoResizeTextarea } from "../hooks/useAutoResizeTextarea";
+import { useFileDropZone } from "../hooks/useFileDropZone";
 import { CHAT_COLUMN_CLASS, CHAT_GUTTER_CLASS } from "./chat-layout-tokens";
+import ChatErrorBanner from "./ChatErrorBanner";
+import ImagePreviewModal from "./ImagePreviewModal";
+import ImageReferenceTray from "./ImageReferenceTray";
+import ImageStudioDropOverlay from "./ImageStudioDropOverlay";
 import ModelSelector from "./ModelSelector";
 import ParameterPreviewModal from "./ParameterPreviewModal";
 
@@ -32,6 +39,7 @@ interface VideoStudioFlowProps {
 }
 
 export default function VideoStudioFlow({
+  sessionId,
   videos,
   isGenerating,
   onGenerate,
@@ -47,21 +55,34 @@ export default function VideoStudioFlow({
   });
 
   const selectedModel = (externalModel && isSupportedVideoModel(externalModel) ? externalModel : internalModel) as VideoModelId;
-
-  const handleSelectModel = (id: string) => {
-    setInternalModel(id as VideoModelId);
-    onSelectModel?.(id);
-  };
   const currentModelConfig = getVideoModelConfig(selectedModel);
+  const maxInputImages = currentModelConfig.maxInputImages ?? 0;
 
   const [duration, setDuration] = useState(currentModelConfig.defaultDuration);
   const [resolution, setResolution] = useState(currentModelConfig.defaultResolution);
   const [aspectRatio, setAspectRatio] = useState(currentModelConfig.defaultAspectRatio);
+  const [referenceImages, setReferenceImages] = useState<string[]>([]);
+  const [isUploadingRef, setIsUploadingRef] = useState(false);
+  const [activePreviewUrl, setActivePreviewUrl] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [isParamsModalOpen, setIsParamsModalOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useAutoResizeTextarea(prompt, 140);
 
   const isCanvasEmpty = videos.length === 0 && !isGenerating;
+
+  const handleSelectModel = (id: string) => {
+    const nextConfig = getVideoModelConfig(id);
+    const limit = nextConfig.maxInputImages ?? 0;
+    if (limit === 0) {
+      setReferenceImages([]);
+    } else if (referenceImages.length > limit) {
+      setReferenceImages((prev) => prev.slice(0, limit));
+    }
+    setInternalModel(id as VideoModelId);
+    onSelectModel?.(id);
+  };
 
   const effectiveDuration = currentModelConfig.durations.includes(duration)
     ? duration
@@ -81,17 +102,110 @@ export default function VideoStudioFlow({
     setTimeout(() => setCopiedId(null), 2000);
   };
 
+  const handleUseAsReference = (url: string) => {
+    if (maxInputImages <= 0) return;
+    if (!referenceImages.includes(url)) {
+      if (referenceImages.length >= maxInputImages) {
+        setReferenceImages((prev) => [...prev.slice(1), url]);
+      } else {
+        setReferenceImages((prev) => [...prev, url]);
+      }
+    }
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []);
+    if (files.length === 0 || !sessionId || maxInputImages <= 0) return;
+    const imageFiles = files.filter(isImageFile);
+    if (imageFiles.length === 0) {
+      setError("Hanya file gambar yang didukung sebagai referensi (PNG, JPG, WEBP, dll).");
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+    const remainingSlots = Math.max(0, maxInputImages - referenceImages.length);
+    if (remainingSlots <= 0) {
+      setError(`Model ${currentModelConfig.label} hanya mendukung maksimal ${maxInputImages} gambar referensi.`);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+    const filesToUpload = imageFiles.slice(0, remainingSlots);
+
+    setIsUploadingRef(true);
+    setError(null);
+    try {
+      const uploadPromises = filesToUpload.map((file) => uploadAttachment(sessionId, file));
+      const uploadedAttachments = await Promise.all(uploadPromises);
+      const newUrls = uploadedAttachments.map((a) => a.url);
+      setReferenceImages((prev) => [...prev, ...newUrls].slice(0, maxInputImages));
+    } catch (uploadErr) {
+      setError(uploadErr instanceof Error ? uploadErr.message : "Gagal mengunggah gambar referensi.");
+    } finally {
+      setIsUploadingRef(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  const handleDropFiles = async (files: File[]) => {
+    if (!sessionId || maxInputImages <= 0) return;
+    const imageFiles = files.filter(isImageFile);
+    if (imageFiles.length === 0) {
+      setError("Hanya file gambar yang didukung sebagai referensi (PNG, JPG, WEBP, dll).");
+      return;
+    }
+    const remainingSlots = Math.max(0, maxInputImages - referenceImages.length);
+    if (remainingSlots <= 0) {
+      setError(`Model ${currentModelConfig.label} hanya mendukung maksimal ${maxInputImages} gambar referensi.`);
+      return;
+    }
+    const filesToUpload = imageFiles.slice(0, remainingSlots);
+
+    setIsUploadingRef(true);
+    setError(null);
+    try {
+      const uploadPromises = filesToUpload.map((file) => uploadAttachment(sessionId, file));
+      const uploadedAttachments = await Promise.all(uploadPromises);
+      const newUrls = uploadedAttachments.map((a) => a.url);
+      setReferenceImages((prev) => [...prev, ...newUrls].slice(0, maxInputImages));
+    } catch (uploadErr) {
+      setError(uploadErr instanceof Error ? uploadErr.message : "Gagal mengunggah gambar referensi.");
+    } finally {
+      setIsUploadingRef(false);
+    }
+  };
+
+  const handleDropUrl = (url: string) => {
+    if (maxInputImages <= 0) return;
+    handleUseAsReference(url);
+  };
+
+  const { isDragging, dropHandlers } = useFileDropZone({
+    isEnabled: Boolean(sessionId) && maxInputImages > 0,
+    onDropFiles: handleDropFiles,
+    onDropUrl: handleDropUrl,
+  });
+
   const handleSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
     if (!prompt.trim() || isGenerating) return;
-    await onGenerate({
-      prompt: prompt.trim(),
-      model: selectedModel,
-      duration: effectiveDuration,
-      resolution: effectiveResolution,
-      aspectRatio: effectiveAspectRatio,
-    });
+    setError(null);
+    const promptToSend = prompt.trim();
+    const refsToSend = [...referenceImages];
     setPrompt("");
+    setReferenceImages([]);
+    try {
+      await onGenerate({
+        prompt: promptToSend,
+        model: selectedModel,
+        duration: effectiveDuration,
+        resolution: effectiveResolution,
+        aspectRatio: effectiveAspectRatio,
+        referenceImageUrls: refsToSend.length > 0 ? refsToSend : undefined,
+      });
+    } catch (genErr) {
+      setPrompt(promptToSend);
+      setReferenceImages(refsToSend);
+      setError(genErr instanceof Error ? genErr.message : "Gagal membuat video.");
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -105,7 +219,17 @@ export default function VideoStudioFlow({
   };
 
   return (
-    <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-[#131314]">
+    <div
+      {...dropHandlers}
+      className="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-[#131314]"
+    >
+      <ImageStudioDropOverlay
+        isVisible={isDragging}
+        maxInputImages={maxInputImages}
+        currentCount={referenceImages.length}
+        modelLabel={currentModelConfig.label}
+      />
+
       <div
         className={`custom-scrollbar flex-1 overflow-y-auto py-4 ${
           isCanvasEmpty ? `${CHAT_COLUMN_CLASS} ${CHAT_GUTTER_CLASS}` : "px-4 sm:px-6 md:px-8"
@@ -244,6 +368,8 @@ export default function VideoStudioFlow({
           onSubmit={handleSubmit}
           className="pointer-events-auto w-full max-w-4xl space-y-2 rounded-2xl sm:rounded-3xl border border-white/[0.12] bg-[#1e1f20]/80 p-2 sm:p-2.5 shadow-[0_12px_40px_rgba(0,0,0,0.65),0_1px_0_rgba(255,255,255,0.1)_inset] backdrop-blur-2xl transition-all"
         >
+          {error && <ChatErrorBanner message={error} onDismiss={() => setError(null)} />}
+
           <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
             <div className="flex items-center gap-2">
               <span className="flex items-center gap-1 text-xs font-semibold text-purple-300">
@@ -277,8 +403,49 @@ export default function VideoStudioFlow({
                 <span className="text-slate-400 text-[11px] font-normal">Options</span>
                 <ChevronDown className="h-3 w-3 text-slate-400" />
               </button>
+
+              {maxInputImages > 0 && (
+                <>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    multiple={maxInputImages > 1}
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isUploadingRef || referenceImages.length >= maxInputImages}
+                    title={`Tambahkan gambar referensi (${referenceImages.length}/${maxInputImages})`}
+                    className="flex items-center gap-1.5 rounded-xl border border-purple-500/25 bg-purple-500/10 px-2.5 py-1 text-xs font-semibold text-purple-300 hover:bg-purple-500/20 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 disabled:opacity-40 disabled:cursor-not-allowed backdrop-blur-md cursor-pointer shrink-0"
+                  >
+                    {isUploadingRef ? (
+                      <Loader2 className="h-3 w-3 animate-spin text-purple-400" />
+                    ) : (
+                      <ImagePlus className="h-3 w-3 text-purple-400" />
+                    )}
+                    <span>Reference</span>
+                    <span className="font-mono text-[10px] text-purple-400">
+                      ({referenceImages.length}/{maxInputImages})
+                    </span>
+                  </button>
+                </>
+              )}
             </div>
           </div>
+
+          <ImageReferenceTray
+            referenceImages={referenceImages}
+            maxInputImages={maxInputImages}
+            isUploading={isUploadingRef}
+            onRemoveImage={(idx) => setReferenceImages((prev) => prev.filter((_, i) => i !== idx))}
+            onClearAll={() => setReferenceImages([])}
+            onAddClick={() => fileInputRef.current?.click()}
+            onPreviewImage={(url) => setActivePreviewUrl(url)}
+            disabled={isGenerating}
+          />
 
           <div className="relative flex items-end rounded-xl sm:rounded-2xl border border-white/[0.08] bg-white/[0.03] p-1 shadow-inner transition-all focus-within:border-white/[0.2] focus-within:bg-white/[0.06]">
             <textarea
@@ -288,7 +455,6 @@ export default function VideoStudioFlow({
               onChange={(e) => setPrompt(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Describe the video you want to generate (e.g. drone camera orbiting a mountain castle)..."
-              disabled={isGenerating}
               className="custom-scrollbar block w-full resize-none bg-transparent px-3 py-2 text-base sm:text-sm text-white placeholder-[#9aa0a6] focus:outline-none"
             />
             <button
@@ -318,6 +484,15 @@ export default function VideoStudioFlow({
           availableDurations={currentModelConfig.durations}
           selectedDuration={effectiveDuration}
           onSelectDuration={setDuration}
+        />
+      )}
+
+      {activePreviewUrl && (
+        <ImagePreviewModal
+          image={{ url: activePreviewUrl, prompt: "Reference Image" }}
+          onClose={() => setActivePreviewUrl(null)}
+          onUseAsReference={handleUseAsReference}
+          sessionId={sessionId}
         />
       )}
     </div>

@@ -18,6 +18,7 @@ import { IMAGE_MODELS, isSupportedImageModel, type ImageModelId } from "@/lib/ch
 import type { GeneratedImage } from "@/lib/chat-types";
 import type { ImageOptions, ImageSizeId } from "@/lib/image-options";
 import { getImageModelConfig } from "@/lib/media-model-catalog";
+import { isImageFile } from "@/lib/file-validation";
 import { uploadAttachment } from "../services/chat-api";
 import { useAutoResizeTextarea } from "../hooks/useAutoResizeTextarea";
 import { useFileDropZone } from "../hooks/useFileDropZone";
@@ -69,11 +70,6 @@ const SIZE_MAP: Record<string, ImageSizeId> = {
   "7:5": "1536x1024",
   "5:7": "1024x1536",
 };
-
-function isImageFile(file: File): boolean {
-  if (file.type && file.type.startsWith("image/")) return true;
-  return /\.(png|jpe?g|webp|gif|bmp|svg|avif)$/i.test(file.name);
-}
 
 export default function ImageStudioFlow({
   sessionId,
@@ -137,7 +133,7 @@ export default function ImageStudioFlow({
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const handleUseAsReference = (url: string) => {
+  const handleUseAsReference = (url: string, suggestedPrompt?: string) => {
     if (maxInputImages <= 0) return;
     if (!referenceImages.includes(url)) {
       if (referenceImages.length >= maxInputImages) {
@@ -146,23 +142,39 @@ export default function ImageStudioFlow({
         setReferenceImages((prev) => [...prev, url]);
       }
     }
-    if (!prompt) setPrompt("Enhance this image with high detail and cinematic lighting");
+    if (suggestedPrompt) {
+      setPrompt(suggestedPrompt);
+    } else if (!prompt) {
+      setPrompt("Enhance this image with high detail and cinematic lighting");
+    }
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
     if (files.length === 0 || !sessionId || maxInputImages <= 0) return;
+    const imageFiles = files.filter(isImageFile);
+    if (imageFiles.length === 0) {
+      setError("Hanya file gambar yang didukung (PNG, JPG, WEBP, GIF, dll).");
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
     const remainingSlots = Math.max(0, maxInputImages - referenceImages.length);
-    if (remainingSlots <= 0) return;
-    const filesToUpload = files.slice(0, remainingSlots);
+    if (remainingSlots <= 0) {
+      setError(`Model ${currentModelConfig.label} hanya mendukung maksimal ${maxInputImages} gambar referensi.`);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+    const filesToUpload = imageFiles.slice(0, remainingSlots);
 
     setIsUploadingRef(true);
+    setError(null);
     try {
       const uploadPromises = filesToUpload.map((file) => uploadAttachment(sessionId, file));
       const uploadedAttachments = await Promise.all(uploadPromises);
       const newUrls = uploadedAttachments.map((a) => a.url);
       setReferenceImages((prev) => [...prev, ...newUrls].slice(0, maxInputImages));
-    } catch {
+    } catch (uploadErr) {
+      setError(uploadErr instanceof Error ? uploadErr.message : "Gagal mengunggah gambar referensi.");
     } finally {
       setIsUploadingRef(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -170,28 +182,42 @@ export default function ImageStudioFlow({
   };
 
   const handleDropFiles = async (files: File[]) => {
-    if (!sessionId || isGenerating || maxInputImages <= 0) return;
-    const imageFiles = files.filter((f) => f.type.startsWith("image/"));
-    if (imageFiles.length === 0) return;
+    if (!sessionId || maxInputImages <= 0) return;
+    const imageFiles = files.filter(isImageFile);
+    if (imageFiles.length === 0) {
+      setError("Hanya file gambar yang didukung (PNG, JPG, WEBP, GIF, dll).");
+      return;
+    }
     const remainingSlots = Math.max(0, maxInputImages - referenceImages.length);
-    if (remainingSlots <= 0) return;
+    if (remainingSlots <= 0) {
+      setError(`Model ${currentModelConfig.label} hanya mendukung maksimal ${maxInputImages} gambar referensi.`);
+      return;
+    }
     const filesToUpload = imageFiles.slice(0, remainingSlots);
 
     setIsUploadingRef(true);
+    setError(null);
     try {
       const uploadPromises = filesToUpload.map((file) => uploadAttachment(sessionId, file));
       const uploadedAttachments = await Promise.all(uploadPromises);
       const newUrls = uploadedAttachments.map((a) => a.url);
       setReferenceImages((prev) => [...prev, ...newUrls].slice(0, maxInputImages));
-    } catch {
+    } catch (uploadErr) {
+      setError(uploadErr instanceof Error ? uploadErr.message : "Gagal mengunggah gambar referensi.");
     } finally {
       setIsUploadingRef(false);
     }
   };
 
+  const handleDropUrl = (url: string) => {
+    if (maxInputImages <= 0) return;
+    handleUseAsReference(url);
+  };
+
   const { isDragging, dropHandlers } = useFileDropZone({
-    isEnabled: Boolean(sessionId) && !isGenerating,
+    isEnabled: Boolean(sessionId) && maxInputImages > 0,
     onDropFiles: handleDropFiles,
+    onDropUrl: handleDropUrl,
   });
 
   const handleSubmit = async (e?: React.FormEvent) => {
@@ -514,6 +540,7 @@ export default function ImageStudioFlow({
           image={activePreviewImage}
           onClose={() => setActivePreviewImage(null)}
           onUseAsReference={handleUseAsReference}
+          sessionId={sessionId}
         />
       )}
 
